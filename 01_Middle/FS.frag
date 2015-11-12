@@ -10,16 +10,7 @@ in vec3 vs_out_ray;
 out vec4 fs_out_col;
 
 
-
-// anyagtulajdonságok
-uniform vec4 Ka = vec4(1, 1, 1, 1);
-uniform vec4 Kd = vec4(0.75f, 0.25f, 0.125f, 1);
-uniform vec4 Ks = vec4(0, 1, 0, 1);
-uniform float specular_power = 16;
-
 uniform vec3 u_eye;
-
-uniform sampler2D texImage;
 
 uniform sampler2D u_sun_texture;
 uniform sampler2D u_earth_texture;

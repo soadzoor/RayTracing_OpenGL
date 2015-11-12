@@ -66,7 +66,7 @@ bool CMyApp::Init()
 
 	//fenyek
 	lights[0].col = glm::vec3(1, 1, 1);
-	lights[0].pos = glm::vec3(0.0, 0.0, 0);
+	lights[0].pos = glm::vec3(0.0, 0.0, 0.0);
 	lights[1].col = glm::vec3(1, 1, 1);
 	lights[1].pos = glm::vec3(-2, 20, 0);
 
@@ -98,6 +98,104 @@ bool CMyApp::Init()
 	arrayOfTriangles[1].A = glm::vec3(-12, -12, -12);
 	arrayOfTriangles[1].B = glm::vec3(12, -12, -12);
 	arrayOfTriangles[1].C = glm::vec3(0, 12, -12);
+
+	//gyemant
+
+	//arrayOfTriangles[2].A = glm::vec3(-0.866, 1.5, 0.75);
+	//arrayOfTriangles[2].B = glm::vec3(-1.732,   0, 0.75);
+	//arrayOfTriangles[2].C = glm::vec3(-0.866, 0.5, 0.0 );
+
+	//arrayOfTriangles[3].A = glm::vec3(-0.866, 0.5, 0.0);
+	//arrayOfTriangles[3].B = glm::vec3(-1.732, 0, 0.75 );
+	//arrayOfTriangles[3].C = glm::vec3(-0.866, -0.5, 0.0);
+
+	//arrayOfTriangles[4].A = glm::vec3(-0.866, -0.5, 0.0);
+	//arrayOfTriangles[4].B = glm::vec3(-1.732, 0, 0.75);
+	//arrayOfTriangles[4].C = glm::vec3(-0.866, -1.5, 0.75);
+
+	//arrayOfTriangles[5].A = glm::vec3(-0.866, -0.5, 0.0);
+	//arrayOfTriangles[5].B = glm::vec3(-0.866, -1.5, 0.75);
+	//arrayOfTriangles[5].C = glm::vec3(0, -1, 0);
+
+	//arrayOfTriangles[6].A = glm::vec3(0, -1, 0);
+	//arrayOfTriangles[6].B = glm::vec3(-0.866, -1.5, 0.75);
+	//arrayOfTriangles[6].C = glm::vec3(0.866, -1.5, 0.75);
+
+	//arrayOfTriangles[7].A = glm::vec3(0, -1, 0);
+	//arrayOfTriangles[7].B = glm::vec3(0.866, -1.5, 0.75);
+	//arrayOfTriangles[7].C = glm::vec3(0.866, -0.5, 0.0);
+
+	//arrayOfTriangles[8].A = glm::vec3(0.866, -0.5, 0.0);
+	//arrayOfTriangles[8].B = glm::vec3(0.866, -1.5, 0.75);
+	//arrayOfTriangles[8].C = glm::vec3(1.732, 0, 0.75);
+
+	//arrayOfTriangles[9].A = glm::vec3(0.866, -0.5, 0.0);
+	//arrayOfTriangles[9].B = glm::vec3(1.732, 0, 0.75);
+	//arrayOfTriangles[9].C = glm::vec3(0.866, 0.5, 0.0);
+
+	//arrayOfTriangles[10].A = glm::vec3(0.866, 0.5, 0.0);
+	//arrayOfTriangles[10].B = glm::vec3(1.732, 0, 0.75);
+	//arrayOfTriangles[10].C = glm::vec3(0.866, 1.5, 0.75);
+
+	//arrayOfTriangles[11].A = glm::vec3(0.866, 0.5, 0.0);
+	//arrayOfTriangles[11].B = glm::vec3(0.866, 1.5, 0.75);
+	//arrayOfTriangles[11].C = glm::vec3(0, 1, 0);
+
+	//arrayOfTriangles[12].A = glm::vec3(0, 1, 0);
+	//arrayOfTriangles[12].B = glm::vec3(0.866, 1.5, 0.75);
+	//arrayOfTriangles[12].C = glm::vec3(-0.866, 1.5, 0.75);
+
+	//arrayOfTriangles[13].A = glm::vec3(0, 1, 0);
+	//arrayOfTriangles[13].B = glm::vec3(-0.866, 1.5, 0.75);
+	//arrayOfTriangles[13].C = glm::vec3(-0.866, 0.5, 0.0);
+	////kozepso 6szog
+	//arrayOfTriangles[14].A = glm::vec3(0, 1, 0);
+	//arrayOfTriangles[14].B = glm::vec3(-0.866, 0.5, 0);
+	//arrayOfTriangles[14].C = glm::vec3(0.0, 0.0, 0.0);
+
+	//arrayOfTriangles[15].A = glm::vec3(-0.866, 0.5, 0);
+	//arrayOfTriangles[15].B = glm::vec3(-0.866, -0.5, 0);
+	//arrayOfTriangles[15].C = glm::vec3(0.0, 0.0, 0.0);
+
+	//arrayOfTriangles[16].A = glm::vec3(-0.866, -0.5, 0);
+	//arrayOfTriangles[16].B = glm::vec3(0, -1, 0);
+	//arrayOfTriangles[16].C = glm::vec3(0.0, 0.0, 0.0);
+
+	//arrayOfTriangles[17].A = glm::vec3(0, -1, 0);
+	//arrayOfTriangles[17].B = glm::vec3(0.866, -0.5, 0);
+	//arrayOfTriangles[17].C = glm::vec3(0.0, 0.0, 0.0);
+
+	//arrayOfTriangles[18].A = glm::vec3(0.866, -0.5, 0);
+	//arrayOfTriangles[18].B = glm::vec3(0.866, 0.5, 0);
+	//arrayOfTriangles[18].C = glm::vec3(0.0, 0.0, 0.0);
+
+	//arrayOfTriangles[19].A = glm::vec3(0.866, 0.5, 0);
+	//arrayOfTriangles[19].B = glm::vec3(0, 1, 0);
+	//arrayOfTriangles[19].C = glm::vec3(0.0, 0.0, 0.0);
+	////dereka
+	//arrayOfTriangles[20].A = glm::vec3(-0.866, 1.5, 0.75);
+	//arrayOfTriangles[20].B = glm::vec3(0.866, 1.5, 0.75);
+	//arrayOfTriangles[20].C = glm::vec3(0.0, 0.0, 3.0);
+
+	//arrayOfTriangles[21].A = glm::vec3(-1.732, 0, 0.75);
+	//arrayOfTriangles[21].B = glm::vec3(-0.866, 1.5, 0.75);
+	//arrayOfTriangles[21].C = glm::vec3(0.0, 0.0, 3.0);
+
+	//arrayOfTriangles[22].A = glm::vec3(-0.866, -1.5, 0.75);
+	//arrayOfTriangles[22].B = glm::vec3(-1.732,  0, 0.75);
+	//arrayOfTriangles[22].C = glm::vec3(0.0, 0.0, 3.0);
+
+	//arrayOfTriangles[23].A = glm::vec3(0.866, -1.5, 0.75);
+	//arrayOfTriangles[23].B = glm::vec3(-0.866, -1.5, 0.75);
+	//arrayOfTriangles[23].C = glm::vec3(0.0, 0.0, 3.0);
+
+	//arrayOfTriangles[24].A = glm::vec3(1.732, 0, 0.75);
+	//arrayOfTriangles[24].B = glm::vec3(0.866, -1.5, 0.75);
+	//arrayOfTriangles[24].C = glm::vec3(0.0, 0.0, 3.0);
+
+	//arrayOfTriangles[25].A = glm::vec3(0.866, 1.5, 0.75);
+	//arrayOfTriangles[25].B = glm::vec3(1.732, 0, 0.75);
+	//arrayOfTriangles[25].C = glm::vec3(0.0, 0.0, 3.0);
 	
 	//Nap
 	materials[0].amb = glm::vec3(1.0, 0.95, 0.85);
@@ -159,6 +257,19 @@ bool CMyApp::Init()
 	materials[11].dif = glm::vec3(0.7f, 0.0f, 0.0f);
 	materials[11].spec = glm::vec3(0.8f, 0.8f, 0.8f);
 	materials[11].pow = 120.0f;
+
+	////Gyemant
+
+	//for (int i = 12; i < 13; ++i)
+	//{
+	//	materials[i].amb = glm::vec3(0.3f, 0.3f, 0.3f);
+	//	materials[i].dif = glm::vec3(0.7f, 0.7f, 0.7f);
+	//	materials[i].spec = glm::vec3(0.75f, 0.75f, 0.75f);
+	//	materials[i].pow = 120.0f;
+	//}
+	
+
+	
 
 	//
 	// geometria letrehozasa
@@ -266,9 +377,9 @@ void CMyApp::Render()
 	glm::vec3 right = m_camera.GetRight();
 	glm::vec3 up = glm::cross(right, fw);
 
-	m_program.SetUniform("world", matWorld);
-	m_program.SetUniform("worldIT", matWorldIT);
-	m_program.SetUniform("MVP", mvp);
+	//m_program.SetUniform("world", matWorld);
+	//m_program.SetUniform("worldIT", matWorldIT);
+	//m_program.SetUniform("MVP", mvp);
 	m_program.SetUniform("u_eye", eye);
 	m_program.SetUniform("u_up", up);
 	m_program.SetUniform("u_fw", fw);
@@ -276,18 +387,15 @@ void CMyApp::Render()
 
 	
 	//Gombok atadasa
-	m_program.SetUniform("u_spheres[0]", arrayOfSpheres[0]);
-	m_program.SetUniform("u_spheres[1]", arrayOfSpheres[1]);
-	m_program.SetUniform("u_spheres[2]", arrayOfSpheres[2]);
-	m_program.SetUniform("u_spheres[3]", arrayOfSpheres[3]);
-	m_program.SetUniform("u_spheres[4]", arrayOfSpheres[4]);
-	m_program.SetUniform("u_spheres[5]", arrayOfSpheres[5]);
-	m_program.SetUniform("u_spheres[6]", arrayOfSpheres[6]);
-	m_program.SetUniform("u_spheres[7]", arrayOfSpheres[7]);
-	m_program.SetUniform("u_spheres[8]", arrayOfSpheres[8]);
-	m_program.SetUniform("u_spheres[9]", arrayOfSpheres[9]);
+	for (int i = 0; i < spheres_count; ++i)
+	{
+		char buffer[50];
+		sprintf(buffer, "u_spheres[%i]", i);
+		m_program.SetUniform(buffer, arrayOfSpheres[i]);
+	}
 
 	//Haromszogek atadasa
+
 	m_program.SetUniform("u_triangles[0].A", arrayOfTriangles[0].A);
 	m_program.SetUniform("u_triangles[0].B", arrayOfTriangles[0].B);
 	m_program.SetUniform("u_triangles[0].C", arrayOfTriangles[0].C);
@@ -295,6 +403,102 @@ void CMyApp::Render()
 	m_program.SetUniform("u_triangles[1].A", arrayOfTriangles[1].A);
 	m_program.SetUniform("u_triangles[1].B", arrayOfTriangles[1].B);
 	m_program.SetUniform("u_triangles[1].C", arrayOfTriangles[1].C);
+
+	//m_program.SetUniform("u_triangles[2].A", arrayOfTriangles[2].A);
+	//m_program.SetUniform("u_triangles[2].B", arrayOfTriangles[2].B);
+	//m_program.SetUniform("u_triangles[2].C", arrayOfTriangles[2].C);
+
+	//m_program.SetUniform("u_triangles[3].A", arrayOfTriangles[3].A);
+	//m_program.SetUniform("u_triangles[3].B", arrayOfTriangles[3].B);
+	//m_program.SetUniform("u_triangles[3].C", arrayOfTriangles[3].C);
+
+	//m_program.SetUniform("u_triangles[4].A", arrayOfTriangles[4].A);
+	//m_program.SetUniform("u_triangles[4].B", arrayOfTriangles[4].B);
+	//m_program.SetUniform("u_triangles[4].C", arrayOfTriangles[4].C);
+
+	//m_program.SetUniform("u_triangles[5].A", arrayOfTriangles[5].A);
+	//m_program.SetUniform("u_triangles[5].B", arrayOfTriangles[5].B);
+	//m_program.SetUniform("u_triangles[5].C", arrayOfTriangles[5].C);
+
+	//m_program.SetUniform("u_triangles[6].A", arrayOfTriangles[6].A);
+	//m_program.SetUniform("u_triangles[6].B", arrayOfTriangles[6].B);
+	//m_program.SetUniform("u_triangles[6].C", arrayOfTriangles[6].C);
+
+	//m_program.SetUniform("u_triangles[7].A", arrayOfTriangles[7].A);
+	//m_program.SetUniform("u_triangles[7].B", arrayOfTriangles[7].B);
+	//m_program.SetUniform("u_triangles[7].C", arrayOfTriangles[7].C);
+
+	//m_program.SetUniform("u_triangles[8].A", arrayOfTriangles[8].A);
+	//m_program.SetUniform("u_triangles[8].B", arrayOfTriangles[8].B);
+	//m_program.SetUniform("u_triangles[8].C", arrayOfTriangles[8].C);
+
+	//m_program.SetUniform("u_triangles[9].A", arrayOfTriangles[9].A);
+	//m_program.SetUniform("u_triangles[9].B", arrayOfTriangles[9].B);
+	//m_program.SetUniform("u_triangles[9].C", arrayOfTriangles[9].C);
+
+	//m_program.SetUniform("u_triangles[10].A", arrayOfTriangles[10].A);
+	//m_program.SetUniform("u_triangles[10].B", arrayOfTriangles[10].B);
+	//m_program.SetUniform("u_triangles[10].C", arrayOfTriangles[10].C);
+
+	//m_program.SetUniform("u_triangles[11].A", arrayOfTriangles[11].A);
+	//m_program.SetUniform("u_triangles[11].B", arrayOfTriangles[11].B);
+	//m_program.SetUniform("u_triangles[11].C", arrayOfTriangles[11].C);
+
+	//m_program.SetUniform("u_triangles[12].A", arrayOfTriangles[12].A);
+	//m_program.SetUniform("u_triangles[12].B", arrayOfTriangles[12].B);
+	//m_program.SetUniform("u_triangles[12].C", arrayOfTriangles[12].C);
+
+	//m_program.SetUniform("u_triangles[13].A", arrayOfTriangles[13].A);
+	//m_program.SetUniform("u_triangles[13].B", arrayOfTriangles[13].B);
+	//m_program.SetUniform("u_triangles[13].C", arrayOfTriangles[13].C);
+
+	//m_program.SetUniform("u_triangles[14].A", arrayOfTriangles[14].A);
+	//m_program.SetUniform("u_triangles[14].B", arrayOfTriangles[14].B);
+	//m_program.SetUniform("u_triangles[14].C", arrayOfTriangles[14].C);
+
+	//m_program.SetUniform("u_triangles[15].A", arrayOfTriangles[15].A);
+	//m_program.SetUniform("u_triangles[15].B", arrayOfTriangles[15].B);
+	//m_program.SetUniform("u_triangles[15].C", arrayOfTriangles[15].C);
+
+	//m_program.SetUniform("u_triangles[16].A", arrayOfTriangles[16].A);
+	//m_program.SetUniform("u_triangles[16].B", arrayOfTriangles[16].B);
+	//m_program.SetUniform("u_triangles[16].C", arrayOfTriangles[16].C);
+
+	//m_program.SetUniform("u_triangles[17].A", arrayOfTriangles[17].A);
+	//m_program.SetUniform("u_triangles[17].B", arrayOfTriangles[17].B);
+	//m_program.SetUniform("u_triangles[17].C", arrayOfTriangles[17].C);
+
+	//m_program.SetUniform("u_triangles[18].A", arrayOfTriangles[18].A);
+	//m_program.SetUniform("u_triangles[18].B", arrayOfTriangles[18].B);
+	//m_program.SetUniform("u_triangles[18].C", arrayOfTriangles[18].C);
+
+	//m_program.SetUniform("u_triangles[19].A", arrayOfTriangles[19].A);
+	//m_program.SetUniform("u_triangles[19].B", arrayOfTriangles[19].B);
+	//m_program.SetUniform("u_triangles[19].C", arrayOfTriangles[19].C);
+
+	//m_program.SetUniform("u_triangles[20].A", arrayOfTriangles[20].A);
+	//m_program.SetUniform("u_triangles[20].B", arrayOfTriangles[20].B);
+	//m_program.SetUniform("u_triangles[20].C", arrayOfTriangles[20].C);
+
+	//m_program.SetUniform("u_triangles[21].A", arrayOfTriangles[21].A);
+	//m_program.SetUniform("u_triangles[21].B", arrayOfTriangles[21].B);
+	//m_program.SetUniform("u_triangles[21].C", arrayOfTriangles[21].C);
+
+	//m_program.SetUniform("u_triangles[22].A", arrayOfTriangles[22].A);
+	//m_program.SetUniform("u_triangles[22].B", arrayOfTriangles[22].B);
+	//m_program.SetUniform("u_triangles[22].C", arrayOfTriangles[22].C);
+
+	//m_program.SetUniform("u_triangles[23].A", arrayOfTriangles[23].A);
+	//m_program.SetUniform("u_triangles[23].B", arrayOfTriangles[23].B);
+	//m_program.SetUniform("u_triangles[23].C", arrayOfTriangles[23].C);
+
+	//m_program.SetUniform("u_triangles[24].A", arrayOfTriangles[24].A);
+	//m_program.SetUniform("u_triangles[24].B", arrayOfTriangles[24].B);
+	//m_program.SetUniform("u_triangles[24].C", arrayOfTriangles[24].C);
+
+	//m_program.SetUniform("u_triangles[25].A", arrayOfTriangles[25].A);
+	//m_program.SetUniform("u_triangles[25].B", arrayOfTriangles[25].B);
+	//m_program.SetUniform("u_triangles[25].C", arrayOfTriangles[25].C);
 
 	glm::inverse(glm::mat3(glm::vec3(1, 1, 1), glm::vec3(1, 1, 1), glm::vec3(1, 1, 1)));
 
@@ -308,65 +512,19 @@ void CMyApp::Render()
 	m_program.SetTexture("u_moon_texture",  2, m_MoonTextureID);
 	m_program.SetTexture("u_sky_texture",   3, m_SkyTextureID);
 
-	m_program.SetUniform("u_materials[0].amb",  materials[0].amb);
-	m_program.SetUniform("u_materials[0].dif",  materials[0].dif);
-	m_program.SetUniform("u_materials[0].spec", materials[0].spec);
-	m_program.SetUniform("u_materials[0].pow",  materials[0].pow);
-
-	m_program.SetUniform("u_materials[1].amb",  materials[1].amb);
-	m_program.SetUniform("u_materials[1].dif",  materials[1].dif);
-	m_program.SetUniform("u_materials[1].spec", materials[1].spec);
-	m_program.SetUniform("u_materials[1].pow",  materials[1].pow);
-
-	m_program.SetUniform("u_materials[2].amb",  materials[2].amb);
-	m_program.SetUniform("u_materials[2].dif",  materials[2].dif);
-	m_program.SetUniform("u_materials[2].spec", materials[2].spec);
-	m_program.SetUniform("u_materials[2].pow",  materials[2].pow);
-
-	m_program.SetUniform("u_materials[3].amb",  materials[3].amb);
-	m_program.SetUniform("u_materials[3].dif",  materials[3].dif);
-	m_program.SetUniform("u_materials[3].spec", materials[3].spec);
-	m_program.SetUniform("u_materials[3].pow",  materials[3].pow);
-
-	m_program.SetUniform("u_materials[4].amb",  materials[4].amb);
-	m_program.SetUniform("u_materials[4].dif",  materials[4].dif);
-	m_program.SetUniform("u_materials[4].spec", materials[4].spec);
-	m_program.SetUniform("u_materials[4].pow",  materials[4].pow);
-
-	m_program.SetUniform("u_materials[5].amb",  materials[5].amb);
-	m_program.SetUniform("u_materials[5].dif",  materials[5].dif);
-	m_program.SetUniform("u_materials[5].spec", materials[5].spec);
-	m_program.SetUniform("u_materials[5].pow",  materials[5].pow);
-
-	m_program.SetUniform("u_materials[6].amb",  materials[6].amb);
-	m_program.SetUniform("u_materials[6].dif",  materials[6].dif);
-	m_program.SetUniform("u_materials[6].spec", materials[6].spec);
-	m_program.SetUniform("u_materials[6].pow",  materials[6].pow);
-
-	m_program.SetUniform("u_materials[7].amb",  materials[7].amb);
-	m_program.SetUniform("u_materials[7].dif",  materials[7].dif);
-	m_program.SetUniform("u_materials[7].spec", materials[7].spec);
-	m_program.SetUniform("u_materials[7].pow",  materials[7].pow);
-
-	m_program.SetUniform("u_materials[8].amb",  materials[8].amb);
-	m_program.SetUniform("u_materials[8].dif",  materials[8].dif);
-	m_program.SetUniform("u_materials[8].spec", materials[8].spec);
-	m_program.SetUniform("u_materials[8].pow",  materials[8].pow);
-
-	m_program.SetUniform("u_materials[9].amb",  materials[9].amb);
-	m_program.SetUniform("u_materials[9].dif",  materials[9].dif);
-	m_program.SetUniform("u_materials[9].spec", materials[9].spec);
-	m_program.SetUniform("u_materials[9].pow",  materials[9].pow);
-
-	m_program.SetUniform("u_materials[10].amb",  materials[10].amb);
-	m_program.SetUniform("u_materials[10].dif",  materials[10].dif);
-	m_program.SetUniform("u_materials[10].spec", materials[10].spec);
-	m_program.SetUniform("u_materials[10].pow",  materials[10].pow);
-
-	m_program.SetUniform("u_materials[11].amb",  materials[11].amb);
-	m_program.SetUniform("u_materials[11].dif",  materials[11].dif);
-	m_program.SetUniform("u_materials[11].spec", materials[11].spec);
-	m_program.SetUniform("u_materials[11].pow",  materials[11].pow);
+	for (int i = 0; i < spheres_count + triangles_count; ++i)
+	{
+		char buffer[50];
+		sprintf(buffer, "u_materials[%i].amb", i);
+		m_program.SetUniform(buffer,  materials[i].amb);
+		sprintf(buffer, "u_materials[%i].dif", i);
+		m_program.SetUniform(buffer,  materials[i].dif);
+		sprintf(buffer, "u_materials[%i].spec", i);
+		m_program.SetUniform(buffer, materials[i].spec);
+		sprintf(buffer, "u_materials[%i].pow", i);
+		m_program.SetUniform(buffer,  materials[i].pow);
+	}
+	
 
 	// kapcsoljuk be a VAO-t (a VBO jön vele együtt)
 	m_vb.On();

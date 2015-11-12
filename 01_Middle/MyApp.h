@@ -23,6 +23,13 @@ public:
 	CMyApp(void);
 	~CMyApp(void);
 
+	struct Triangle
+	{
+		glm::vec3 A;
+		glm::vec3 B;
+		glm::vec3 C;
+	};
+
 	bool Init();
 	void Clean();
 
@@ -62,12 +69,7 @@ protected:
 		glm::vec3 spec;
 		float pow;
 	};
-	struct Triangle
-	{
-		glm::vec3 A;
-		glm::vec3 B;
-		glm::vec3 C;
-	};
+	
 	Light lights[2];
 	Triangle arrayOfTriangles[triangles_count];
 	Material materials[spheres_count + triangles_count];

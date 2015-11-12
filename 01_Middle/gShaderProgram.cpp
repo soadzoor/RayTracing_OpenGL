@@ -1,5 +1,4 @@
 #include "gShaderProgram.h"
-
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -204,6 +203,7 @@ void gShaderProgram::SetUniform(const char* _uniform, float _a, float _b, float 
 	GLint loc = getLocation(_uniform);
 	glUniform4f( loc, _a, _b, _c, _d );
 }
+
 
 void gShaderProgram::SetUniform(const char* _uniform, glm::vec4& _vec)
 {
