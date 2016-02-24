@@ -1,6 +1,8 @@
 #include "MyApp.h"
 #include "GLUtils.hpp"
 
+#include <iostream>
+
 #include <GL/GLU.h>
 #include <math.h>
 
@@ -13,7 +15,12 @@ CMyApp::CMyApp(void)
 	m_SunTextureID = 0;
 	m_EarthTextureID = 0;
 	m_MoonTextureID = 0;
-	m_SkyTextureID = 0;
+	m_PlaneTextureID = 0;
+	//m_SkyTextureID = 0;
+
+	depth = 1;
+	pause = false;
+	shadow = false;
 
 	//m_mesh = 0;
 }
@@ -70,10 +77,13 @@ bool CMyApp::Init()
 	lights[1].col = glm::vec3(1, 1, 1);
 	lights[1].pos = glm::vec3(-2, 20, 0);
 
+	lights[2].col = glm::vec3(1, 1, 1);
+	lights[2].pos = glm::vec3(20, 20, 0);
+
 	//raytrace gombok
 	arrayOfSpheres[0] = glm::vec4(0, 0, 0, 1.4); //nap 1.4
 	arrayOfSpheres[1] = glm::vec4(1, 0, 0, 0.1); //zold golyo
-	arrayOfSpheres[2] = glm::vec4(2, 0, 0, 0.1); //kek 
+	arrayOfSpheres[2] = glm::vec4(2, 0, 0, 0.1); //kek
 	arrayOfSpheres[3] = glm::vec4(3, 0, 0, 0.1); //fold
 	arrayOfSpheres[4] = glm::vec4(4, 0, 0, 0.1); //hold
 
@@ -85,19 +95,44 @@ bool CMyApp::Init()
 	arrayOfSpheres[7] = glm::vec4(lights[1].pos.x + 0.6, lights[1].pos.y - 0.6, lights[1].pos.z - 0.6, 0.3);
 
 	//tukor
-	arrayOfSpheres[8] = glm::vec4(6, 0, -2, 0.4);
+	arrayOfSpheres[8] = glm::vec4(6, 0, -10, 1.4);
 
 	//uveg
-	arrayOfSpheres[9] = glm::vec4(-6, 0, -2, 0.4);
+	arrayOfSpheres[9] = glm::vec4(-7, 0, -2, 0.4);
+
+	//also uvegek
+
+	for (int i = 10; i < 20; ++i)
+	{
+		for (int j = 0; j < 10; ++j)
+		{
+			arrayOfSpheres[(i-10)*10+j+10] = glm::vec4(20+i, -4, j, 0.4);
+		}
+	}
 
 	//haromszogek
-	arrayOfTriangles[0].A = glm::vec3( 0,  -4,  0);
-	arrayOfTriangles[0].B = glm::vec3(1,   -4, 0);
-	arrayOfTriangles[0].C = glm::vec3(0.5, -4, -1);
+	arrayOfTriangles[0].A = glm::vec3(-14, 14, -14);
+	arrayOfTriangles[0].B = glm::vec3(-14, -5, -12);
+	arrayOfTriangles[0].C = glm::vec3(14,  -5, -12);
 
-	arrayOfTriangles[1].A = glm::vec3(-12, -12, -12);
-	arrayOfTriangles[1].B = glm::vec3(12, -12, -12);
-	arrayOfTriangles[1].C = glm::vec3(0, 12, -12);
+	arrayOfTriangles[1].A = glm::vec3(-14, 14, -14);
+	arrayOfTriangles[1].B = glm::vec3(14 , -5, -12);
+	arrayOfTriangles[1].C = glm::vec3(14,  14, -14);
+
+	//sik
+
+	plane01.n = glm::vec3(0, 1, 0);
+	plane01.q = glm::vec3(0, -10, 0);
+
+	//disc
+
+	disc01.o = glm::vec3(0,0,8);
+	disc01.n = glm::normalize(glm::vec3(0, 0, 1));
+	disc01.r = 1;
+
+	disc02.o = glm::vec3(0, 0, 8);
+	disc02.n = glm::normalize(glm::vec3(0, 0, -1));
+	disc02.r = 1;
 
 	//gyemant
 
@@ -236,37 +271,63 @@ bool CMyApp::Init()
 	materials[7].amb = glm::vec3(0.2f, 0.0f, 0.0f);
 	materials[7].dif = glm::vec3(0.5f, 0.0f, 0.0f);
 	materials[7].spec = glm::vec3(0.8f, 0.8f, 0.8f);
-	materials[7].pow = 26.0f;
+	materials[7].pow = 66.0f;
 	//Tukor
-	materials[8].amb = glm::vec3(0.3f, 0.3f, 0.3f);
-	materials[8].dif = glm::vec3(0.7f, 0.7f, 0.7f);
+	materials[8].amb = glm::vec3(0.15f, 0.15f, 0.25f);
+	materials[8].dif = glm::vec3(0.2f, 0.2f, 0.2f);
 	materials[8].spec = glm::vec3(0.75f, 0.75f, 0.75f);
-	materials[8].pow = 120.0f;
+	materials[8].pow = 140.0f;
 	//Uveg
-	materials[9].amb = glm::vec3(0, 0.3f, 0.3f);
-	materials[9].dif = glm::vec3(0, 0.9f, 0.9f);
-	materials[9].spec = glm::vec3(1, 1, 1);
-	materials[9].pow = 120.0f;
+	materials[9].amb = glm::vec3(0.1f, 0.1f, 0.15f);
+	materials[9].dif = glm::vec3(0.2f, 0.2f, 0.2f);
+	materials[9].spec = glm::vec3(0.3f,0.3f, 0.3f);
+	materials[9].pow = 110.0f;
+
+	//also uvegek
+	for (int i = 10; i < spheres_count; ++i)
+	{
+		materials[i].amb = glm::vec3(0.2f, 0.2f, 0.3f);
+		materials[i].dif = glm::vec3(0.2f, 0.2f, 0.3f);
+		materials[i].spec = glm::vec3(0.3, 0.3, 0.3);
+		materials[i].pow = 120.0f;
+	}
+
 	//Haromszog 1
-	materials[10].amb = glm::vec3(0.0f, 0.2f, 0.0f);
-	materials[10].dif = glm::vec3(0.0f, 0.7f, 0.0f);
-	materials[10].spec = glm::vec3(0.8f, 0.8f, 0.8f);
-	materials[10].pow = 10.0f;
+	materials[spheres_count].amb = glm::vec3(240/255, 240/255, 250/255);
+	materials[spheres_count].dif = glm::vec3(0.2f, 0.2f, 0.2f);
+	materials[spheres_count].spec = glm::vec3(0.8f, 0.8f, 0.8f);
+	materials[spheres_count].pow = 120.0f;
 	//Haromszog 2
-	materials[11].amb = glm::vec3(0.0f, 0.0f, 0.0f);
-	materials[11].dif = glm::vec3(0.7f, 0.0f, 0.0f);
-	materials[11].spec = glm::vec3(0.8f, 0.8f, 0.8f);
-	materials[11].pow = 120.0f;
+	materials[spheres_count+1].amb = glm::vec3(240 / 255, 240 / 255, 250 / 255);
+	materials[spheres_count+1].dif = glm::vec3(0.2f, 0.2f, 0.2f);
+	materials[spheres_count+1].spec = glm::vec3(0.8f, 0.8f, 0.8f);
+	materials[spheres_count+1].pow = 120.0f;
+	//Gyemant
 
-	////Gyemant
+	/*for (int i = spheres_count+2; i < triangles_count; ++i)
+	{
+		materials[i].amb = glm::vec3(0.3f, 0.3f, 0.3f);
+		materials[i].dif = glm::vec3(0.7f, 0.7f, 0.7f);
+		materials[i].spec = glm::vec3(0.75f, 0.75f, 0.75f);
+		materials[i].pow = 110.0f;
+	}*/
+	//Sik
+	materials[spheres_count+triangles_count].amb = glm::vec3(0.0f, 0.0f, 0.0f);
+	materials[spheres_count+triangles_count].dif = glm::vec3(0.3f, 0.34f, 0.36f);
+	materials[spheres_count+triangles_count].spec = glm::vec3(0.8f, 0.8f, 0.8f);
+	materials[spheres_count+triangles_count].pow = 60.0f;
+	//Disc
+	materials[spheres_count+triangles_count+1].amb = glm::vec3(0.0f, 0.15f, 0.3f);
+	materials[spheres_count+triangles_count+1].dif = glm::vec3(0.0f, 0.3f, 0.5f);
+	materials[spheres_count+triangles_count+1].spec = glm::vec3(0.8f, 0.8f, 0.8f);
+	materials[spheres_count+triangles_count+1].pow = 110.0f;
 
-	//for (int i = 12; i < 13; ++i)
-	//{
-	//	materials[i].amb = glm::vec3(0.3f, 0.3f, 0.3f);
-	//	materials[i].dif = glm::vec3(0.7f, 0.7f, 0.7f);
-	//	materials[i].spec = glm::vec3(0.75f, 0.75f, 0.75f);
-	//	materials[i].pow = 120.0f;
-	//}
+	materials[spheres_count+triangles_count+2].amb = glm::vec3(0.0f, 0.15f, 0.3f);
+	materials[spheres_count+triangles_count+2].dif = glm::vec3(0.0f, 0.3f, 0.5f);
+	materials[spheres_count+triangles_count+2].spec = glm::vec3(0.8f, 0.8f, 0.8f);
+	materials[spheres_count+triangles_count+2].pow = 110.0f;
+
+	
 	
 
 	
@@ -303,7 +364,8 @@ bool CMyApp::Init()
 	m_SunTextureID = TextureFromFile("sun.jpg");
 	m_EarthTextureID = TextureFromFile("earth.png");
 	m_MoonTextureID = TextureFromFile("moon.png");
-	m_SkyTextureID = TextureFromFile("sky.jpg");
+	m_PlaneTextureID = TextureFromFile("grid.jpg");
+	//m_SkyTextureID = TextureFromFile("sky.jpg");
 
 
 	//haromszog vertexei
@@ -335,7 +397,8 @@ void CMyApp::Clean()
 	glDeleteTextures(1, &m_SunTextureID);
 	glDeleteTextures(1, &m_EarthTextureID);
 	glDeleteTextures(1, &m_MoonTextureID);
-	glDeleteTextures(1, &m_SkyTextureID);
+	glDeleteTextures(1, &m_PlaneTextureID);
+	//glDeleteTextures(1, &m_SkyTextureID);
 
 	m_program.Clean();
 }
@@ -363,9 +426,14 @@ void CMyApp::Render()
 	glm::mat4 matWorldIT = glm::transpose( glm::inverse( matWorld ) );
 	glm::mat4 mvp = m_camera.GetViewProj() *matWorld;
 
+	float rot = 0;
 
-	float rot = SDL_GetTicks() / 1000.0f;
+	if (!pause)
+	{
+		rot = SDL_GetTicks() / 1000.0f;
+	}
 	m_program.SetUniform("u_rot", rot);
+	m_program.SetUniform("u_shadow", shadow);
 
 	arrayOfSpheres[1] = glm::vec4(2 * sinf(rot / 2), 0, 2 * cosf(rot / 2), 0.26);
 	arrayOfSpheres[2] = glm::vec4(2.5* cos(rot / 3), 0, 2.5 * sinf(rot / 3), 0.18);
@@ -396,123 +464,59 @@ void CMyApp::Render()
 
 	//Haromszogek atadasa
 
-	m_program.SetUniform("u_triangles[0].A", arrayOfTriangles[0].A);
-	m_program.SetUniform("u_triangles[0].B", arrayOfTriangles[0].B);
-	m_program.SetUniform("u_triangles[0].C", arrayOfTriangles[0].C);
+	for (int i = 0; i < triangles_count; ++i)
+	{
+		char buffer[50];
+		sprintf(buffer, "u_triangles[%i].A", i);
+		m_program.SetUniform(buffer, arrayOfTriangles[i].A);
 
-	m_program.SetUniform("u_triangles[1].A", arrayOfTriangles[1].A);
-	m_program.SetUniform("u_triangles[1].B", arrayOfTriangles[1].B);
-	m_program.SetUniform("u_triangles[1].C", arrayOfTriangles[1].C);
+		sprintf(buffer, "u_triangles[%i].B", i);
+		m_program.SetUniform(buffer, arrayOfTriangles[i].B);
 
-	//m_program.SetUniform("u_triangles[2].A", arrayOfTriangles[2].A);
-	//m_program.SetUniform("u_triangles[2].B", arrayOfTriangles[2].B);
-	//m_program.SetUniform("u_triangles[2].C", arrayOfTriangles[2].C);
+		sprintf(buffer, "u_triangles[%i].C", i);
+		m_program.SetUniform(buffer, arrayOfTriangles[i].C);
+	}
 
-	//m_program.SetUniform("u_triangles[3].A", arrayOfTriangles[3].A);
-	//m_program.SetUniform("u_triangles[3].B", arrayOfTriangles[3].B);
-	//m_program.SetUniform("u_triangles[3].C", arrayOfTriangles[3].C);
 
-	//m_program.SetUniform("u_triangles[4].A", arrayOfTriangles[4].A);
-	//m_program.SetUniform("u_triangles[4].B", arrayOfTriangles[4].B);
-	//m_program.SetUniform("u_triangles[4].C", arrayOfTriangles[4].C);
+	//Sik atadasa
 
-	//m_program.SetUniform("u_triangles[5].A", arrayOfTriangles[5].A);
-	//m_program.SetUniform("u_triangles[5].B", arrayOfTriangles[5].B);
-	//m_program.SetUniform("u_triangles[5].C", arrayOfTriangles[5].C);
+	m_program.SetUniform("plane01.n", plane01.n);
+	m_program.SetUniform("plane01.q", plane01.q);
 
-	//m_program.SetUniform("u_triangles[6].A", arrayOfTriangles[6].A);
-	//m_program.SetUniform("u_triangles[6].B", arrayOfTriangles[6].B);
-	//m_program.SetUniform("u_triangles[6].C", arrayOfTriangles[6].C);
+	//Disc atadasa
+	disc01.n = glm::normalize(glm::vec3(cosf(rot / 2), 0, sinf(rot / 2)));
+	m_program.SetUniform("disc01.n", disc01.n);
+	m_program.SetUniform("disc01.r", disc01.r);
+	m_program.SetUniform("disc01.o", disc01.o);
 
-	//m_program.SetUniform("u_triangles[7].A", arrayOfTriangles[7].A);
-	//m_program.SetUniform("u_triangles[7].B", arrayOfTriangles[7].B);
-	//m_program.SetUniform("u_triangles[7].C", arrayOfTriangles[7].C);
+	disc02.n = glm::normalize(glm::vec3(cosf(rot / 2), 0, sinf(rot / 2)));
+	m_program.SetUniform("disc02.n", -disc02.n);
+	m_program.SetUniform("disc02.r", disc02.r);
+	m_program.SetUniform("disc02.o", disc02.o);
 
-	//m_program.SetUniform("u_triangles[8].A", arrayOfTriangles[8].A);
-	//m_program.SetUniform("u_triangles[8].B", arrayOfTriangles[8].B);
-	//m_program.SetUniform("u_triangles[8].C", arrayOfTriangles[8].C);
+	//Melyseg atadasa
 
-	//m_program.SetUniform("u_triangles[9].A", arrayOfTriangles[9].A);
-	//m_program.SetUniform("u_triangles[9].B", arrayOfTriangles[9].B);
-	//m_program.SetUniform("u_triangles[9].C", arrayOfTriangles[9].C);
-
-	//m_program.SetUniform("u_triangles[10].A", arrayOfTriangles[10].A);
-	//m_program.SetUniform("u_triangles[10].B", arrayOfTriangles[10].B);
-	//m_program.SetUniform("u_triangles[10].C", arrayOfTriangles[10].C);
-
-	//m_program.SetUniform("u_triangles[11].A", arrayOfTriangles[11].A);
-	//m_program.SetUniform("u_triangles[11].B", arrayOfTriangles[11].B);
-	//m_program.SetUniform("u_triangles[11].C", arrayOfTriangles[11].C);
-
-	//m_program.SetUniform("u_triangles[12].A", arrayOfTriangles[12].A);
-	//m_program.SetUniform("u_triangles[12].B", arrayOfTriangles[12].B);
-	//m_program.SetUniform("u_triangles[12].C", arrayOfTriangles[12].C);
-
-	//m_program.SetUniform("u_triangles[13].A", arrayOfTriangles[13].A);
-	//m_program.SetUniform("u_triangles[13].B", arrayOfTriangles[13].B);
-	//m_program.SetUniform("u_triangles[13].C", arrayOfTriangles[13].C);
-
-	//m_program.SetUniform("u_triangles[14].A", arrayOfTriangles[14].A);
-	//m_program.SetUniform("u_triangles[14].B", arrayOfTriangles[14].B);
-	//m_program.SetUniform("u_triangles[14].C", arrayOfTriangles[14].C);
-
-	//m_program.SetUniform("u_triangles[15].A", arrayOfTriangles[15].A);
-	//m_program.SetUniform("u_triangles[15].B", arrayOfTriangles[15].B);
-	//m_program.SetUniform("u_triangles[15].C", arrayOfTriangles[15].C);
-
-	//m_program.SetUniform("u_triangles[16].A", arrayOfTriangles[16].A);
-	//m_program.SetUniform("u_triangles[16].B", arrayOfTriangles[16].B);
-	//m_program.SetUniform("u_triangles[16].C", arrayOfTriangles[16].C);
-
-	//m_program.SetUniform("u_triangles[17].A", arrayOfTriangles[17].A);
-	//m_program.SetUniform("u_triangles[17].B", arrayOfTriangles[17].B);
-	//m_program.SetUniform("u_triangles[17].C", arrayOfTriangles[17].C);
-
-	//m_program.SetUniform("u_triangles[18].A", arrayOfTriangles[18].A);
-	//m_program.SetUniform("u_triangles[18].B", arrayOfTriangles[18].B);
-	//m_program.SetUniform("u_triangles[18].C", arrayOfTriangles[18].C);
-
-	//m_program.SetUniform("u_triangles[19].A", arrayOfTriangles[19].A);
-	//m_program.SetUniform("u_triangles[19].B", arrayOfTriangles[19].B);
-	//m_program.SetUniform("u_triangles[19].C", arrayOfTriangles[19].C);
-
-	//m_program.SetUniform("u_triangles[20].A", arrayOfTriangles[20].A);
-	//m_program.SetUniform("u_triangles[20].B", arrayOfTriangles[20].B);
-	//m_program.SetUniform("u_triangles[20].C", arrayOfTriangles[20].C);
-
-	//m_program.SetUniform("u_triangles[21].A", arrayOfTriangles[21].A);
-	//m_program.SetUniform("u_triangles[21].B", arrayOfTriangles[21].B);
-	//m_program.SetUniform("u_triangles[21].C", arrayOfTriangles[21].C);
-
-	//m_program.SetUniform("u_triangles[22].A", arrayOfTriangles[22].A);
-	//m_program.SetUniform("u_triangles[22].B", arrayOfTriangles[22].B);
-	//m_program.SetUniform("u_triangles[22].C", arrayOfTriangles[22].C);
-
-	//m_program.SetUniform("u_triangles[23].A", arrayOfTriangles[23].A);
-	//m_program.SetUniform("u_triangles[23].B", arrayOfTriangles[23].B);
-	//m_program.SetUniform("u_triangles[23].C", arrayOfTriangles[23].C);
-
-	//m_program.SetUniform("u_triangles[24].A", arrayOfTriangles[24].A);
-	//m_program.SetUniform("u_triangles[24].B", arrayOfTriangles[24].B);
-	//m_program.SetUniform("u_triangles[24].C", arrayOfTriangles[24].C);
-
-	//m_program.SetUniform("u_triangles[25].A", arrayOfTriangles[25].A);
-	//m_program.SetUniform("u_triangles[25].B", arrayOfTriangles[25].B);
-	//m_program.SetUniform("u_triangles[25].C", arrayOfTriangles[25].C);
+	m_program.SetUniform("u_depth", depth);
 
 	glm::inverse(glm::mat3(glm::vec3(1, 1, 1), glm::vec3(1, 1, 1), glm::vec3(1, 1, 1)));
 
-	m_program.SetUniform("u_lights[0].pos", lights[0].pos);
-	m_program.SetUniform("u_lights[0].col", lights[0].col);
-	m_program.SetUniform("u_lights[1].pos", lights[1].pos);
-	m_program.SetUniform("u_lights[1].col", lights[1].col);
+
+	for (int i = 0; i < lights_count; ++i)
+	{
+		char buffer[50];
+		sprintf(buffer, "u_lights[%i].pos", i);
+		m_program.SetUniform(buffer, lights[i].pos);
+		sprintf(buffer, "u_lights[%i].col", i);
+		m_program.SetUniform(buffer, lights[i].col);
+	}
 
 	m_program.SetTexture("u_sun_texture",   0, m_SunTextureID);
 	m_program.SetTexture("u_earth_texture", 1, m_EarthTextureID);
 	m_program.SetTexture("u_moon_texture",  2, m_MoonTextureID);
-	m_program.SetTexture("u_sky_texture",   3, m_SkyTextureID);
+	m_program.SetTexture("u_plane_texture", 3, m_PlaneTextureID);
+	//m_program.SetTexture("u_sky_texture",   4, m_SkyTextureID);
 
-	for (int i = 0; i < spheres_count + triangles_count; ++i)
+	for (int i = 0; i < materials_count; ++i)
 	{
 		char buffer[50];
 		sprintf(buffer, "u_materials[%i].amb", i);
@@ -541,6 +545,38 @@ void CMyApp::Render()
 void CMyApp::KeyboardDown(SDL_KeyboardEvent& key)
 {
 	m_camera.KeyboardDown(key);
+	switch (key.keysym.sym)
+	{
+		case SDLK_LEFT:
+		{
+			if (depth > 1)
+			{
+				std::cout << "Depth: " << --depth << std::endl;
+			}
+			
+			break;
+		}
+		case SDLK_RIGHT:
+		{
+			std::cout << "Depth: " << ++depth << std::endl;
+
+			break;
+		}
+		case SDLK_p:
+		{
+			pause = !pause;
+			pause ? std::cout << "paused" << std::endl : std::cout << "returned" << std::endl;
+
+			break;
+		}
+		case SDLK_1:
+		{
+			shadow = !shadow;
+			shadow ? std::cout << "Shadows ON" << std::endl : std::cout << "Shadows OFF" << std::endl;
+
+			break;
+		}
+	}
 }
 
 void CMyApp::KeyboardUp(SDL_KeyboardEvent& key)

@@ -23,11 +23,28 @@ public:
 	CMyApp(void);
 	~CMyApp(void);
 
+	int depth;
+	bool mirror_spheres;
+	bool pause;
+	bool shadow;
+
 	struct Triangle
 	{
 		glm::vec3 A;
 		glm::vec3 B;
 		glm::vec3 C;
+	};
+
+	struct Plane
+	{
+		glm::vec3 n;
+		glm::vec3 q;
+	};
+	
+	struct Disc
+	{
+		glm::vec3 o, n;
+		float r;
 	};
 
 	bool Init();
@@ -46,8 +63,12 @@ public:
 
 protected:
 	//raytrace specifikusak
-	static int const spheres_count = 10;
+	static int const spheres_count = 110;
 	static int const triangles_count = 2;
+	static int const lights_count = 3;
+	static int const materials_count = spheres_count + triangles_count + 3;
+	
+
 	glm::vec4 arrayOfSpheres[spheres_count];
 
 	
@@ -55,7 +76,9 @@ protected:
 	GLuint m_SunTextureID;
 	GLuint m_EarthTextureID;
 	GLuint m_MoonTextureID;
-	GLuint m_SkyTextureID;
+	GLuint m_PlaneTextureID;
+	//GLuint m_SkyTextureID;
+
 
 	struct Light
 	{
@@ -70,9 +93,12 @@ protected:
 		float pow;
 	};
 	
-	Light lights[2];
+	Light lights[lights_count];
 	Triangle arrayOfTriangles[triangles_count];
-	Material materials[spheres_count + triangles_count];
+	Material materials[materials_count];
+	Plane plane01;
+	Disc disc01;
+	Disc disc02;
 
 	// belsõ eljárások
 	GLuint GenTexture();
