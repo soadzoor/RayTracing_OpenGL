@@ -299,6 +299,7 @@ void trace(in Light u_lights[lights_count], in Material u_materials[materials_co
 	{
 		ref_dir = normalize(reflect(min_hit.point - pos, min_hit.normal));
 		vec3 temp_col = u_materials[min_hit.ind].amb;
+		vec3 diffuse = vec3(0);
 		for (int j = 0; j < lights_count; ++j)
 		{
 			vec3 light_vec = u_lights[j].pos - min_hit.point;
@@ -306,23 +307,24 @@ void trace(in Light u_lights[lights_count], in Material u_materials[materials_co
 			light_vec = normalize(light_vec);
 			float diffintensity = clamp(dot(min_hit.normal, light_vec), 0, 1);
 			
-			specular += clamp(((u_materials[min_hit.ind].spec*u_lights[j].col)*pow(clamp(dot(light_vec, ref_dir),0,1), u_materials[min_hit.ind].pow))/(1), 0, 1);// /distance*distance mehetne, csak ronda lesz
-			temp_col += clamp((u_materials[min_hit.ind].dif*diffintensity*u_lights[j].col)/(1),0,1);
+			specular = clamp(((u_materials[min_hit.ind].spec*u_lights[j].col)*pow(clamp(dot(light_vec, ref_dir),0,1), u_materials[min_hit.ind].pow))/(1), 0, 1);// /distance*distance mehetne, csak ronda lesz
+			diffuse = clamp((u_materials[min_hit.ind].dif*diffintensity*u_lights[j].col)/(1),0,1);
 
+			temp_col += diffuse + specular;
 			if (u_shadow)
 			{
 				HitRec shadow_hit = min_hit;
 				int ind = shadow_hit.ind;
-				findmin(shadow_hit.point, u_lights[j].pos-shadow_hit.point, shadow_hit);
+				findmin(shadow_hit.point+1.5*shadow_hit.normal*EPSILON, u_lights[j].pos-shadow_hit.point, shadow_hit);
 				if (shadow_hit.ind != 0 && shadow_hit.ind != 5 && shadow_hit.ind != 6 && shadow_hit.ind != spheres_count+triangles_count && shadow_hit.ind != ind)
 				{
-					temp_col -= lights_count*specular;
-					temp_col *= 0.5;
+					temp_col *= 0.5f;
 				}
 			}
 		}
+		
 
-		color += k*vec4(temp_col+specular, 1);
+		color += k*vec4(temp_col, 1);
 			
 		float u = 0.5 + atan(-min_hit.normal.z, -min_hit.normal.x)/(2*3.1415);
 		float v = 0.5 - asin(-min_hit.normal.y)/3.1415;
@@ -440,15 +442,16 @@ void main()
 		{
 			float eta = 1.52f;
 			vec3 temp_ray = ray_dir;
-			ray_origin = min_hit.point + ray_dir*EPSILON;
+			
 			ray_dir = dot(ray_dir, min_hit.normal) < 0 ? refract(ray_dir, min_hit.normal, 1/eta) : refract(ray_dir, -min_hit.normal, eta);
 
 			if (ray_dir == vec3(0.0))
 			{
 				ray_dir = normalize(reflect(temp_ray, min_hit.normal));
-				ray_origin = min_hit.point + 1.5*min_hit.normal*EPSILON;
+				ray_origin = min_hit.point - 1.5*min_hit.normal*EPSILON;
 				continue;
 			}
+			ray_origin = min_hit.point + ray_dir*EPSILON;
 			ray_dir = normalize(ray_dir);
 
 
