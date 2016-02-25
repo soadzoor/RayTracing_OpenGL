@@ -10,13 +10,11 @@
 
 #include "MyApp.h"
 
-
-
 void exitProgram()
 {
 	SDL_Quit();
 
-	std::cout << "Press any key to exit..." << std::endl;
+	std::cout << "Kilépéshez nyomj meg egy billentyût..." << std::endl;
 	std::cin.get();
 }
 

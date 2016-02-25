@@ -280,7 +280,7 @@ bool CMyApp::Init()
 	//Uveg
 	materials[9].amb = glm::vec3(0.1f, 0.1f, 0.15f);
 	materials[9].dif = glm::vec3(0.2f, 0.2f, 0.2f);
-	materials[9].spec = glm::vec3(0.3f,0.3f, 0.3f);
+	materials[9].spec = glm::vec3(0.6f,0.6f, 0.6f);
 	materials[9].pow = 110.0f;
 
 	//also uvegek

@@ -441,7 +441,7 @@ void main()
 			float eta = 1.52f;
 			vec3 temp_ray = ray_dir;
 			ray_origin = min_hit.point + ray_dir*EPSILON;
-			ray_dir = dot(ray_dir, min_hit.normal) < 0 ? refract(ray_dir, min_hit.normal, 1/eta) : refract(ray_dir, -min_hit.normal, 1/eta);
+			ray_dir = dot(ray_dir, min_hit.normal) < 0 ? refract(ray_dir, min_hit.normal, 1/eta) : refract(ray_dir, -min_hit.normal, eta);
 
 			if (ray_dir == vec3(0.0))
 			{
