@@ -9,8 +9,7 @@ in vec3 vs_in_pos;
 
 out vec3 vs_out_ray;
 
-// shader külsõ paraméterei - most a három transzformációs mátrixot külön-külön vesszük át
-//uniform mat4 MVP;
+// shader külsõ paraméterei
 
 uniform vec3 u_eye;
 uniform vec3 u_up;

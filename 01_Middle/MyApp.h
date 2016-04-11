@@ -63,7 +63,7 @@ public:
 
 protected:
 	//raytrace specifikusak
-	static int const spheres_count = 110;
+	static int const spheres_count = 10; //10 vagy 110
 	static int const triangles_count = 2;
 	static int const lights_count = 3;
 	static int const materials_count = spheres_count + triangles_count + 3;
@@ -75,6 +75,7 @@ protected:
 
 	GLuint m_SunTextureID;
 	GLuint m_EarthTextureID;
+	GLuint m_EarthNormalID;
 	GLuint m_MoonTextureID;
 	GLuint m_PlaneTextureID;
 	//GLuint m_SkyTextureID;

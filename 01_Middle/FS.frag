@@ -2,7 +2,7 @@
 
 // pipeline-ból bejövõ per-fragment attribútumok
 //in vec3 vs_out_pos;
-in vec3 vs_out_normal;
+//in vec3 vs_out_normal;
 in vec3 vs_out_ray;
 
 // kimenõ érték - a fragment színe
@@ -13,6 +13,7 @@ uniform vec3 u_eye;
 
 uniform sampler2D u_sun_texture;
 uniform sampler2D u_earth_texture;
+uniform sampler2D u_earth_normal;
 uniform sampler2D u_moon_texture;
 uniform sampler2D u_plane_texture;
 //uniform sampler2D u_sky_texture;
@@ -53,7 +54,7 @@ struct HitRec
 	vec3 origo;
 };
 
-const int spheres_count = 110;
+const int spheres_count = 10;
 const int triangles_count = 2;
 const int materials_count = spheres_count + triangles_count + 3;
 const int lights_count = 3;
@@ -72,6 +73,84 @@ uniform bool u_shadow;
 
 const float EPSILON = 0.001;
 bool sky_hit = false;
+
+
+// Segédfüggvény: feltéve hogy a és b vektorok nem esnek egy egyenesbe,
+// mi az az R forgatómátrix, hogy b = R*a?
+// Math: http://math.stackexchange.com/questions/180418/calculate-rotation-matrix-to-align-vector-a-to-vector-b-in-3d/897677#897677
+mat3 AToB(vec3 a, vec3 b){
+
+	a = normalize(a);
+	b = normalize(b);
+
+	vec3 v = cross(a, b);
+	float s = length(v);
+	float c = dot(a, b);
+
+	mat3 V = mat3(
+		vec3(0,     v.z, -v.y),
+		vec3(-v.z,  0,    v.x),
+		vec3( v.y, -v.x,  0  )
+	);
+
+	mat3 R = mat3(1.0f) + V + V * V * ((1 - c) / (s*s));
+	return R;
+
+}
+
+// Segédfüggvény a normálvektor módosításához a normalmap szerint
+// alapötlet: a normalmap azt mutatja, hogyan kell változtatni egy normálison, ha az a (0,0,1) irányba mutatna
+// viszont a normálvektoraink ugye nem így állnak, hanem vs_out_normal irányba mutatnak
+// tehát: legyen R az a transzformáció, ami a (0,0,1)-et vs_out_normal-ba forgatja,
+// és ekkor az új normálvektor valójában R*normal_from_normalmap lesz
+
+vec3 normalTransform(vec3 normal_original, vec3 normal_from_normalmap){
+
+	vec3 n_orig = normalize(normal_original);
+	vec3 n_map = normalize(normal_from_normalmap);
+	mat3 R = AToB(vec3(0, 0, 1), n_map);
+	return R*n_map;
+
+}
+
+
+
+
+//mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
+//{
+//    // get edge vectors of the pixel triangle
+//    vec3 dp1 = dFdx( p );
+//    vec3 dp2 = dFdy( p );
+//    vec2 duv1 = dFdx( uv );
+//    vec2 duv2 = dFdy( uv );
+// 
+//    // solve the linear system
+//    vec3 dp2perp = cross( dp2, N );
+//    vec3 dp1perp = cross( N, dp1 );
+//    vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
+//    vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+// 
+//    float invmax = inversesqrt( max( dot(T,T), dot(B,B) ) );
+//    return mat3( T * invmax, B * invmax, N );
+//}
+//
+//
+//vec3 perturb_normal( vec3 N, vec3 V, vec2 texcoord )
+//{
+//    // assume N, the interpolated vertex normal and 
+//    // V, the view vector (vertex to eye)
+//    vec3 map = texture2D( u_earth_normal, texcoord ).xyz;
+//    map = map * 255./127. - 128./127.;
+//    map.z = sqrt( 1. - dot( map.xy, map.xy ) );
+//    map.y = -map.y;
+//    mat3 TBN = cotangent_frame( N, -V, texcoord );
+//    return normalize( TBN * map );
+//}
+
+
+
+
+
 
 
 bool intersectSphere(in vec3 pos, in vec3 dir, in vec4 sphere, out HitRec hit_rec, in int ind)
@@ -118,7 +197,10 @@ bool intersectSphere(in vec3 pos, in vec3 dir, in vec4 sphere, out HitRec hit_re
 	hit_rec.t = t;
 	hit_rec.origo = vec3(sphere.xyz);
 	hit_rec.point = pos + t*dir;
+
+
 	hit_rec.normal = normalize((hit_rec.point-hit_rec.origo) / sphere.w);
+
 	return true;
 }
 
@@ -237,7 +319,6 @@ bool findmin(in vec3 pos, in vec3 dir, inout HitRec hit_rec)
 			{
 				min_t = hit_temp.t;
 				hit_rec = hit_temp;
-				
 			}
 			hit = true;
 		}
@@ -297,6 +378,17 @@ void trace(in Light u_lights[lights_count], in Material u_materials[materials_co
 	vec3 specular = vec3(0);
 	if(findmin(pos, dir, min_hit))
 	{
+		u = 0.5 + atan(-min_hit.normal.z, -min_hit.normal.x)/(2*3.1415);
+		v = 0.5 - asin(-min_hit.normal.y)/3.1415;
+		u += u_rot/2;
+		vec2 uv = vec2(u, v);
+		if (min_hit.ind == 10)
+		{
+			//vec3 normalFromMap = (2*( (texture(u_earth_normal, min_hit.point.xz)).xyz ) - 1);
+
+			//min_hit.normal = normalTransform(min_hit.normal, normalFromMap);
+		}
+
 		ref_dir = normalize(reflect(min_hit.point - pos, min_hit.normal));
 		vec3 temp_col = u_materials[min_hit.ind].amb;
 		vec3 diffuse = vec3(0);
@@ -326,8 +418,7 @@ void trace(in Light u_lights[lights_count], in Material u_materials[materials_co
 
 		color += k*vec4(temp_col, 1);
 			
-		float u = 0.5 + atan(-min_hit.normal.z, -min_hit.normal.x)/(2*3.1415);
-		float v = 0.5 - asin(-min_hit.normal.y)/3.1415;
+		
 		if (min_hit.ind == 0)
 		{
 			u += u_rot/5;
@@ -337,20 +428,18 @@ void trace(in Light u_lights[lights_count], in Material u_materials[materials_co
 		}
 		if (min_hit.ind == 3)
 		{
-			u += u_rot/2;
-			vec2 uv = vec2(u, v);
 				
 			color *= k*(texture(u_earth_texture, -uv).bgra);
 			if (color.z > color.x && color.z > color.y)
 			{
 				color += k*clamp(k*vec4(3*specular, 1), 0, 1);
 				//fs_out_col = vec4(1,0,0,1);
-			}	
+			}
 		}
 		if (min_hit.ind == 4)
 		{
 			u += u_rot/7;
-			uv = vec2(u, v);
+			//uv = vec2(u, v);
 			color *= k*texture(u_moon_texture, -uv).bgra;
 		}
 		if (min_hit.ind == spheres_count+triangles_count)
@@ -453,30 +542,6 @@ void main()
 			}
 			ray_origin = min_hit.point + ray_dir*EPSILON;
 			ray_dir = normalize(ray_dir);
-
-
-			/*if(ray_eta != 1.0f)
-			{
-				//eta = 1.f / eta;
-			}
-			
-			vec3 temp_ray = ray_dir;
-			ray_dir = dot(ray_dir, min_hit.normal) > 0 ? refract(ray_dir, -min_hit.normal, eta) : refract(ray_dir, min_hit.normal, eta);
-			if (ray_dir == vec3(0.0))
-			{
-				ray_dir = normalize(reflect(temp_ray, min_hit.normal));
-				ray_origin = min_hit.point + 1.5*min_hit.normal*EPSILON;
-				continue;
-			}
-			ray_dir = normalize(ray_dir);
-
-			ray_eta = dot(ray_dir, min_hit.normal) > 0 ? 1.f : eta;
-			
-			ray_origin = dot(ray_dir, min_hit.normal) > 0 ? min_hit.point + min_hit.normal * EPSILON : min_hit.point - min_hit.normal * EPSILON;
-
-			//ray_origin = min_hit.point + 3*ray_dir*EPSILON;
-			//ray_origin = dot(min_hit.normal, ray_dir)>0 ? min_hit.point-1.5*min_hit.normal*EPSILON : min_hit.point+1.5*min_hit.normal*EPSILON;
-			*/
 
 			k1 = 0.5;
 

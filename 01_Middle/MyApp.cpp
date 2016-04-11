@@ -80,7 +80,7 @@ bool CMyApp::Init()
 	lights[2].col = glm::vec3(1, 1, 1);
 	lights[2].pos = glm::vec3(20, 20, 0);
 
-	//raytrace gombok
+	//gombok
 	arrayOfSpheres[0] = glm::vec4(0, 0, 0, 1.4); //nap 1.4
 	arrayOfSpheres[1] = glm::vec4(1, 0, 0, 0.1); //zold golyo
 	arrayOfSpheres[2] = glm::vec4(2, 0, 0, 0.1); //kek
@@ -102,13 +102,13 @@ bool CMyApp::Init()
 
 	//also uvegek
 
-	for (int i = 10; i < 20; ++i)
+	/*for (int i = 10; i < 20; ++i)
 	{
 		for (int j = 0; j < 10; ++j)
 		{
 			arrayOfSpheres[(i-10)*10+j+10] = glm::vec4(20+i, -4, j, 0.4);
 		}
-	}
+	}*/
 
 	//haromszogek
 	arrayOfTriangles[0].A = glm::vec3(-14, 14, -14);
@@ -273,24 +273,24 @@ bool CMyApp::Init()
 	materials[7].spec = glm::vec3(0.8f, 0.8f, 0.8f);
 	materials[7].pow = 66.0f;
 	//Tukor
-	materials[8].amb = glm::vec3(0.15f, 0.15f, 0.25f);
-	materials[8].dif = glm::vec3(0.2f, 0.2f, 0.2f);
+	materials[8].amb = glm::vec3(0.0f, 0.0f, 0.25f);
+	materials[8].dif = glm::vec3(0.1f, 0.1f, 0.6f);
 	materials[8].spec = glm::vec3(0.75f, 0.75f, 0.75f);
 	materials[8].pow = 140.0f;
 	//Uveg
-	materials[9].amb = glm::vec3(0.1f, 0.1f, 0.15f);
-	materials[9].dif = glm::vec3(0.2f, 0.2f, 0.2f);
+	materials[9].amb = glm::vec3(0.1f, 0.25f, 0.15f);
+	materials[9].dif = glm::vec3(0.2f, 0.6f, 0.2f);
 	materials[9].spec = glm::vec3(0.6f,0.6f, 0.6f);
 	materials[9].pow = 110.0f;
 
 	//also uvegek
-	for (int i = 10; i < spheres_count; ++i)
+	/*for (int i = 10; i < spheres_count; ++i)
 	{
 		materials[i].amb = glm::vec3(0.2f, 0.2f, 0.3f);
 		materials[i].dif = glm::vec3(0.2f, 0.2f, 0.3f);
 		materials[i].spec = glm::vec3(0.3, 0.3, 0.3);
-		materials[i].pow = 120.0f;
-	}
+		materials[i].pow = 110.0f;
+	}*/
 
 	//Haromszog 1
 	materials[spheres_count].amb = glm::vec3(240/255, 240/255, 250/255);
@@ -363,6 +363,7 @@ bool CMyApp::Init()
 
 	m_SunTextureID = TextureFromFile("sun.jpg");
 	m_EarthTextureID = TextureFromFile("earth.png");
+	m_EarthNormalID = TextureFromFile("earth_normal.jpg");
 	m_MoonTextureID = TextureFromFile("moon.png");
 	m_PlaneTextureID = TextureFromFile("grid.jpg");
 	//m_SkyTextureID = TextureFromFile("sky.jpg");
@@ -396,6 +397,7 @@ void CMyApp::Clean()
 
 	glDeleteTextures(1, &m_SunTextureID);
 	glDeleteTextures(1, &m_EarthTextureID);
+	glDeleteTextures(1, &m_EarthNormalID);
 	glDeleteTextures(1, &m_MoonTextureID);
 	glDeleteTextures(1, &m_PlaneTextureID);
 	//glDeleteTextures(1, &m_SkyTextureID);
@@ -512,9 +514,10 @@ void CMyApp::Render()
 
 	m_program.SetTexture("u_sun_texture",   0, m_SunTextureID);
 	m_program.SetTexture("u_earth_texture", 1, m_EarthTextureID);
-	m_program.SetTexture("u_moon_texture",  2, m_MoonTextureID);
-	m_program.SetTexture("u_plane_texture", 3, m_PlaneTextureID);
-	//m_program.SetTexture("u_sky_texture",   4, m_SkyTextureID);
+	m_program.SetTexture("u_earth_normal",  2, m_EarthNormalID);
+	m_program.SetTexture("u_moon_texture",  3, m_MoonTextureID);
+	m_program.SetTexture("u_plane_texture", 4, m_PlaneTextureID);
+	//m_program.SetTexture("u_sky_texture",   5, m_SkyTextureID);
 
 	for (int i = 0; i < materials_count; ++i)
 	{

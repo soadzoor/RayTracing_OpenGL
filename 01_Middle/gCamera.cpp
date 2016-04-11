@@ -70,6 +70,7 @@ void gCamera::UpdateUV(float du, float dv)
 
 	m_fw = glm::normalize( m_at - m_eye );
 	m_st = glm::normalize( glm::cross( m_fw, m_up ) );
+
 }
 
 void gCamera::SetSpeed(float _val)
