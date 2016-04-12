@@ -362,9 +362,10 @@ bool CMyApp::Init()
 	m_textureID = TextureFromFile("texture.png");
 
 	m_SunTextureID = TextureFromFile("sun.jpg");
-	m_EarthTextureID = TextureFromFile("earth.png");
+	m_EarthTextureID = TextureFromFile("earth.jpg");
 	m_EarthNormalID = TextureFromFile("earth_normal.jpg");
 	m_MoonTextureID = TextureFromFile("moon.png");
+	m_MoonNormalID = TextureFromFile("moon_normal.png");
 	m_PlaneTextureID = TextureFromFile("grid.jpg");
 	//m_SkyTextureID = TextureFromFile("sky.jpg");
 
@@ -399,6 +400,7 @@ void CMyApp::Clean()
 	glDeleteTextures(1, &m_EarthTextureID);
 	glDeleteTextures(1, &m_EarthNormalID);
 	glDeleteTextures(1, &m_MoonTextureID);
+	glDeleteTextures(1, &m_MoonNormalID);
 	glDeleteTextures(1, &m_PlaneTextureID);
 	//glDeleteTextures(1, &m_SkyTextureID);
 
@@ -427,6 +429,12 @@ void CMyApp::Render()
 	glm::mat4 matWorld = glm::mat4(1.0f);
 	glm::mat4 matWorldIT = glm::transpose( glm::inverse( matWorld ) );
 	glm::mat4 mvp = m_camera.GetViewProj() *matWorld;
+
+	//glm::mat4 mat = glm::rotate<float>(50, glm::vec3(0, 1, 1));
+	//std::cout << mat[0][0] << " " << mat[0][1] << " " << mat[0][2] << " " << mat[0][3] << std::endl;
+	//std::cout << mat[1][0] << " " << mat[1][1] << " " << mat[1][2] << " " << mat[1][3] << std::endl;
+	//std::cout << mat[2][0] << " " << mat[2][1] << " " << mat[2][2] << " " << mat[2][3] << std::endl;
+	//std::cout << mat[3][0] << " " << mat[3][1] << " " << mat[3][2] << " " << mat[3][3] << std::endl << std::endl;
 
 	float rot = 0;
 
@@ -516,7 +524,8 @@ void CMyApp::Render()
 	m_program.SetTexture("u_earth_texture", 1, m_EarthTextureID);
 	m_program.SetTexture("u_earth_normal",  2, m_EarthNormalID);
 	m_program.SetTexture("u_moon_texture",  3, m_MoonTextureID);
-	m_program.SetTexture("u_plane_texture", 4, m_PlaneTextureID);
+	m_program.SetTexture("u_mooon_normal",  4, m_MoonNormalID);
+	m_program.SetTexture("u_plane_texture", 5, m_PlaneTextureID);
 	//m_program.SetTexture("u_sky_texture",   5, m_SkyTextureID);
 
 	for (int i = 0; i < materials_count; ++i)

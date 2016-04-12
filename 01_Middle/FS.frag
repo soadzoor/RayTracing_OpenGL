@@ -15,6 +15,7 @@ uniform sampler2D u_sun_texture;
 uniform sampler2D u_earth_texture;
 uniform sampler2D u_earth_normal;
 uniform sampler2D u_moon_texture;
+uniform sampler2D u_moon_normal;
 uniform sampler2D u_plane_texture;
 //uniform sampler2D u_sky_texture;
 
@@ -75,79 +76,29 @@ const float EPSILON = 0.001;
 bool sky_hit = false;
 
 
-// Segédfüggvény: feltéve hogy a és b vektorok nem esnek egy egyenesbe,
-// mi az az R forgatómátrix, hogy b = R*a?
-// Math: http://math.stackexchange.com/questions/180418/calculate-rotation-matrix-to-align-vector-a-to-vector-b-in-3d/897677#897677
-mat3 AToB(vec3 a, vec3 b){
+mat3 rotationMatrix(vec3 axis, float angle)
+{
+    axis = normalize(axis);
+    float s = sin(angle);
+    float c = cos(angle);
+    float oc = 1.0 - c;
+    
+    return mat3(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,
+                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,
+                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c);
+}
 
-	a = normalize(a);
-	b = normalize(b);
+mat3 calculateR(vec3 normal)
+{
+	normalize(normal);
 
-	vec3 v = cross(a, b);
-	float s = length(v);
-	float c = dot(a, b);
+	float cos_angle = dot(normal, vec3(0, 0, 1));
+	float angle = acos(cos_angle);
+	vec3 axis = cross(normal, vec3(0, 0, 1));
 
-	mat3 V = mat3(
-		vec3(0,     v.z, -v.y),
-		vec3(-v.z,  0,    v.x),
-		vec3( v.y, -v.x,  0  )
-	);
-
-	mat3 R = mat3(1.0f) + V + V * V * ((1 - c) / (s*s));
+	mat3 R = rotationMatrix(axis, angle);
 	return R;
-
 }
-
-// Segédfüggvény a normálvektor módosításához a normalmap szerint
-// alapötlet: a normalmap azt mutatja, hogyan kell változtatni egy normálison, ha az a (0,0,1) irányba mutatna
-// viszont a normálvektoraink ugye nem így állnak, hanem vs_out_normal irányba mutatnak
-// tehát: legyen R az a transzformáció, ami a (0,0,1)-et vs_out_normal-ba forgatja,
-// és ekkor az új normálvektor valójában R*normal_from_normalmap lesz
-
-vec3 normalTransform(vec3 normal_original, vec3 normal_from_normalmap){
-
-	vec3 n_orig = normalize(normal_original);
-	vec3 n_map = normalize(normal_from_normalmap);
-	mat3 R = AToB(vec3(0, 0, 1), n_map);
-	return R*n_map;
-
-}
-
-
-
-
-//mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
-//{
-//    // get edge vectors of the pixel triangle
-//    vec3 dp1 = dFdx( p );
-//    vec3 dp2 = dFdy( p );
-//    vec2 duv1 = dFdx( uv );
-//    vec2 duv2 = dFdy( uv );
-// 
-//    // solve the linear system
-//    vec3 dp2perp = cross( dp2, N );
-//    vec3 dp1perp = cross( N, dp1 );
-//    vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
-//    vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
-// 
-//    float invmax = inversesqrt( max( dot(T,T), dot(B,B) ) );
-//    return mat3( T * invmax, B * invmax, N );
-//}
-//
-//
-//vec3 perturb_normal( vec3 N, vec3 V, vec2 texcoord )
-//{
-//    // assume N, the interpolated vertex normal and 
-//    // V, the view vector (vertex to eye)
-//    vec3 map = texture2D( u_earth_normal, texcoord ).xyz;
-//    map = map * 255./127. - 128./127.;
-//    map.z = sqrt( 1. - dot( map.xy, map.xy ) );
-//    map.y = -map.y;
-//    mat3 TBN = cotangent_frame( N, -V, texcoord );
-//    return normalize( TBN * map );
-//}
-
-
 
 
 
@@ -382,11 +333,20 @@ void trace(in Light u_lights[lights_count], in Material u_materials[materials_co
 		v = 0.5 - asin(-min_hit.normal.y)/3.1415;
 		u += u_rot/2;
 		vec2 uv = vec2(u, v);
-		if (min_hit.ind == 10)
-		{
-			//vec3 normalFromMap = (2*( (texture(u_earth_normal, min_hit.point.xz)).xyz ) - 1);
 
-			//min_hit.normal = normalTransform(min_hit.normal, normalFromMap);
+		if (min_hit.ind == 3)
+		{
+			vec3 normalFromMap = normalize(2*( (texture(u_earth_normal, -uv)).bgr ) - 1);
+			
+			mat3 R = calculateR(min_hit.normal);
+			min_hit.normal = R*normalFromMap;
+		}
+		else if (min_hit.ind == 4)
+		{
+			vec3 normalFromMap = normalize(2*( (texture(u_moon_normal, -uv)).bgr ) - 1);
+			
+			mat3 R = calculateR(min_hit.normal);
+			min_hit.normal = R*normalFromMap;
 		}
 
 		ref_dir = normalize(reflect(min_hit.point - pos, min_hit.normal));

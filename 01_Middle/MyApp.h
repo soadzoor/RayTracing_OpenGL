@@ -77,6 +77,7 @@ protected:
 	GLuint m_EarthTextureID;
 	GLuint m_EarthNormalID;
 	GLuint m_MoonTextureID;
+	GLuint m_MoonNormalID;
 	GLuint m_PlaneTextureID;
 	//GLuint m_SkyTextureID;
 
