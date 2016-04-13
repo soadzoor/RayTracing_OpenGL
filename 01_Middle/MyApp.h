@@ -27,6 +27,11 @@ public:
 	bool mirror_spheres;
 	bool pause;
 	bool shadow;
+	bool useNormalMap = true;
+	float pausedTime = 0;
+	float curElapsedTime = 0;
+	float sumElapsedTime = 0;
+	
 
 	struct Triangle
 	{

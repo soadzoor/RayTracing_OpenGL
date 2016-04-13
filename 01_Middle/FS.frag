@@ -71,6 +71,7 @@ uniform Disc disc02;
 
 uniform int u_depth;
 uniform bool u_shadow;
+uniform bool useNormalMap;
 
 const float EPSILON = 0.001;
 bool sky_hit = false;
@@ -331,24 +332,29 @@ void trace(in Light u_lights[lights_count], in Material u_materials[materials_co
 	{
 		u = 0.5 + atan(-min_hit.normal.z, -min_hit.normal.x)/(2*3.1415);
 		v = 0.5 - asin(-min_hit.normal.y)/3.1415;
-		u += u_rot/2;
-		vec2 uv = vec2(u, v);
 
-		if (min_hit.ind == 3)
+		if (useNormalMap)
 		{
-			vec3 normalFromMap = normalize(2*( (texture(u_earth_normal, -uv)).bgr ) - 1);
+			if (min_hit.ind == 3)
+			{
+				u += u_rot/2;
+				uv = vec2(u, v);
+				vec3 normalFromMap = normalize(2*( (texture(u_earth_normal, -uv)).bgr ) - 1);
 			
-			mat3 R = calculateR(min_hit.normal);
-			min_hit.normal = R*normalFromMap;
-		}
-		else if (min_hit.ind == 4)
-		{
-			vec3 normalFromMap = normalize(2*( (texture(u_moon_normal, -uv)).bgr ) - 1);
+				mat3 R = calculateR(min_hit.normal);
+				min_hit.normal = R*normalFromMap;
+			}
+			else if (min_hit.ind == 4)
+			{
+				u += u_rot/7;
+				uv = vec2(u, v);
+				vec3 normalFromMap = normalize(2*( (texture(u_moon_normal, -uv)).bgr ) - 1);
 			
-			mat3 R = calculateR(min_hit.normal);
-			min_hit.normal = R*normalFromMap;
+				mat3 R = calculateR(min_hit.normal);
+				min_hit.normal = R*normalFromMap;
+			}
 		}
-
+		
 		ref_dir = normalize(reflect(min_hit.point - pos, min_hit.normal));
 		vec3 temp_col = u_materials[min_hit.ind].amb;
 		vec3 diffuse = vec3(0);
@@ -388,7 +394,12 @@ void trace(in Light u_lights[lights_count], in Material u_materials[materials_co
 		}
 		if (min_hit.ind == 3)
 		{
-				
+			if (!useNormalMap)
+			{
+				u += u_rot/2;
+			}
+			
+			vec2 uv = vec2(u, v);
 			color *= k*(texture(u_earth_texture, -uv).bgra);
 			if (color.z > color.x && color.z > color.y)
 			{
@@ -398,8 +409,11 @@ void trace(in Light u_lights[lights_count], in Material u_materials[materials_co
 		}
 		if (min_hit.ind == 4)
 		{
-			u += u_rot/7;
-			//uv = vec2(u, v);
+			if (!useNormalMap)
+			{
+				u += u_rot/7;
+			}
+			vec2 uv = vec2(u, v);
 			color *= k*texture(u_moon_texture, -uv).bgra;
 		}
 		if (min_hit.ind == spheres_count+triangles_count)

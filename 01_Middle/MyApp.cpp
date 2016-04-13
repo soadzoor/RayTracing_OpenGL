@@ -102,13 +102,13 @@ bool CMyApp::Init()
 
 	//also uvegek
 
-	/*for (int i = 10; i < 20; ++i)
-	{
-		for (int j = 0; j < 10; ++j)
-		{
-			arrayOfSpheres[(i-10)*10+j+10] = glm::vec4(20+i, -4, j, 0.4);
-		}
-	}*/
+	//for (int i = 10; i < 20; ++i)
+	//{
+	//	for (int j = 0; j < 10; ++j)
+	//	{
+	//		arrayOfSpheres[(i-10)*10+j+10] = glm::vec4(20+i, -4, j, 0.4);
+	//	}
+	//}
 
 	//haromszogek
 	arrayOfTriangles[0].A = glm::vec3(-14, 14, -14);
@@ -283,14 +283,14 @@ bool CMyApp::Init()
 	materials[9].spec = glm::vec3(0.6f,0.6f, 0.6f);
 	materials[9].pow = 110.0f;
 
-	//also uvegek
-	/*for (int i = 10; i < spheres_count; ++i)
+	//also tukorgombok
+	for (int i = 10; i < spheres_count; ++i)
 	{
 		materials[i].amb = glm::vec3(0.2f, 0.2f, 0.3f);
 		materials[i].dif = glm::vec3(0.2f, 0.2f, 0.3f);
 		materials[i].spec = glm::vec3(0.3, 0.3, 0.3);
 		materials[i].pow = 110.0f;
-	}*/
+	}
 
 	//Haromszog 1
 	materials[spheres_count].amb = glm::vec3(240/255, 240/255, 250/255);
@@ -364,8 +364,8 @@ bool CMyApp::Init()
 	m_SunTextureID = TextureFromFile("sun.jpg");
 	m_EarthTextureID = TextureFromFile("earth.jpg");
 	m_EarthNormalID = TextureFromFile("earth_normal.jpg");
-	m_MoonTextureID = TextureFromFile("moon.png");
-	m_MoonNormalID = TextureFromFile("moon_normal.png");
+	m_MoonTextureID = TextureFromFile("moon.jpg");
+	m_MoonNormalID = TextureFromFile("moon_normal.jpg");
 	m_PlaneTextureID = TextureFromFile("grid.jpg");
 	//m_SkyTextureID = TextureFromFile("sky.jpg");
 
@@ -435,15 +435,20 @@ void CMyApp::Render()
 	//std::cout << mat[1][0] << " " << mat[1][1] << " " << mat[1][2] << " " << mat[1][3] << std::endl;
 	//std::cout << mat[2][0] << " " << mat[2][1] << " " << mat[2][2] << " " << mat[2][3] << std::endl;
 	//std::cout << mat[3][0] << " " << mat[3][1] << " " << mat[3][2] << " " << mat[3][3] << std::endl << std::endl;
-
-	float rot = 0;
-
-	if (!pause)
+	float rot;
+	
+	if (pause)
 	{
-		rot = SDL_GetTicks() / 1000.0f;
+		rot = pausedTime - sumElapsedTime;
+		curElapsedTime = SDL_GetTicks() / 1000.0f - pausedTime;
+	}
+	else
+	{
+		rot = SDL_GetTicks() / 1000.0f - sumElapsedTime;
 	}
 	m_program.SetUniform("u_rot", rot);
 	m_program.SetUniform("u_shadow", shadow);
+	m_program.SetUniform("useNormalMap", useNormalMap);
 
 	arrayOfSpheres[1] = glm::vec4(2 * sinf(rot / 2), 0, 2 * cosf(rot / 2), 0.26);
 	arrayOfSpheres[2] = glm::vec4(2.5* cos(rot / 3), 0, 2.5 * sinf(rot / 3), 0.18);
@@ -577,8 +582,23 @@ void CMyApp::KeyboardDown(SDL_KeyboardEvent& key)
 		case SDLK_p:
 		{
 			pause = !pause;
-			pause ? std::cout << "paused" << std::endl : std::cout << "returned" << std::endl;
-
+			if (pause)
+			{
+				curElapsedTime = 0;
+				std::cout << "paused" << std::endl;
+				pausedTime = SDL_GetTicks() / 1000.0f;
+			}
+			else
+			{
+				sumElapsedTime += curElapsedTime;
+				std::cout << "returned" << std::endl;
+			}
+			break;
+		}
+		case SDLK_n:
+		{
+			useNormalMap = !useNormalMap;
+			useNormalMap ? std::cout << "Using normal maps." << std::endl : std::cout << "All smooth." << std::endl;
 			break;
 		}
 		case SDLK_1:
