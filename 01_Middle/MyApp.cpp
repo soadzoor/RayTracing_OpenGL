@@ -529,7 +529,7 @@ void CMyApp::Render()
 	m_program.SetTexture("u_earth_texture", 1, m_EarthTextureID);
 	m_program.SetTexture("u_earth_normal",  2, m_EarthNormalID);
 	m_program.SetTexture("u_moon_texture",  3, m_MoonTextureID);
-	m_program.SetTexture("u_mooon_normal",  4, m_MoonNormalID);
+	m_program.SetTexture("u_moon_normal",   4, m_MoonNormalID);
 	m_program.SetTexture("u_plane_texture", 5, m_PlaneTextureID);
 	//m_program.SetTexture("u_sky_texture",   5, m_SkyTextureID);
 

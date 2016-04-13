@@ -451,25 +451,6 @@ void trace(in Light u_lights[lights_count], in Material u_materials[materials_co
 }
 
 
-/*bool refraction(in vec3 in_dir, in vec3 normal, in float eta, inout vec3 out_dir)
-{
-	float cosin = -1.0*dot(in_dir,normal);
-	if (abs(cosin) <= EPSILON) return false;
-
-	float cn = eta;
-	if (cosin < 0)
-	{
-		cn = 1.0/eta;
-		normal = -normal;
-		cosin = -cosin;
-	}
-	float disc = 1 - (1 - cosin * cosin) / cn / cn;
-	if (disc < 0) return false;
-	out_dir = normal * (cosin / cn - sqrt(disc)) + in_dir / cn;
-	return true;
-}*/
-
-
 void main()
 {	
 	vec4 color = vec4(0);
