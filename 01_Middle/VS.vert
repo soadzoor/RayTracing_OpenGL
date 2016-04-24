@@ -1,7 +1,5 @@
 #version 130
 
-
-
 // VBO-ból érkezõ változók
 in vec3 vs_in_pos;
 

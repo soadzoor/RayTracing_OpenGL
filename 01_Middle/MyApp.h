@@ -28,6 +28,7 @@ public:
 	bool pause;
 	bool shadow;
 	bool useNormalMap = true;
+	bool glow = false;
 	float pausedTime = 0;
 	float curElapsedTime = 0;
 	float sumElapsedTime = 0;
@@ -51,6 +52,7 @@ public:
 		glm::vec3 o, n;
 		float r;
 	};
+
 
 	bool Init();
 	void Clean();
@@ -94,10 +96,14 @@ protected:
 	};
 	struct Material
 	{
-		glm::vec3 amb;
-		glm::vec3 dif;
-		glm::vec3 spec;
+		glm::vec3 amb = glm::vec3(0.0);
+		glm::vec3 dif = glm::vec3(0.0);
+		glm::vec3 spec = glm::vec3(0.0);
 		float pow;
+		bool refractive;
+		bool reflective;
+		float n = 1.0f;
+		glm::vec3 f0 = glm::vec3(0.0);
 	};
 	
 	Light lights[lights_count];
@@ -108,10 +114,9 @@ protected:
 	Disc disc02;
 
 	// belsõ eljárások
-	GLuint GenTexture();
+	glm::vec3 getF0(glm::vec3 n, glm::vec3 k);
 
 	// OpenGL-es dolgok
-	GLuint m_textureID; // textúra erõforrás azonosító
 
 	gCamera			m_camera;
 	gShaderProgram	m_program;

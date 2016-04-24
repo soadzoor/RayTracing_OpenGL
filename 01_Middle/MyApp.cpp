@@ -10,7 +10,6 @@
 
 CMyApp::CMyApp(void)
 {
-	m_textureID = 0;
 
 	m_SunTextureID = 0;
 	m_EarthTextureID = 0;
@@ -30,37 +29,13 @@ CMyApp::~CMyApp(void)
 {
 }
 
-
-GLuint CMyApp::GenTexture()
+glm::vec3 CMyApp::getF0(glm::vec3 n, glm::vec3 k) //toresmutato, kioltasi tenyezo
 {
-    unsigned char tex[256][256][3];
- 
-    for (int i=0; i<256; ++i)
-        for (int j=0; j<256; ++j)
-        {
-			tex[i][j][0] = rand()%256;
-			tex[i][j][1] = rand()%256;
-			tex[i][j][2] = rand()%256;
-        }
- 
-	GLuint tmpID;
 
-	// generáljunk egy textúra erõforrás nevet
-    glGenTextures(1, &tmpID);
-	// aktiváljuk a most generált nevû textúrát
-    glBindTexture(GL_TEXTURE_2D, tmpID);
-	// töltsük fel adatokkal az...
-    gluBuild2DMipmaps(  GL_TEXTURE_2D,	// aktív 2D textúrát
-						GL_RGB8,		// a vörös, zöld és kék csatornákat 8-8 biten tárolja a textúra
-						256, 256,		// 256x256 méretû legyen
-						GL_RGB,				// a textúra forrása RGB értékeket tárol, ilyen sorrendben
-						GL_UNSIGNED_BYTE,	// egy-egy színkopmonenst egy unsigned byte-ról kell olvasni
-						tex);				// és a textúra adatait a rendszermemória ezen szegletébõl töltsük fel
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	// bilineáris szûrés kicsinyítéskor
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	// és nagyításkor is
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glm::vec3 f0 = ((n - glm::vec3(1.0))*(n - glm::vec3(1.0)) + k*k) / ((n + glm::vec3(1.0))*(n + glm::vec3(1.0)) + k*k);
 
-	return tmpID;
+	return f0;
+
 }
 
 bool CMyApp::Init()
@@ -76,7 +51,6 @@ bool CMyApp::Init()
 	lights[0].pos = glm::vec3(0.0, 0.0, 0.0);
 	lights[1].col = glm::vec3(1, 1, 1);
 	lights[1].pos = glm::vec3(-2, 20, 0);
-
 	lights[2].col = glm::vec3(1, 1, 1);
 	lights[2].pos = glm::vec3(20, 20, 0);
 
@@ -88,8 +62,8 @@ bool CMyApp::Init()
 	arrayOfSpheres[4] = glm::vec4(4, 0, 0, 0.1); //hold
 
 	//fenyeket reprezentalo gombok
-	arrayOfSpheres[5] = glm::vec4(lights[0].pos.x, lights[0].pos.y, lights[0].pos.z, 0.05); //nap fenye
-	arrayOfSpheres[6] = glm::vec4(lights[1].pos.x, lights[1].pos.y, lights[1].pos.z, 0.05); //masik feny
+	arrayOfSpheres[5] = glm::vec4(lights[1].pos.x, lights[1].pos.y, lights[1].pos.z, 0.05);
+	arrayOfSpheres[6] = glm::vec4(lights[2].pos.x, lights[2].pos.y, lights[2].pos.z, 0.05);
 
 	//spekularishoz a piros gomb
 	arrayOfSpheres[7] = glm::vec4(lights[1].pos.x + 0.6, lights[1].pos.y - 0.6, lights[1].pos.z - 0.6, 0.3);
@@ -237,95 +211,151 @@ bool CMyApp::Init()
 	materials[0].dif = glm::vec3(0.0, 0.0, 0.0);
 	materials[0].spec = glm::vec3(0.0, 0.0, 0.0);
 	materials[0].pow = 30.0f;
+	materials[0].refractive = false;
+	materials[0].reflective = false;
+
 	//Zold golyo
 	materials[1].amb = glm::vec3(0, 0.2f, 0);
 	materials[1].dif = glm::vec3(0, 0.4f, 0);
 	materials[1].spec = glm::vec3(1, 0.6f, 0.8f);
 	materials[1].pow = 20.0f;
+	materials[1].refractive = false;
+	materials[1].reflective = false;
+
 	//Kek golyo
 	materials[2].amb = glm::vec3(0, 0, 0.2f);
 	materials[2].dif = glm::vec3(0, 0, 0.4f);
 	materials[2].spec = glm::vec3(0.8f, 0.5f, 0.6f);
 	materials[2].pow = 20.0f;
+	materials[2].refractive = false;
+	materials[2].reflective = false;
+
 	//Fold
 	materials[3].amb = glm::vec3(0.5f, 0.5f, 0.5f);
 	materials[3].dif = glm::vec3(0.5f, 0.5f, 0.5f);
 	materials[3].spec = glm::vec3(0.5f, 0.5f, 0.5f);
 	materials[3].pow = 30.0f;
+	materials[3].refractive = false;
+	materials[3].reflective = true;
+
 	//Hold
 	materials[4].amb = glm::vec3(0.5f, 0.5f, 0.5f);
 	materials[4].dif = glm::vec3(0.5f, 0.5f, 0.5f);
 	materials[4].spec = glm::vec3(0.5f, 0.5f, 0.5f);
 	materials[4].pow = 20.0f;
+	materials[4].refractive = false;
+	materials[4].reflective = false;
+
 	//Fenyek
 	materials[5].amb = glm::vec3(0.5f, 0.5f, 0.5f);
 	materials[5].dif = glm::vec3(0.8f, 0.5f, 0.8f);
 	materials[5].spec = glm::vec3(0.9f, 0.9f, 0.9f);
 	materials[5].pow = 20.0f;
+	materials[5].refractive = false;
+	materials[5].reflective = false;
+
 
 	materials[6].amb = glm::vec3(0.5f, 0.5f, 0.5f);
 	materials[6].dif = glm::vec3(0.8f, 0.8f, 0.8f);
 	materials[6].spec = glm::vec3(0.5f, 0.5f, 0.9f);
 	materials[6].pow = 20.0f;
+	materials[6].refractive = false;
+	materials[6].reflective = false;
+
 	//Piros golyo
 	materials[7].amb = glm::vec3(0.2f, 0.0f, 0.0f);
 	materials[7].dif = glm::vec3(0.5f, 0.0f, 0.0f);
 	materials[7].spec = glm::vec3(0.8f, 0.8f, 0.8f);
 	materials[7].pow = 66.0f;
-	//Tukor
-	materials[8].amb = glm::vec3(0.0f, 0.0f, 0.25f);
-	materials[8].dif = glm::vec3(0.1f, 0.1f, 0.6f);
-	materials[8].spec = glm::vec3(0.75f, 0.75f, 0.75f);
-	materials[8].pow = 140.0f;
-	//Uveg
-	materials[9].amb = glm::vec3(0.1f, 0.25f, 0.15f);
-	materials[9].dif = glm::vec3(0.2f, 0.6f, 0.2f);
-	materials[9].spec = glm::vec3(0.6f,0.6f, 0.6f);
-	materials[9].pow = 110.0f;
+	materials[7].refractive = false;
+	materials[7].reflective = false;
+
+	//arany
+	//materials[8].amb = glm::vec3(0.24725, 0.1995, 0.0745)/5.0f;
+	materials[8].dif = glm::vec3(0.01, 0.01, 0.01);
+	materials[8].spec = glm::vec3(0.628281, 0.555802, 0.366065);
+	materials[8].pow = 51.2f;
+	materials[8].refractive = false;
+	materials[8].reflective = true;
+	materials[8].f0 = getF0(glm::vec3(0.17, 0.35, 1.5), glm::vec3(3.1, 2.7, 1.9));//arany kioltasi tenyezo);
+
+	//uveg
+	materials[9].amb = glm::vec3(0.0f, 0.0f, 0.0f);
+	materials[9].dif = glm::vec3(0.01f, 0.01f, 0.01f);
+	materials[9].spec = glm::vec3(0.8f, 0.8f, 0.8f);
+	materials[9].pow = 70.0f;
+	materials[9].refractive = true;
+	materials[9].reflective = false;
+	materials[9].f0 = getF0(glm::vec3(1.3), glm::vec3(0.01));
+	materials[9].n = 1.5;
+
 
 	//also tukorgombok
-	for (int i = 10; i < spheres_count; ++i)
-	{
-		materials[i].amb = glm::vec3(0.2f, 0.2f, 0.3f);
-		materials[i].dif = glm::vec3(0.2f, 0.2f, 0.3f);
-		materials[i].spec = glm::vec3(0.3, 0.3, 0.3);
-		materials[i].pow = 110.0f;
-	}
+	//for (int i = 10; i < spheres_count; ++i)
+	//{
+	//	materials[i].amb = glm::vec3(0.2f, 0.2f, 0.3f);
+	//	materials[i].dif = glm::vec3(0.2f, 0.2f, 0.3f);
+	//	materials[i].spec = glm::vec3(0.3, 0.3, 0.3);
+	//	materials[i].pow = 120.0f;
+	//	materials[i].transparency = 0.0f;
+	//	materials[i].shininess = 0.9f;
+
+	//}
 
 	//Haromszog 1
-	materials[spheres_count].amb = glm::vec3(240/255, 240/255, 250/255);
-	materials[spheres_count].dif = glm::vec3(0.2f, 0.2f, 0.2f);
+	materials[spheres_count].amb = glm::vec3(0.0f, 0.0f, 0.0f); //glm::vec3(240/255, 240/255, 250/255);
+	materials[spheres_count].dif = glm::vec3(0.01f, 0.01f, 0.01f);
 	materials[spheres_count].spec = glm::vec3(0.8f, 0.8f, 0.8f);
 	materials[spheres_count].pow = 120.0f;
+	materials[spheres_count].refractive = false;
+	materials[spheres_count].reflective = true;
+	materials[spheres_count].f0 = getF0(glm::vec3(0.14, 0.16, 0.13), glm::vec3(4.1, 2.3, 3.1));
+
 	//Haromszog 2
-	materials[spheres_count+1].amb = glm::vec3(240 / 255, 240 / 255, 250 / 255);
-	materials[spheres_count+1].dif = glm::vec3(0.2f, 0.2f, 0.2f);
+	materials[spheres_count+1].amb = glm::vec3(0.0f, 0.0f, 0.0f);//glm::vec3(240 / 255, 240 / 255, 250 / 255);
+	materials[spheres_count+1].dif = glm::vec3(0.01f, 0.01f, 0.01f);
 	materials[spheres_count+1].spec = glm::vec3(0.8f, 0.8f, 0.8f);
 	materials[spheres_count+1].pow = 120.0f;
+	materials[spheres_count+1].refractive = false;
+	materials[spheres_count+1].reflective = true;
+	materials[spheres_count+1].f0 = getF0(glm::vec3(0.14, 0.16, 0.13), glm::vec3(4.1, 2.3, 3.1));
+
 	//Gyemant
 
-	/*for (int i = spheres_count+2; i < triangles_count; ++i)
-	{
-		materials[i].amb = glm::vec3(0.3f, 0.3f, 0.3f);
-		materials[i].dif = glm::vec3(0.7f, 0.7f, 0.7f);
-		materials[i].spec = glm::vec3(0.75f, 0.75f, 0.75f);
-		materials[i].pow = 110.0f;
-	}*/
+	//for (int i = spheres_count+2; i < triangles_count; ++i)
+	//{
+	//	materials[i].amb = glm::vec3(0.3f, 0.3f, 0.3f);
+	//	materials[i].dif = glm::vec3(0.7f, 0.7f, 0.7f);
+	//	materials[i].spec = glm::vec3(0.75f, 0.75f, 0.75f);
+	//	materials[i].pow = 110.0f;
+	//	materials[i].refractive = false;
+	//	materials[i].reflective = false;
+	//
+	//}
 	//Sik
 	materials[spheres_count+triangles_count].amb = glm::vec3(0.0f, 0.0f, 0.0f);
 	materials[spheres_count+triangles_count].dif = glm::vec3(0.3f, 0.34f, 0.36f);
 	materials[spheres_count+triangles_count].spec = glm::vec3(0.8f, 0.8f, 0.8f);
 	materials[spheres_count+triangles_count].pow = 60.0f;
+	materials[spheres_count+triangles_count].refractive = false;
+	materials[spheres_count+triangles_count].reflective = false;
+
 	//Disc
 	materials[spheres_count+triangles_count+1].amb = glm::vec3(0.0f, 0.15f, 0.3f);
 	materials[spheres_count+triangles_count+1].dif = glm::vec3(0.0f, 0.3f, 0.5f);
 	materials[spheres_count+triangles_count+1].spec = glm::vec3(0.8f, 0.8f, 0.8f);
 	materials[spheres_count+triangles_count+1].pow = 110.0f;
+	materials[spheres_count+triangles_count+1].refractive = false;
+	materials[spheres_count+triangles_count+1].reflective = false;
+
 
 	materials[spheres_count+triangles_count+2].amb = glm::vec3(0.0f, 0.15f, 0.3f);
 	materials[spheres_count+triangles_count+2].dif = glm::vec3(0.0f, 0.3f, 0.5f);
 	materials[spheres_count+triangles_count+2].spec = glm::vec3(0.8f, 0.8f, 0.8f);
 	materials[spheres_count+triangles_count+2].pow = 110.0f;
+	materials[spheres_count+triangles_count+2].refractive = false;
+	materials[spheres_count+triangles_count+2].reflective = false;
+
 
 	
 	
@@ -359,14 +389,13 @@ bool CMyApp::Init()
 	m_camera.SetProj(45.0f, 640.0f/480.0f, 0.01f, 1000.0f);
 
 	// textúra betöltése
-	m_textureID = TextureFromFile("texture.png");
 
 	m_SunTextureID = TextureFromFile("sun.jpg");
 	m_EarthTextureID = TextureFromFile("earth.jpg");
 	m_EarthNormalID = TextureFromFile("earth_normal.jpg");
 	m_MoonTextureID = TextureFromFile("moon.jpg");
 	m_MoonNormalID = TextureFromFile("moon_normal.jpg");
-	m_PlaneTextureID = TextureFromFile("grid.jpg");
+	m_PlaneTextureID = TextureFromFile("grid.bmp");
 	//m_SkyTextureID = TextureFromFile("sky.jpg");
 
 
@@ -394,7 +423,6 @@ bool CMyApp::Init()
 
 void CMyApp::Clean()
 {
-	glDeleteTextures(1, &m_textureID);
 
 	glDeleteTextures(1, &m_SunTextureID);
 	glDeleteTextures(1, &m_EarthTextureID);
@@ -449,6 +477,7 @@ void CMyApp::Render()
 	m_program.SetUniform("u_rot", rot);
 	m_program.SetUniform("u_shadow", shadow);
 	m_program.SetUniform("useNormalMap", useNormalMap);
+	m_program.SetUniform("u_glow", glow);
 
 	arrayOfSpheres[1] = glm::vec4(2 * sinf(rot / 2), 0, 2 * cosf(rot / 2), 0.26);
 	arrayOfSpheres[2] = glm::vec4(2.5* cos(rot / 3), 0, 2.5 * sinf(rot / 3), 0.18);
@@ -531,7 +560,7 @@ void CMyApp::Render()
 	m_program.SetTexture("u_moon_texture",  3, m_MoonTextureID);
 	m_program.SetTexture("u_moon_normal",   4, m_MoonNormalID);
 	m_program.SetTexture("u_plane_texture", 5, m_PlaneTextureID);
-	//m_program.SetTexture("u_sky_texture",   5, m_SkyTextureID);
+	//m_program.SetTexture("u_sky_texture",   6, m_SkyTextureID);
 
 	for (int i = 0; i < materials_count; ++i)
 	{
@@ -544,6 +573,14 @@ void CMyApp::Render()
 		m_program.SetUniform(buffer, materials[i].spec);
 		sprintf(buffer, "u_materials[%i].pow", i);
 		m_program.SetUniform(buffer,  materials[i].pow);
+		sprintf(buffer, "u_materials[%i].reflective", i);
+		m_program.SetUniform(buffer, materials[i].reflective);
+		sprintf(buffer, "u_materials[%i].refractive", i);
+		m_program.SetUniform(buffer, materials[i].refractive);
+		sprintf(buffer, "u_materials[%i].f0", i);
+		m_program.SetUniform(buffer, materials[i].f0);
+		sprintf(buffer, "u_materials[%i].n", i);
+		m_program.SetUniform(buffer, materials[i].n);
 	}
 	
 
@@ -575,7 +612,10 @@ void CMyApp::KeyboardDown(SDL_KeyboardEvent& key)
 		}
 		case SDLK_RIGHT:
 		{
-			std::cout << "Depth: " << ++depth << std::endl;
+			if (depth < 8)
+			{
+				std::cout << "Depth: " << ++depth << std::endl;
+			}
 
 			break;
 		}
@@ -599,6 +639,12 @@ void CMyApp::KeyboardDown(SDL_KeyboardEvent& key)
 		{
 			useNormalMap = !useNormalMap;
 			useNormalMap ? std::cout << "Using normal maps." << std::endl : std::cout << "All smooth." << std::endl;
+			break;
+		}
+		case SDLK_g:
+		{
+			glow = !glow;
+			glow ? std::cout << "Sun is glowing." << std::endl : std::cout << "Glow effect is off." << std::endl;
 			break;
 		}
 		case SDLK_1:

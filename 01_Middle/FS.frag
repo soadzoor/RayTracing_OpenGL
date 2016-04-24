@@ -1,8 +1,6 @@
 #version 130
 
 // pipeline-ból bejövõ per-fragment attribútumok
-//in vec3 vs_out_pos;
-//in vec3 vs_out_normal;
 in vec3 vs_out_ray;
 
 // kimenõ érték - a fragment színe
@@ -19,12 +17,21 @@ uniform sampler2D u_moon_normal;
 uniform sampler2D u_plane_texture;
 //uniform sampler2D u_sky_texture;
 
+struct Ray
+{
+	vec3 origin;
+	vec3 dir;
+};
 struct Material
 {
 	vec3 amb;
 	vec3 dif;
 	vec3 spec;
 	float pow;
+	bool reflective;
+	bool refractive;
+	vec3 f0;
+	float n;
 };
 struct Light
 {
@@ -72,9 +79,17 @@ uniform Disc disc02;
 uniform int u_depth;
 uniform bool u_shadow;
 uniform bool useNormalMap;
+uniform bool u_glow;
 
 const float EPSILON = 0.001;
-bool sky_hit = false;
+const int STACK_SIZE = 16;
+
+struct Stack
+{
+	Ray ray;
+	vec3 trace_coeff;
+	int depth;
+};
 
 
 mat3 rotationMatrix(vec3 axis, float angle)
@@ -105,11 +120,11 @@ mat3 calculateR(vec3 normal)
 
 
 
-bool intersectSphere(in vec3 pos, in vec3 dir, in vec4 sphere, out HitRec hit_rec, in int ind)
+bool intersectSphere(in Ray ray, in vec4 sphere, out HitRec hit_rec, in int ind)
 {
-	vec3 dist = pos - sphere.xyz;
-	float b = dot(dist,dir)*2.0; //skalaris szorzat
-	float a = dot(dir, dir);
+	vec3 dist = ray.origin - sphere.xyz;
+	float b = dot(dist, ray.dir)*2.0; //skalaris szorzat
+	float a = dot(ray.dir, ray.dir);
 	float c = dot(dist, dist) - dot(sphere.w, sphere.w);
 
 	float discr = b*b - 4.0 * a * c;
@@ -148,7 +163,7 @@ bool intersectSphere(in vec3 pos, in vec3 dir, in vec4 sphere, out HitRec hit_re
 	hit_rec.ind = ind;
 	hit_rec.t = t;
 	hit_rec.origo = vec3(sphere.xyz);
-	hit_rec.point = pos + t*dir;
+	hit_rec.point = ray.origin + t*ray.dir;
 
 
 	hit_rec.normal = normalize((hit_rec.point-hit_rec.origo) / sphere.w);
@@ -156,14 +171,14 @@ bool intersectSphere(in vec3 pos, in vec3 dir, in vec4 sphere, out HitRec hit_re
 	return true;
 }
 
-bool intersectPlane(in vec3 pos, in vec3 dir, in Plane plane, out HitRec hit_rec, in int ind)
+bool intersectPlane(in Ray ray, in Plane plane, out HitRec hit_rec, in int ind)
 {
-	if (dot(dir, plane.n) > 0)
+	if (dot(ray.dir, plane.n) > 0)
 	{
 		return false;
 	}
 
-	float t = (dot(plane.n,(plane.q - pos))) / (dot(plane.n, dir));
+	float t = (dot(plane.n,(plane.q - ray.origin))) / (dot(plane.n, ray.dir));
 
 	if (t < EPSILON )
 	{
@@ -172,21 +187,21 @@ bool intersectPlane(in vec3 pos, in vec3 dir, in Plane plane, out HitRec hit_rec
 	hit_rec.ind = ind;
 	hit_rec.t = t;
 	hit_rec.origo = plane.q;
-	hit_rec.point = pos + t*dir;
+	hit_rec.point = ray.origin + t*ray.dir;
 	hit_rec.normal = plane.n;
 	
 	return true;
 }
 
-bool intersectDisc(in vec3 pos, in vec3 dir, in Disc disc, out HitRec hit_rec, in int ind)
+bool intersectDisc(in Ray ray, in Disc disc, out HitRec hit_rec, in int ind)
 {
 	Plane plane1;
 	plane1.n = disc.n;
 	plane1.q = disc.o;
 
-    if (intersectPlane(pos, dir, plane1, hit_rec, ind)) 
+    if (intersectPlane(ray, plane1, hit_rec, ind)) 
 	{ 
-        vec3 p = pos + hit_rec.t*dir; 
+        vec3 p = ray.origin + hit_rec.t*ray.dir; 
         vec3 v = p - disc.o; 
         float d2 = dot(v, v); 
         if (!(d2 <= disc.r*disc.r))
@@ -201,7 +216,7 @@ bool intersectDisc(in vec3 pos, in vec3 dir, in Disc disc, out HitRec hit_rec, i
 }
 
 
-bool intersectTriangle(in vec3 pos, in vec3 dir, in Triangle t, out HitRec hit_rec, in int ind) //Moller-Trumbore
+bool intersectTriangle(Ray ray, in Triangle t, out HitRec hit_rec, in int ind) //Moller-Trumbore
 {
   vec3 e1, e2;  //Edge1, Edge2
   vec3 P, Q, T;
@@ -212,7 +227,7 @@ bool intersectTriangle(in vec3 pos, in vec3 dir, in Triangle t, out HitRec hit_r
   e1 = t.B - t.A;
   e2 = t.C - t.A;
   //Begin calculating determinant - also used to calculate u parameter
-  P = cross(dir, e2);
+  P = cross(ray.dir, e2);
   //if determinant is near zero, ray lies in plane of triangle
   det = dot(e1, P);
   //NOT CULLING
@@ -220,7 +235,7 @@ bool intersectTriangle(in vec3 pos, in vec3 dir, in Triangle t, out HitRec hit_r
   inv_det = 1.f / det;
 
   //calculate distance from V1 to ray origin
-  T = pos - t.A;
+  T = ray.origin - t.A;
 
   //Calculate u parameter and test bound
   u = dot(T, P) * inv_det;
@@ -231,7 +246,7 @@ bool intersectTriangle(in vec3 pos, in vec3 dir, in Triangle t, out HitRec hit_r
   Q = cross(T, e1);
 
   //Calculate V parameter and test bound
-  v = dot(dir, Q) * inv_det;
+  v = dot(ray.dir, Q) * inv_det;
   //The intersection lies outside of the triangle
   if(v < 0.f || u + v  > 1.f) return false;
 
@@ -240,13 +255,12 @@ bool intersectTriangle(in vec3 pos, in vec3 dir, in Triangle t, out HitRec hit_r
   if(t1 > EPSILON) { //ray intersection
 		hit_rec.t = t1;
 		hit_rec.ind = ind;
-		hit_rec.point = pos + dir * t1;
+		hit_rec.point = ray.origin + ray.dir * t1;
 		hit_rec.normal = normalize(cross(t.B-t.A, t.C-t.A));
 		hit_rec.origo = (t.A+t.B+t.C)/3;
 		return true;
   }
 
-  // No hit, no win
   return false;
 }
 
@@ -255,7 +269,7 @@ vec4 glow(in float d, in vec4 glow_)
 	return glow_*clamp((2/(0.5f + d*d)), 0, 1);
 }
 
-bool findmin(in vec3 pos, in vec3 dir, inout HitRec hit_rec)
+bool findmin(in Ray ray, inout HitRec hit_rec)
 {
 	HitRec hit_temp;
 	
@@ -264,7 +278,7 @@ bool findmin(in vec3 pos, in vec3 dir, inout HitRec hit_rec)
 	
 	for (int i = 0; i < spheres_count; ++i) 
 	{
-		if (intersectSphere(pos, dir, u_spheres[i], hit_temp, i))
+		if (intersectSphere(ray, u_spheres[i], hit_temp, i))
 		{
 			
 			if (hit_temp.t < min_t || min_t < 0)
@@ -277,7 +291,7 @@ bool findmin(in vec3 pos, in vec3 dir, inout HitRec hit_rec)
 	}
 	for (int i = spheres_count; i < spheres_count + triangles_count; ++i)
 	{
-		if (intersectTriangle(pos, dir, u_triangles[i-spheres_count], hit_temp, i))
+		if (intersectTriangle(ray, u_triangles[i-spheres_count], hit_temp, i))
 		{
 			if (hit_temp.t < min_t || min_t < 0)
 			{
@@ -287,7 +301,7 @@ bool findmin(in vec3 pos, in vec3 dir, inout HitRec hit_rec)
 			hit = true;
 		}
 	}
-	if (intersectPlane(pos, dir, plane01, hit_temp, spheres_count + triangles_count))
+	if (intersectPlane(ray, plane01, hit_temp, spheres_count + triangles_count))
 	{
 		if (hit_temp.t < min_t || min_t < 0)
 		{
@@ -297,7 +311,7 @@ bool findmin(in vec3 pos, in vec3 dir, inout HitRec hit_rec)
 		hit = true;
 	}
 
-	if (intersectDisc(pos, dir, disc01, hit_temp, spheres_count + triangles_count + 1))
+	if (intersectDisc(ray, disc01, hit_temp, spheres_count + triangles_count + 1))
 	{
 		if (hit_temp.t < min_t || min_t < 0)
 		{
@@ -307,7 +321,7 @@ bool findmin(in vec3 pos, in vec3 dir, inout HitRec hit_rec)
 		hit = true;
 	}
 
-	if (intersectDisc(pos, dir, disc02, hit_temp, spheres_count + triangles_count + 2))
+	if (intersectDisc(ray, disc02, hit_temp, spheres_count + triangles_count + 2))
 	{
 		if (hit_temp.t < min_t || min_t < 0)
 		{
@@ -320,194 +334,234 @@ bool findmin(in vec3 pos, in vec3 dir, inout HitRec hit_rec)
 	return hit;
 }
 
-void trace(in Light u_lights[lights_count], in Material u_materials[materials_count], in vec3 pos, in vec3 dir, inout vec4 color, inout HitRec min_hit, float k)
+vec3 shade(in HitRec min_hit, in Ray ray)
 {
-	vec3 ref_dir;
-	float min_t = -1;
-	float u,v;
-	vec2 uv;
-	
+	vec3 ref_dir = normalize(reflect(min_hit.point - ray.origin, min_hit.normal));
+	vec3 temp_col = u_materials[min_hit.ind].amb;
+	vec3 diffuse = vec3(0);
 	vec3 specular = vec3(0);
-	if(findmin(pos, dir, min_hit))
+
+	for (int j = 0; j < lights_count; ++j)
 	{
-		u = 0.5 + atan(-min_hit.normal.z, -min_hit.normal.x)/(2*3.1415);
-		v = 0.5 - asin(-min_hit.normal.y)/3.1415;
-
-		if (useNormalMap)
-		{
-			if (min_hit.ind == 3)
-			{
-				u += u_rot/2;
-				uv = vec2(u, v);
-				vec3 normalFromMap = normalize(2*( (texture(u_earth_normal, -uv)).bgr ) - 1);
+		vec3 light_vec = u_lights[j].pos - min_hit.point;
+		//float distance = length(light_vec);
+		light_vec = normalize(light_vec);
+		float diffintensity = clamp(dot(min_hit.normal, light_vec), 0, 1);
 			
-				mat3 R = calculateR(min_hit.normal);
-				min_hit.normal = R*normalFromMap;
-			}
-			else if (min_hit.ind == 4)
-			{
-				u += u_rot/7;
-				uv = vec2(u, v);
-				vec3 normalFromMap = normalize(2*( (texture(u_moon_normal, -uv)).bgr ) - 1);
-			
-				mat3 R = calculateR(min_hit.normal);
-				min_hit.normal = R*normalFromMap;
-			}
-		}
-		
-		ref_dir = normalize(reflect(min_hit.point - pos, min_hit.normal));
-		vec3 temp_col = u_materials[min_hit.ind].amb;
-		vec3 diffuse = vec3(0);
-		for (int j = 0; j < lights_count; ++j)
-		{
-			vec3 light_vec = u_lights[j].pos - min_hit.point;
-			//float distance = length(light_vec);
-			light_vec = normalize(light_vec);
-			float diffintensity = clamp(dot(min_hit.normal, light_vec), 0, 1);
-			
-			specular = clamp(((u_materials[min_hit.ind].spec*u_lights[j].col)*pow(clamp(dot(light_vec, ref_dir),0,1), u_materials[min_hit.ind].pow))/(1), 0, 1);// /distance*distance mehetne, csak ronda lesz
-			diffuse = clamp((u_materials[min_hit.ind].dif*diffintensity*u_lights[j].col)/(1),0,1);
+		specular = clamp(((u_materials[min_hit.ind].spec*u_lights[j].col)*pow(clamp(dot(light_vec, ref_dir),0,1), u_materials[min_hit.ind].pow)), 0, 1);
+		diffuse = clamp((u_materials[min_hit.ind].dif*diffintensity*u_lights[j].col)/(1),0,1);
 
-			temp_col += diffuse + specular;
-			if (u_shadow)
-			{
-				HitRec shadow_hit = min_hit;
-				int ind = shadow_hit.ind;
-				findmin(shadow_hit.point+1.5*shadow_hit.normal*EPSILON, u_lights[j].pos-shadow_hit.point, shadow_hit);
-				if (shadow_hit.ind != 0 && shadow_hit.ind != 5 && shadow_hit.ind != 6 && shadow_hit.ind != spheres_count+triangles_count && shadow_hit.ind != ind)
-				{
-					temp_col *= 0.5f;
-				}
-			}
-		}
-		
-
-		color += k*vec4(temp_col, 1);
 			
-		
-		if (min_hit.ind == 0)
+		if (u_shadow)
 		{
-			u += u_rot/5;
-			v += u_rot/5;
-			vec2 uv = vec2(u, v);
-			color += k*(texture(u_sun_texture, -uv).bgra - vec4(temp_col + specular, 1) + vec4(0,0,0.5,1));
-		}
-		if (min_hit.ind == 3)
-		{
-			if (!useNormalMap)
+			HitRec shadow_hit = min_hit;
+			int ind = shadow_hit.ind;
+			Ray shadow_ray;
+			shadow_ray.origin = shadow_hit.point+1.5*shadow_hit.normal*EPSILON;
+			shadow_ray.dir = u_lights[j].pos-shadow_hit.point;
+			findmin(shadow_ray, shadow_hit);
+			if (shadow_hit.ind != 0 && shadow_hit.ind != 5 && shadow_hit.ind != 6 && shadow_hit.ind != spheres_count+triangles_count && shadow_hit.ind != ind)
 			{
-				u += u_rot/2;
-			}
-			
-			vec2 uv = vec2(u, v);
-			color *= k*(texture(u_earth_texture, -uv).bgra);
-			if (color.z > color.x && color.z > color.y)
-			{
-				color += k*clamp(k*vec4(3*specular, 1), 0, 1);
-				//fs_out_col = vec4(1,0,0,1);
+				specular = vec3(0.0); 
+				diffuse = vec3(0.0);
 			}
 		}
-		if (min_hit.ind == 4)
-		{
-			if (!useNormalMap)
-			{
-				u += u_rot/7;
-			}
-			vec2 uv = vec2(u, v);
-			color *= k*texture(u_moon_texture, -uv).bgra;
-		}
-		if (min_hit.ind == spheres_count+triangles_count)
-		{
-			color *= k*texture(u_plane_texture, 0.05*min_hit.point.xz).bgra;
-		}
-		//fs_out_col = texture(u_sky_texture, vs_out_pos.xy) + glow;
-
-
-	}
-	else if (!sky_hit)
-	{
-		color += vec4(k*vec3(0.25, 0.25, 0.75),1);
-		sky_hit = true;
+		temp_col += diffuse + specular;
 	}
 
-	
-	//glow
-	vec3 vec = u_spheres[0].xyz - pos;
-	vec3 direction = normalize(dir);
-	float t = dot(vec, direction);
-	vec3 hit_point = pos + t*direction;
-	float d = length(hit_point);
-	vec4 glowcolor = vec4(1,0.95,0.1,1);
-	vec4 glowness;
-	if ((length(min_hit.point-u_spheres[0].xyz) > 4.0f && length(min_hit.point-u_eye) < length(u_spheres[0].xyz - u_eye)) || t < 0)
-	{
-		glowness = vec4(0);
-	}
-	else
-	{
-		glowness = glow(d, glowcolor);
-	}
-	color += k*glowness;
+	return temp_col;
 }
 
+vec3 fresnel(in vec3 dir, in vec3 normal, in vec3 f0)
+{
 
-void main()
-{	
+	float cosa = abs(dot(normal, dir));
+
+	vec3 f = f0 + (vec3(1.0)-f0)*pow((1-cosa), 5);
+
+	return f;
+	
+}
+
+vec4 trace(Ray ray)
+{
 	vec4 color = vec4(0);
 	HitRec min_hit;
-	//HitRec last_min_hit;
-	
-	float ray_eta = 1.0f;
-	
-	color = vec4(0);
-	float k1 = 1f;
 
-	vec3 ray_dir = normalize(vs_out_ray);
-	vec3 ray_origin = u_eye;
-	vec3 temp_ray = vec3(0);
+	float u,v;
+	vec2 uv;
 
-	for (int i = 0; i < u_depth; ++i)
+	Stack stack[STACK_SIZE]; //max db
+	int stack_size = 0; //aktualis db
+	int bounce_count = 1;
+	vec3 trace_coeff = vec3(1.0);
+	bool continueLoop = true;
+	float f = 1.0;
+
+	while (continueLoop)
 	{
-		if (sky_hit) break;
-		trace(u_lights, u_materials, ray_origin+temp_ray, ray_dir, color, min_hit, k1);
-		
-		
-		
-		//mirror
-		if (u_materials[min_hit.ind].pow >= 120 || (min_hit.ind == 3 && (color.z > color.x && color.z > color.y)))
+		if(findmin(ray, min_hit))
 		{
-			ray_dir = normalize(reflect(ray_dir, min_hit.normal));
-			ray_origin = min_hit.point+1.5*min_hit.normal*EPSILON;
-			k1 = 0.5;
-		}
-		
-		//glass
-		else if (u_materials[min_hit.ind].pow < 120 && u_materials[min_hit.ind].pow >= 100)
-		{
-			float eta = 1.52f;
-			vec3 temp_ray = ray_dir;
-			
-			ray_dir = dot(ray_dir, min_hit.normal) < 0 ? refract(ray_dir, min_hit.normal, 1/eta) : refract(ray_dir, -min_hit.normal, eta);
+			u = 0.5 + atan(-min_hit.normal.z, -min_hit.normal.x)/(2*3.1415);
+			v = 0.5 - asin(-min_hit.normal.y)/3.1415;
 
-			if (ray_dir == vec3(0.0))
+			if (useNormalMap)
 			{
-				ray_dir = normalize(reflect(temp_ray, min_hit.normal));
-				ray_origin = min_hit.point - 1.5*min_hit.normal*EPSILON;
-				continue;
+				if (min_hit.ind == 3)
+				{
+					u += u_rot/2;
+					uv = vec2(u, v);
+					vec3 normalFromMap = normalize(2*( (texture(u_earth_normal, -uv)).bgr ) - 1);
+			
+					mat3 R = calculateR(min_hit.normal);
+					min_hit.normal = R*normalFromMap;
+				}
+				else if (min_hit.ind == 4)
+				{
+					u += u_rot/7;
+					uv = vec2(u, v);
+					vec3 normalFromMap = normalize(2*( (texture(u_moon_normal, -uv)).bgr ) - 1);
+			
+					mat3 R = calculateR(min_hit.normal);
+					min_hit.normal = R*normalFromMap;
+				}
 			}
-			ray_origin = min_hit.point + ray_dir*EPSILON;
-			ray_dir = normalize(ray_dir);
+			
+			bounce_count++;
+			
+			Material mat = u_materials[min_hit.ind];
+			vec3 shade_col = min_hit.ind == 0 ? vec3(0.0) : shade(min_hit, ray);
+		
+			color += vec4(shade_col, 1)*trace_coeff;
+			
+			
+			if (min_hit.ind == 0) //sun
+			{
+				u += u_rot/5;
+				v += u_rot/5;
+				vec2 uv = vec2(u, v);
+				color += (texture(u_sun_texture, -uv).bgra + vec4(0,0,0.5,1));
+			}
+			if (min_hit.ind == 3) //earth
+			{
+				if (!useNormalMap)
+				{
+					u += u_rot/2;
+				}
+			
+				vec2 uv = vec2(u, v);
+				color *= (texture(u_earth_texture, -uv).bgra);
+			}
+			if (min_hit.ind == 4) //moon
+			{
+				if (!useNormalMap)
+				{
+					u += u_rot/7;
+				}
+				vec2 uv = vec2(u, v);
+				color *= texture(u_moon_texture, -uv).bgra;
+			}
+			if (min_hit.ind == spheres_count+triangles_count) //plane
+			{
+				color *= texture(u_plane_texture, 0.15*min_hit.point.xz).bgra;
+			}
 
-			k1 = 0.5;
+			if ((mat.reflective || mat.refractive) && bounce_count <= u_depth)
+			{
+				//f *= 0.7;
+				//if (f < 0.1) continueLoop = false;
+				//glass
+				if (mat.refractive)
+				{
+					float eta = mat.n;
+					vec3 temp_ray = ray.dir;
+					Ray refr_ray;
+					
+					//                     kivulrol jon?                        igen                                        nem
+					refr_ray.dir = dot(ray.dir, min_hit.normal) < 0 ? refract(ray.dir, min_hit.normal, 1/eta) : refract(ray.dir, -min_hit.normal, eta);
+				
+					if (refr_ray.dir == vec3(0.0)) //teljes belso visszaverodes
+					{
+						ray.dir = normalize(reflect(temp_ray, min_hit.normal));
+						ray.origin = min_hit.point - 1.5*min_hit.normal*EPSILON;
+					}
+					else
+					{
+						refr_ray.origin = min_hit.point + refr_ray.dir*EPSILON;
+						refr_ray.dir = normalize(refr_ray.dir);
+						
+
+						stack[stack_size].trace_coeff = trace_coeff*(vec3(1.0) - fresnel(ray.dir, min_hit.normal, mat.f0))*f;
+						stack[stack_size].depth = bounce_count;
+						stack[stack_size++].ray = refr_ray;
+					}
+				}
+				//mirror
+				if (mat.reflective && (min_hit.ind != 3 || (min_hit.ind == 3 && color.z > color.x && color.z > color.y))) //A fold csak a vizen tukrozodjon
+				{
+					trace_coeff = trace_coeff*fresnel(ray.dir, min_hit.normal, mat.f0)*f;
+					ray.dir = dot(ray.dir, min_hit.normal) < 0 ? normalize(reflect(ray.dir, min_hit.normal)) : normalize(reflect(ray.dir, -min_hit.normal));
+					ray.origin = dot(ray.dir, min_hit.normal) < 0 ? min_hit.point - 1.5*min_hit.normal*EPSILON : min_hit.point + 1.5*min_hit.normal*EPSILON;
+				}
+			}
+			else //diffuse material
+			{
+				continueLoop = false;
+			}
+
 
 		}
 		else
 		{
-			break;
+			color += vec4(0.25, 0.25, 0.75 ,1)*trace_coeff;
+			continueLoop = false;
 		}
 
-		//last_min_hit = min_hit;
+		if (!continueLoop && stack_size > 0)
+		{
+			ray = stack[--stack_size].ray;
+			bounce_count = stack[stack_size].depth;
+			trace_coeff = stack[stack_size].trace_coeff;
+			continueLoop = true;
+		}
+		//
+		// glow
+		//
+		if (u_glow)
+		{
+			vec3 vec = u_spheres[0].xyz - ray.origin;
+			vec3 direction = normalize(ray.dir);
+			float t = abs(dot(vec, direction));
+			vec3 hit_point = ray.origin + t*direction;
+			float d = length(hit_point);
+			vec4 glowcolor = vec4(1,0.95,0.1,1);
+			vec4 glowness;
+			if (length(min_hit.point-u_eye)+u_spheres[0].w < length(u_spheres[0].xyz - u_eye))
+			{
+				glowness = vec4(0);
+			}
+			else
+			{
+				glowness = glow(d, glowcolor);
+			}
+			color += glowness;
+		}
+		
+		
 	}
+
+	return color;
+}
+
+
+void main()
+{
+	Ray ray;
+	ray.origin = u_eye;
+	ray.dir = normalize(vs_out_ray);
+	
+
+	vec4 color = trace(ray);
 
 	fs_out_col = color;
 }
