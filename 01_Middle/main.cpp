@@ -14,8 +14,9 @@ void exitProgram()
 {
 	SDL_Quit();
 
-	std::cout << "Kilépéshez nyomj meg egy billentyût..." << std::endl;
-	std::cin.get();
+	//std::cout << "Exit..." << std::endl;
+	//std::cin.get();
+	system("pause");
 }
 
 int main( int argc, char* args[] )

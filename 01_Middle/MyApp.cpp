@@ -72,7 +72,7 @@ bool CMyApp::Init()
 	arrayOfSpheres[8] = glm::vec4(6, 0, -10, 1.4);
 
 	//uveg
-	arrayOfSpheres[9] = glm::vec4(-7, 0, -2, 0.4);
+	arrayOfSpheres[9] = glm::vec4(-7, 0, 0, 1.4);
 
 	//also uvegek
 
@@ -272,21 +272,26 @@ bool CMyApp::Init()
 
 	//arany
 	//materials[8].amb = glm::vec3(0.24725, 0.1995, 0.0745)/5.0f;
-	materials[8].dif = glm::vec3(0.01, 0.01, 0.01);
+	//materials[8].dif = glm::vec3(0.01, 0.01, 0.01);
 	materials[8].spec = glm::vec3(0.628281, 0.555802, 0.366065);
 	materials[8].pow = 51.2f;
 	materials[8].refractive = false;
 	materials[8].reflective = true;
 	materials[8].f0 = getF0(glm::vec3(0.17, 0.35, 1.5), glm::vec3(3.1, 2.7, 1.9));//arany kioltasi tenyezo);
+	//materials[9].pow = 70.0f;
+	//materials[9].refractive = true;
+	//materials[9].reflective = true;
+	//materials[9].f0 = getF0(glm::vec3(1.5), glm::vec3(0.00));
+	//materials[9].n = 1.5;
 
 	//uveg
-	materials[9].amb = glm::vec3(0.0f, 0.0f, 0.0f);
-	materials[9].dif = glm::vec3(0.01f, 0.01f, 0.01f);
-	materials[9].spec = glm::vec3(0.8f, 0.8f, 0.8f);
+	//materials[9].amb = glm::vec3(0.0f, 0.0f, 0.0f);
+	//materials[9].dif = glm::vec3(0.01f, 0.01f, 0.01f);
+	//materials[9].spec = glm::vec3(0.8f, 0.8f, 0.8f);
 	materials[9].pow = 70.0f;
 	materials[9].refractive = true;
-	materials[9].reflective = false;
-	materials[9].f0 = getF0(glm::vec3(1.3), glm::vec3(0.01));
+	materials[9].reflective = true;
+	materials[9].f0 = getF0(glm::vec3(1.5), glm::vec3(0.00));
 	materials[9].n = 1.5;
 
 
@@ -339,6 +344,7 @@ bool CMyApp::Init()
 	materials[spheres_count+triangles_count].pow = 60.0f;
 	materials[spheres_count+triangles_count].refractive = false;
 	materials[spheres_count+triangles_count].reflective = false;
+	materials[spheres_count + triangles_count].f0 = getF0(glm::vec3(0.6), glm::vec3(2.6));
 
 	//Disc
 	materials[spheres_count+triangles_count+1].amb = glm::vec3(0.0f, 0.15f, 0.3f);
@@ -372,8 +378,8 @@ bool CMyApp::Init()
 	//
 	// shaderek betöltése
 	//
-	m_program.AttachShader(GL_VERTEX_SHADER, "VS.vert");
-	m_program.AttachShader(GL_FRAGMENT_SHADER, "FS.frag");
+	m_program.AttachShader(GL_VERTEX_SHADER, "VS.glsl");
+	m_program.AttachShader(GL_FRAGMENT_SHADER, "FS.glsl");
 
 	m_program.BindAttribLoc(0, "vs_in_pos");
 
@@ -484,6 +490,7 @@ void CMyApp::Render()
 	arrayOfSpheres[3] = glm::vec4(5 * cosf(rot / 5), 0, 5 * sinf(rot / 5), 0.366);
 	arrayOfSpheres[4] = glm::vec4(5 * cosf(rot / 5) + 1.0*cos(2 * rot), 0, 5 * sinf(rot / 5) + 1.0*sinf(2 * rot), 0.1);
 
+	//m_camera.SetView(glm::vec3(-2, 0, 0), glm::vec3(-7, 0, 0), glm::vec3(0, 1, 0));
 	glm::vec3 eye = m_camera.GetEye();
 	glm::vec3 fw = m_camera.GetFw();
 	glm::vec3 right = m_camera.GetRight();

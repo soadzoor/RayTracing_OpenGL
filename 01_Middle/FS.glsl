@@ -264,7 +264,7 @@ bool intersectTriangle(Ray ray, in Triangle t, out HitRec hit_rec, in int ind) /
   return false;
 }
 
-vec4 glow(in float d, in vec4 glow_)
+vec3 glow(in float d, in vec3 glow_)
 {
 	return glow_*clamp((2/(0.5f + d*d)), 0, 1);
 }
@@ -383,9 +383,9 @@ vec3 fresnel(in vec3 dir, in vec3 normal, in vec3 f0)
 	
 }
 
-vec4 trace(Ray ray)
+vec3 trace(Ray ray)
 {
-	vec4 color = vec4(0);
+	vec3 color = vec3(0);
 	HitRec min_hit;
 
 	float u,v;
@@ -430,9 +430,9 @@ vec4 trace(Ray ray)
 			bounce_count++;
 			
 			Material mat = u_materials[min_hit.ind];
-			vec3 shade_col = min_hit.ind == 0 ? vec3(0.0) : shade(min_hit, ray);
+			vec3 shade_col = min_hit.ind == 0 ? mat.amb : shade(min_hit, ray);
 		
-			color += vec4(shade_col, 1)*trace_coeff;
+			color += shade_col*trace_coeff;
 			
 			
 			if (min_hit.ind == 0) //sun
@@ -440,7 +440,7 @@ vec4 trace(Ray ray)
 				u += u_rot/5;
 				v += u_rot/5;
 				vec2 uv = vec2(u, v);
-				color += (texture(u_sun_texture, -uv).bgra + vec4(0,0,0.5,1));
+				color *= texture(u_sun_texture, -uv).bgr + vec3(0,0,0.5);
 			}
 			if (min_hit.ind == 3) //earth
 			{
@@ -450,7 +450,7 @@ vec4 trace(Ray ray)
 				}
 			
 				vec2 uv = vec2(u, v);
-				color *= (texture(u_earth_texture, -uv).bgra);
+				color *= texture(u_earth_texture, -uv).bgr;
 			}
 			if (min_hit.ind == 4) //moon
 			{
@@ -459,11 +459,11 @@ vec4 trace(Ray ray)
 					u += u_rot/7;
 				}
 				vec2 uv = vec2(u, v);
-				color *= texture(u_moon_texture, -uv).bgra;
+				color *= texture(u_moon_texture, -uv).bgr;
 			}
 			if (min_hit.ind == spheres_count+triangles_count) //plane
 			{
-				color *= texture(u_plane_texture, 0.15*min_hit.point.xz).bgra;
+				color *= texture(u_plane_texture, 0.15*min_hit.point.xz).bgr;
 			}
 
 			if ((mat.reflective || mat.refractive) && bounce_count <= u_depth)
@@ -473,12 +473,12 @@ vec4 trace(Ray ray)
 				//glass
 				if (mat.refractive)
 				{
-					float eta = mat.n;
+					float eta = 1/mat.n;
 					vec3 temp_ray = ray.dir;
 					Ray refr_ray;
 					
 					//                     kivulrol jon?                        igen                                        nem
-					refr_ray.dir = dot(ray.dir, min_hit.normal) < 0 ? refract(ray.dir, min_hit.normal, 1/eta) : refract(ray.dir, -min_hit.normal, eta);
+					refr_ray.dir = dot(ray.dir, min_hit.normal) < 0 ? refract(ray.dir, min_hit.normal, eta) : refract(ray.dir, -min_hit.normal, 1/eta);
 				
 					if (refr_ray.dir == vec3(0.0)) //teljes belso visszaverodes
 					{
@@ -487,19 +487,28 @@ vec4 trace(Ray ray)
 					}
 					else
 					{
-						refr_ray.origin = min_hit.point + refr_ray.dir*EPSILON;
+						float esign = dot(ray.dir, min_hit.normal) < 0 ? 1.0 : -1.0;
+						refr_ray.origin = min_hit.point - min_hit.normal*EPSILON*esign;
+
 						refr_ray.dir = normalize(refr_ray.dir);
 						
-
-						stack[stack_size].trace_coeff = trace_coeff*(vec3(1.0) - fresnel(ray.dir, min_hit.normal, mat.f0))*f;
-						stack[stack_size].depth = bounce_count;
-						stack[stack_size++].ray = refr_ray;
+						if (!mat.reflective)
+						{
+							ray = refr_ray;
+							//trace_coeff *= (vec3(1.0) - fresnel(ray.dir, min_hit.normal, mat.f0))*f;
+						}
+						else
+						{
+							stack[stack_size].trace_coeff = trace_coeff*(vec3(1.0) - fresnel(ray.dir, min_hit.normal, mat.f0));
+							stack[stack_size].depth = bounce_count;
+							stack[stack_size++].ray = refr_ray;
+						}
 					}
 				}
 				//mirror
 				if (mat.reflective && (min_hit.ind != 3 || (min_hit.ind == 3 && color.z > color.x && color.z > color.y))) //A fold csak a vizen tukrozodjon
 				{
-					trace_coeff = trace_coeff*fresnel(ray.dir, min_hit.normal, mat.f0)*f;
+					trace_coeff = trace_coeff*fresnel(ray.dir, min_hit.normal, mat.f0);
 					ray.dir = dot(ray.dir, min_hit.normal) < 0 ? normalize(reflect(ray.dir, min_hit.normal)) : normalize(reflect(ray.dir, -min_hit.normal));
 					ray.origin = dot(ray.dir, min_hit.normal) < 0 ? min_hit.point - 1.5*min_hit.normal*EPSILON : min_hit.point + 1.5*min_hit.normal*EPSILON;
 				}
@@ -513,7 +522,8 @@ vec4 trace(Ray ray)
 		}
 		else
 		{
-			color += vec4(0.25, 0.25, 0.75 ,1)*trace_coeff;
+			//color += vec3(0.25, 0.25, 0.75)*trace_coeff;
+			color += vec3(0.6, 0.75, 0.9)*trace_coeff;
 			continueLoop = false;
 		}
 
@@ -534,11 +544,11 @@ vec4 trace(Ray ray)
 			float t = abs(dot(vec, direction));
 			vec3 hit_point = ray.origin + t*direction;
 			float d = length(hit_point);
-			vec4 glowcolor = vec4(1,0.95,0.1,1);
-			vec4 glowness;
+			vec3 glowcolor = vec3(1,0.95,0.1);
+			vec3 glowness;
 			if (length(min_hit.point-u_eye)+u_spheres[0].w < length(u_spheres[0].xyz - u_eye))
 			{
-				glowness = vec4(0);
+				glowness = vec3(0);
 			}
 			else
 			{
@@ -561,7 +571,7 @@ void main()
 	ray.dir = normalize(vs_out_ray);
 	
 
-	vec4 color = trace(ray);
+	vec3 color = trace(ray);
 
-	fs_out_col = color;
+	fs_out_col = vec4(color, 1);
 }
