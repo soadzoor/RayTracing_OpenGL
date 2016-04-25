@@ -8,7 +8,9 @@ Thumbs.db
 *.aps
 *.pch
 *.vspscc
-*.vcxproj.*
+*.vcxproj
+*.filter
+*.user
 *_i.c
 *_p.c
 *.ncb
