@@ -512,7 +512,7 @@ vec3 trace(Ray ray)
 				//mirror
 				if (mat.reflective && !total_internal_reflection && (min_hit.ind != 3 || (min_hit.ind == 3 && color.z > color.x && color.z > color.y))) //A fold csak a vizen tukrozodjon
 				{
-					if (dot(ray.dir, min_hit.normal) >= 0)
+					if (dot(ray.dir, min_hit.normal) >= 0 && bounce_count > 3)
 					{
 						continueLoop = false; //igy gyorsabb, es nincs nagy kulonbseg latvanyban
 						//trace_coeff *= vec3(0);
