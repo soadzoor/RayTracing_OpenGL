@@ -113,47 +113,47 @@ bool CMyApp::Init()
 	//arrayOfTriangles[2].A = glm::vec3(-0.866, 1.5, 0.75);
 	//arrayOfTriangles[2].B = glm::vec3(-1.732,   0, 0.75);
 	//arrayOfTriangles[2].C = glm::vec3(-0.866, 0.5, 0.0 );
-
+	//
 	//arrayOfTriangles[3].A = glm::vec3(-0.866, 0.5, 0.0);
 	//arrayOfTriangles[3].B = glm::vec3(-1.732, 0, 0.75 );
 	//arrayOfTriangles[3].C = glm::vec3(-0.866, -0.5, 0.0);
-
+	//
 	//arrayOfTriangles[4].A = glm::vec3(-0.866, -0.5, 0.0);
 	//arrayOfTriangles[4].B = glm::vec3(-1.732, 0, 0.75);
 	//arrayOfTriangles[4].C = glm::vec3(-0.866, -1.5, 0.75);
-
+	//
 	//arrayOfTriangles[5].A = glm::vec3(-0.866, -0.5, 0.0);
 	//arrayOfTriangles[5].B = glm::vec3(-0.866, -1.5, 0.75);
 	//arrayOfTriangles[5].C = glm::vec3(0, -1, 0);
-
+	//
 	//arrayOfTriangles[6].A = glm::vec3(0, -1, 0);
 	//arrayOfTriangles[6].B = glm::vec3(-0.866, -1.5, 0.75);
 	//arrayOfTriangles[6].C = glm::vec3(0.866, -1.5, 0.75);
-
+	//
 	//arrayOfTriangles[7].A = glm::vec3(0, -1, 0);
 	//arrayOfTriangles[7].B = glm::vec3(0.866, -1.5, 0.75);
 	//arrayOfTriangles[7].C = glm::vec3(0.866, -0.5, 0.0);
-
+	//
 	//arrayOfTriangles[8].A = glm::vec3(0.866, -0.5, 0.0);
 	//arrayOfTriangles[8].B = glm::vec3(0.866, -1.5, 0.75);
 	//arrayOfTriangles[8].C = glm::vec3(1.732, 0, 0.75);
-
+	//
 	//arrayOfTriangles[9].A = glm::vec3(0.866, -0.5, 0.0);
 	//arrayOfTriangles[9].B = glm::vec3(1.732, 0, 0.75);
 	//arrayOfTriangles[9].C = glm::vec3(0.866, 0.5, 0.0);
-
+	//
 	//arrayOfTriangles[10].A = glm::vec3(0.866, 0.5, 0.0);
 	//arrayOfTriangles[10].B = glm::vec3(1.732, 0, 0.75);
 	//arrayOfTriangles[10].C = glm::vec3(0.866, 1.5, 0.75);
-
+	//
 	//arrayOfTriangles[11].A = glm::vec3(0.866, 0.5, 0.0);
 	//arrayOfTriangles[11].B = glm::vec3(0.866, 1.5, 0.75);
 	//arrayOfTriangles[11].C = glm::vec3(0, 1, 0);
-
+	//
 	//arrayOfTriangles[12].A = glm::vec3(0, 1, 0);
 	//arrayOfTriangles[12].B = glm::vec3(0.866, 1.5, 0.75);
 	//arrayOfTriangles[12].C = glm::vec3(-0.866, 1.5, 0.75);
-
+	//
 	//arrayOfTriangles[13].A = glm::vec3(0, 1, 0);
 	//arrayOfTriangles[13].B = glm::vec3(-0.866, 1.5, 0.75);
 	//arrayOfTriangles[13].C = glm::vec3(-0.866, 0.5, 0.0);
@@ -161,23 +161,23 @@ bool CMyApp::Init()
 	//arrayOfTriangles[14].A = glm::vec3(0, 1, 0);
 	//arrayOfTriangles[14].B = glm::vec3(-0.866, 0.5, 0);
 	//arrayOfTriangles[14].C = glm::vec3(0.0, 0.0, 0.0);
-
+	//
 	//arrayOfTriangles[15].A = glm::vec3(-0.866, 0.5, 0);
 	//arrayOfTriangles[15].B = glm::vec3(-0.866, -0.5, 0);
 	//arrayOfTriangles[15].C = glm::vec3(0.0, 0.0, 0.0);
-
+	//
 	//arrayOfTriangles[16].A = glm::vec3(-0.866, -0.5, 0);
 	//arrayOfTriangles[16].B = glm::vec3(0, -1, 0);
 	//arrayOfTriangles[16].C = glm::vec3(0.0, 0.0, 0.0);
-
+	//
 	//arrayOfTriangles[17].A = glm::vec3(0, -1, 0);
 	//arrayOfTriangles[17].B = glm::vec3(0.866, -0.5, 0);
 	//arrayOfTriangles[17].C = glm::vec3(0.0, 0.0, 0.0);
-
+	//
 	//arrayOfTriangles[18].A = glm::vec3(0.866, -0.5, 0);
 	//arrayOfTriangles[18].B = glm::vec3(0.866, 0.5, 0);
 	//arrayOfTriangles[18].C = glm::vec3(0.0, 0.0, 0.0);
-
+	//
 	//arrayOfTriangles[19].A = glm::vec3(0.866, 0.5, 0);
 	//arrayOfTriangles[19].B = glm::vec3(0, 1, 0);
 	//arrayOfTriangles[19].C = glm::vec3(0.0, 0.0, 0.0);
@@ -185,23 +185,23 @@ bool CMyApp::Init()
 	//arrayOfTriangles[20].A = glm::vec3(-0.866, 1.5, 0.75);
 	//arrayOfTriangles[20].B = glm::vec3(0.866, 1.5, 0.75);
 	//arrayOfTriangles[20].C = glm::vec3(0.0, 0.0, 3.0);
-
+	//
 	//arrayOfTriangles[21].A = glm::vec3(-1.732, 0, 0.75);
 	//arrayOfTriangles[21].B = glm::vec3(-0.866, 1.5, 0.75);
 	//arrayOfTriangles[21].C = glm::vec3(0.0, 0.0, 3.0);
-
+	//
 	//arrayOfTriangles[22].A = glm::vec3(-0.866, -1.5, 0.75);
 	//arrayOfTriangles[22].B = glm::vec3(-1.732,  0, 0.75);
 	//arrayOfTriangles[22].C = glm::vec3(0.0, 0.0, 3.0);
-
+	//
 	//arrayOfTriangles[23].A = glm::vec3(0.866, -1.5, 0.75);
 	//arrayOfTriangles[23].B = glm::vec3(-0.866, -1.5, 0.75);
 	//arrayOfTriangles[23].C = glm::vec3(0.0, 0.0, 3.0);
-
+	//
 	//arrayOfTriangles[24].A = glm::vec3(1.732, 0, 0.75);
 	//arrayOfTriangles[24].B = glm::vec3(0.866, -1.5, 0.75);
 	//arrayOfTriangles[24].C = glm::vec3(0.0, 0.0, 3.0);
-
+	//
 	//arrayOfTriangles[25].A = glm::vec3(0.866, 1.5, 0.75);
 	//arrayOfTriangles[25].B = glm::vec3(1.732, 0, 0.75);
 	//arrayOfTriangles[25].C = glm::vec3(0.0, 0.0, 3.0);
@@ -295,17 +295,20 @@ bool CMyApp::Init()
 	materials[9].n = 1.5;
 
 
-	//also tukorgombok
-	//for (int i = 10; i < spheres_count; ++i)
-	//{
-	//	materials[i].amb = glm::vec3(0.2f, 0.2f, 0.3f);
-	//	materials[i].dif = glm::vec3(0.2f, 0.2f, 0.3f);
-	//	materials[i].spec = glm::vec3(0.3, 0.3, 0.3);
-	//	materials[i].pow = 120.0f;
-	//	materials[i].transparency = 0.0f;
-	//	materials[i].shininess = 0.9f;
+	//also uveggombok
+	for (int i = 10; i < spheres_count; ++i)
+	{
+		//materials[i].amb = glm::vec3(0.2f, 0.2f, 0.3f);
+		//materials[i].dif = glm::vec3(0.2f, 0.2f, 0.3f);
+		materials[i].spec = glm::vec3(0.7, 0.7, 0.7);
+		materials[i].pow = 50.0f;
+		materials[i].refractive = true;
+		materials[i].reflective = true;
+		//materials[i].f0 = getF0(glm::vec3(0.14, 0.16, 0.13), glm::vec3(4.1, 2.3, 3.1));
+		materials[i].f0 = getF0(glm::vec3(1.5), glm::vec3(0.00));
+		materials[i].n = 1.5;
 
-	//}
+	}
 
 	//Haromszog 1
 	materials[spheres_count].amb = glm::vec3(0.0f, 0.0f, 0.0f); //glm::vec3(240/255, 240/255, 250/255);
@@ -327,16 +330,18 @@ bool CMyApp::Init()
 
 	//Gyemant
 
-	//for (int i = spheres_count+2; i < triangles_count; ++i)
-	//{
-	//	materials[i].amb = glm::vec3(0.3f, 0.3f, 0.3f);
-	//	materials[i].dif = glm::vec3(0.7f, 0.7f, 0.7f);
-	//	materials[i].spec = glm::vec3(0.75f, 0.75f, 0.75f);
-	//	materials[i].pow = 110.0f;
-	//	materials[i].refractive = false;
-	//	materials[i].reflective = false;
-	//
-	//}
+	for (int i = spheres_count+2; i < triangles_count; ++i)
+	{
+		materials[i].amb = glm::vec3(0.3f, 0.3f, 0.3f);
+		materials[i].dif = glm::vec3(0.7f, 0.7f, 0.7f);
+		materials[i].spec = glm::vec3(0.75f, 0.75f, 0.75f);
+		materials[i].pow = 25.0f;
+		materials[i].refractive = false;
+		materials[i].reflective = false;
+		//materials[i].f0 = getF0(glm::vec3(1.4, 1.5, 1.6), glm::vec3(0.01));
+		//materials[i].n = 1.8;
+	
+	}
 	//Sik
 	materials[spheres_count+triangles_count].amb = glm::vec3(0.0f, 0.0f, 0.0f);
 	materials[spheres_count+triangles_count].dif = glm::vec3(0.3f, 0.34f, 0.36f);
