@@ -29,6 +29,7 @@ public:
 	bool shadow;
 	bool useNormalMap = true;
 	bool glow = false;
+	bool vsync = true;
 	float pausedTime = 0;
 	float curElapsedTime = 0;
 	float sumElapsedTime = 0;

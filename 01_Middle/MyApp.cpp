@@ -659,11 +659,26 @@ void CMyApp::KeyboardDown(SDL_KeyboardEvent& key)
 			glow ? std::cout << "Sun is glowing." << std::endl : std::cout << "Glow effect is off." << std::endl;
 			break;
 		}
+		case SDLK_v:
+		{
+			vsync = !vsync;
+			if (vsync)
+			{
+				SDL_GL_SetSwapInterval(1);
+				std::cout << "Vsync ON" << std::endl;
+			}
+			else
+			{
+				SDL_GL_SetSwapInterval(0);
+				std::cout << "Vsync OFF" << std::endl;
+			}
+			
+			break;
+		}
 		case SDLK_1:
 		{
 			shadow = !shadow;
 			shadow ? std::cout << "Shadows ON" << std::endl : std::cout << "Shadows OFF" << std::endl;
-
 			break;
 		}
 	}

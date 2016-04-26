@@ -91,7 +91,8 @@ int main( int argc, char* args[] )
     }	
 
 	// megjelenítés: várjuk be a vsync-et
-	SDL_GL_SetSwapInterval(1);
+
+	//SDL_GL_SetSwapInterval(1);
 
 	// indítsuk el a GLEW-t
 	GLenum error = glewInit();
@@ -138,6 +139,8 @@ int main( int argc, char* args[] )
 		std::cout << "[app.Init] Az alkalmazás inicializálása közben hibatörtént!" << std::endl;
 		return 1;
 	}
+	Uint32	last_update = SDL_GetTicks();
+	int		frame_cnt = 0;
 
 	while (!quit)
 	{
@@ -180,6 +183,19 @@ int main( int argc, char* args[] )
 
 		app.Update();
 		app.Render();
+
+		++frame_cnt;
+
+		if (SDL_GetTicks() - last_update >= 1000)
+		{
+
+			window_title.str(std::string());
+			window_title << "OpenGL " << glVersion[0] << "." << glVersion[1] << ", avg. FPS: " << frame_cnt;
+			SDL_SetWindowTitle(win, window_title.str().c_str());
+
+			last_update = SDL_GetTicks();
+			frame_cnt = 0;
+		}
 
 		SDL_GL_SwapWindow(win);
 	}
