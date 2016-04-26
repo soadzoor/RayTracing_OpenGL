@@ -92,7 +92,7 @@ int main( int argc, char* args[] )
 
 	// megjelenítés: várjuk be a vsync-et
 
-	//SDL_GL_SetSwapInterval(1);
+	SDL_GL_SetSwapInterval(1);
 
 	// indítsuk el a GLEW-t
 	GLenum error = glewInit();
