@@ -487,7 +487,7 @@ vec3 trace(Ray ray)
 						ray.dir = normalize(reflect(temp_ray, min_hit.normal));
 						ray.origin = min_hit.point - 1.5*min_hit.normal*EPSILON;
 						trace_coeff = trace_coeff*fresnel(ray.dir, min_hit.normal, mat.f0);
-						total_internal_reflection = true;
+						//total_internal_reflection = true;
 					}
 					else
 					{
@@ -512,16 +512,24 @@ vec3 trace(Ray ray)
 				//mirror
 				if (mat.reflective && !total_internal_reflection && (min_hit.ind != 3 || (min_hit.ind == 3 && color.z > color.x && color.z > color.y))) //A fold csak a vizen tukrozodjon
 				{
-					if (dot(ray.dir, min_hit.normal) >= 0 && bounce_count > 3)
+					if (dot(ray.dir, min_hit.normal) >= 0)
 					{
-						continueLoop = false; //igy gyorsabb, es nincs nagy kulonbseg latvanyban
-						//trace_coeff *= vec3(0);
+						if (bounce_count > 3)
+						{
+							continueLoop = false; //igy gyorsabb, es nincs nagy kulonbseg latvanyban
+						}
+						else
+						{
+							trace_coeff = trace_coeff*fresnel(ray.dir, -min_hit.normal, mat.f0);
+							ray.dir = normalize(reflect(ray.dir, -min_hit.normal));
+							ray.origin = min_hit.point - 1.5*min_hit.normal*EPSILON;
+						}
 					}
 					else
 					{
 						trace_coeff = trace_coeff*fresnel(ray.dir, min_hit.normal, mat.f0);
-						ray.dir = dot(ray.dir, min_hit.normal) < 0 ? normalize(reflect(ray.dir, min_hit.normal)) : normalize(reflect(ray.dir, -min_hit.normal));
-						ray.origin = dot(ray.dir, min_hit.normal) < 0 ? min_hit.point - 1.5*min_hit.normal*EPSILON : min_hit.point + 1.5*min_hit.normal*EPSILON;
+						ray.dir = normalize(reflect(ray.dir, min_hit.normal));
+						ray.origin = min_hit.point + 1.5*min_hit.normal*EPSILON;
 					}
 				}
 			}
