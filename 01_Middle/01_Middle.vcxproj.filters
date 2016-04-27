@@ -65,10 +65,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="VS.vert">
+    <None Include="VS.glsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="FS.frag">
+    <None Include="FS.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
