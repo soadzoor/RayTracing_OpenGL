@@ -14,8 +14,14 @@ uniform sampler2D u_earth_texture;
 uniform sampler2D u_earth_normal;
 uniform sampler2D u_moon_texture;
 uniform sampler2D u_moon_normal;
-uniform sampler2D u_plane_texture;
-//uniform sampler2D u_sky_texture;
+uniform sampler2D u_ground_texture;
+
+uniform sampler2D skybox_texture_back;
+uniform sampler2D skybox_texture_down;
+uniform sampler2D skybox_texture_front;
+uniform sampler2D skybox_texture_left;
+uniform sampler2D skybox_texture_right;
+uniform sampler2D skybox_texture_up;
 
 struct Ray
 {
@@ -64,15 +70,24 @@ struct HitRec
 
 const int spheres_count = 10;
 const int triangles_count = 2;
-const int materials_count = spheres_count + triangles_count + 3;
+const int skybox_count = 6;
+const int materials_count = spheres_count + triangles_count + skybox_count + 3;
 const int lights_count = 3;
 uniform Light u_lights[lights_count];
 uniform vec4 u_spheres[spheres_count];
 uniform Triangle u_triangles[triangles_count];
 uniform Material u_materials[materials_count];
 uniform float u_rot;
+uniform float skybox_ratio;
 
-uniform Plane plane01;
+
+uniform Plane ground;
+uniform Plane skybox_back;
+uniform Plane skybox_down;
+uniform Plane skybox_front;
+uniform Plane skybox_left;
+uniform Plane skybox_right;
+uniform Plane skybox_up;
 uniform Disc disc01;
 uniform Disc disc02;
 
@@ -302,7 +317,61 @@ bool findmin(in Ray ray, inout HitRec hit_rec)
 			hit = true;
 		}
 	}
-	if (intersectPlane(ray, plane01, hit_temp, spheres_count + triangles_count))
+	if (intersectPlane(ray, ground, hit_temp, spheres_count + triangles_count))
+	{
+		if (hit_temp.t < min_t || min_t < 0)
+		{
+			min_t = hit_temp.t;
+			hit_rec = hit_temp;
+		}
+		hit = true;
+	}
+	if (intersectPlane(ray, skybox_back, hit_temp, spheres_count + triangles_count + 1))
+	{
+		if (hit_temp.t < min_t || min_t < 0)
+		{
+			min_t = hit_temp.t;
+			hit_rec = hit_temp;
+		}
+		hit = true;
+	}
+	if (intersectPlane(ray, skybox_down, hit_temp, spheres_count + triangles_count + 2))
+	{
+		if (hit_temp.t < min_t || min_t < 0)
+		{
+			min_t = hit_temp.t;
+			hit_rec = hit_temp;
+		}
+		hit = true;
+	}
+	if (intersectPlane(ray, skybox_front, hit_temp, spheres_count + triangles_count + 3))
+	{
+		if (hit_temp.t < min_t || min_t < 0)
+		{
+			min_t = hit_temp.t;
+			hit_rec = hit_temp;
+		}
+		hit = true;
+	}
+	if (intersectPlane(ray, skybox_left, hit_temp, spheres_count + triangles_count + 4))
+	{
+		if (hit_temp.t < min_t || min_t < 0)
+		{
+			min_t = hit_temp.t;
+			hit_rec = hit_temp;
+		}
+		hit = true;
+	}
+	if (intersectPlane(ray, skybox_right, hit_temp, spheres_count + triangles_count + 5))
+	{
+		if (hit_temp.t < min_t || min_t < 0)
+		{
+			min_t = hit_temp.t;
+			hit_rec = hit_temp;
+		}
+		hit = true;
+	}
+	if (intersectPlane(ray, skybox_up, hit_temp, spheres_count + triangles_count + 6))
 	{
 		if (hit_temp.t < min_t || min_t < 0)
 		{
@@ -312,7 +381,7 @@ bool findmin(in Ray ray, inout HitRec hit_rec)
 		hit = true;
 	}
 
-	if (intersectDisc(ray, disc01, hit_temp, spheres_count + triangles_count + 1))
+	if (intersectDisc(ray, disc01, hit_temp, spheres_count + triangles_count + skybox_count + 1))
 	{
 		if (hit_temp.t < min_t || min_t < 0)
 		{
@@ -322,7 +391,7 @@ bool findmin(in Ray ray, inout HitRec hit_rec)
 		hit = true;
 	}
 
-	if (intersectDisc(ray, disc02, hit_temp, spheres_count + triangles_count + 2))
+	if (intersectDisc(ray, disc02, hit_temp, spheres_count + triangles_count + skybox_count + 2))
 	{
 		if (hit_temp.t < min_t || min_t < 0)
 		{
@@ -361,7 +430,7 @@ vec3 shade(in HitRec min_hit, in Ray ray)
 			shadow_ray.origin = shadow_hit.point+1.5*shadow_hit.normal*EPSILON;
 			shadow_ray.dir = u_lights[j].pos-shadow_hit.point;
 			findmin(shadow_ray, shadow_hit);
-			if (shadow_hit.ind != 0 && shadow_hit.ind != 5 && shadow_hit.ind != 6 && shadow_hit.ind != spheres_count+triangles_count && shadow_hit.ind != ind)
+			if (shadow_hit.ind != 0 && shadow_hit.ind != 5 && shadow_hit.ind != 6 && shadow_hit.ind != spheres_count+triangles_count && shadow_hit.ind != ind && ind <= spheres_count + triangles_count)
 			{
 				specular = vec3(0.0); 
 				diffuse = vec3(0.0);
@@ -435,7 +504,6 @@ vec3 trace(Ray ray)
 		
 			color += shade_col*trace_coeff;
 			
-			
 			if (min_hit.ind == 0) //sun
 			{
 				u += u_rot/5;
@@ -443,7 +511,7 @@ vec3 trace(Ray ray)
 				vec2 uv = vec2(u, v);
 				color *= texture(u_sun_texture, -uv).bgr + vec3(0,0,0.5);
 			}
-			if (min_hit.ind == 3) //earth
+			else if (min_hit.ind == 3) //earth
 			{
 				if (!useNormalMap)
 				{
@@ -453,7 +521,7 @@ vec3 trace(Ray ray)
 				vec2 uv = vec2(u, v);
 				color *= texture(u_earth_texture, -uv).bgr;
 			}
-			if (min_hit.ind == 4) //moon
+			else if (min_hit.ind == 4) //moon
 			{
 				if (!useNormalMap)
 				{
@@ -462,11 +530,34 @@ vec3 trace(Ray ray)
 				vec2 uv = vec2(u, v);
 				color *= texture(u_moon_texture, -uv).bgr;
 			}
-			if (min_hit.ind == spheres_count+triangles_count) //plane
+			else if (min_hit.ind == spheres_count+triangles_count) //ground
 			{
-				color *= texture(u_plane_texture, 0.15*min_hit.point.xz).bgr;
+				color *= texture(u_ground_texture, 0.15*min_hit.point.xz).bgr;
 			}
-
+			else if (min_hit.ind == spheres_count + triangles_count + 1) //skybox_back
+			{
+				color *= texture(skybox_texture_back, (-min_hit.point.xy + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
+			}
+			else if (min_hit.ind == spheres_count + triangles_count + 2) //skybox_down
+			{
+				color *= texture(skybox_texture_down, (min_hit.point.xz + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
+			}
+			else if (min_hit.ind == spheres_count + triangles_count + 3) //skybox_front
+			{
+				color *= texture(skybox_texture_front, (min_hit.point.xy*vec2(1, -1) + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
+			}
+			else if (min_hit.ind == spheres_count + triangles_count + 4) //skybox_left
+			{
+				color *= texture(skybox_texture_left, (min_hit.point.yz + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
+			}
+			else if (min_hit.ind == spheres_count + triangles_count + 5) //skybox_right
+			{
+				color *= texture(skybox_texture_right, (min_hit.point.zy*vec2(1, -1) + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
+			}
+			else if (min_hit.ind == spheres_count + triangles_count + 6) //skybox_up
+			{
+				color *= texture(skybox_texture_up, (min_hit.point.xz + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
+			}
 			if ((mat.reflective || mat.refractive) && bounce_count <= u_depth)
 			{
 				//f *= 0.7;
@@ -514,11 +605,11 @@ vec3 trace(Ray ray)
 				{
 					if (dot(ray.dir, min_hit.normal) >= 0)
 					{
-						if (bounce_count > 3)
-						{
-							continueLoop = false; //igy gyorsabb, es nincs nagy kulonbseg latvanyban
-						}
-						else
+						//if (bounce_count > 3)
+						//{
+						//	continueLoop = false; //igy gyorsabb, es nincs nagy kulonbseg latvanyban
+						//}
+						//else
 						{
 							trace_coeff = trace_coeff*fresnel(ray.dir, -min_hit.normal, mat.f0);
 							ray.dir = normalize(reflect(ray.dir, -min_hit.normal));

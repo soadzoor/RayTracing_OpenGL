@@ -14,8 +14,15 @@ CMyApp::CMyApp(void)
 	m_SunTextureID = 0;
 	m_EarthTextureID = 0;
 	m_MoonTextureID = 0;
-	m_PlaneTextureID = 0;
-	//m_SkyTextureID = 0;
+	m_GroundTextureID = 0;
+	m_SkyboxTexture_back = 0;
+	m_SkyboxTexture_down = 0;
+	m_SkyboxTexture_front = 0;
+	m_SkyboxTexture_left = 0;
+	m_SkyboxTexture_right = 0;
+	m_SkyboxTexture_up = 0;
+
+	
 
 	depth = 1;
 	pause = false;
@@ -93,10 +100,49 @@ bool CMyApp::Init()
 	arrayOfTriangles[1].B = glm::vec3(14 , -5, -12);
 	arrayOfTriangles[1].C = glm::vec3(14,  14, -14);
 
+	////tetraeder
+
+	//arrayOfTriangles[2].A = glm::vec3(1, 0, 20); //1
+	//arrayOfTriangles[2].B = glm::vec3(2, 0, 20); //2
+	//arrayOfTriangles[2].C = glm::vec3(1.5, 0, 21); //3
+
+	//arrayOfTriangles[3].A = glm::vec3(1.5, 0, 21); //3
+	//arrayOfTriangles[3].B = glm::vec3(2, 0, 20); //2
+	//arrayOfTriangles[3].C = glm::vec3(1.5, 1, 20.5); //4
+
+	//arrayOfTriangles[4].A = glm::vec3(2, 0, 20); //2
+	//arrayOfTriangles[4].B = glm::vec3(1, 0, 20); //1
+	//arrayOfTriangles[4].C = glm::vec3(1.5, 1, 20.5); //4
+
+	//arrayOfTriangles[5].A = glm::vec3(1, 0, 20); //1
+	//arrayOfTriangles[5].B = glm::vec3(1.5, 0, 21); //3
+	//arrayOfTriangles[5].C = glm::vec3(1.5, 1, 20.5); //4
+
+
 	//sik
 
-	plane01.n = glm::vec3(0, 1, 0);
-	plane01.q = glm::vec3(0, -10, 0);
+	ground.n = glm::vec3(0, 1, 0);
+	ground.q = glm::vec3(0, -10, 0);
+
+	//skybox
+
+	skybox_back.n = glm::vec3(0, 0, -1);
+	skybox_back.q = glm::vec3(0, 0, skybox_distance);
+
+	skybox_down.n = glm::vec3(0, 1, 0);
+	skybox_down.q = glm::vec3(0, -skybox_distance, 0);
+
+	skybox_front.n = glm::vec3(0, 0, 1);
+	skybox_front.q = glm::vec3(0, 0, -skybox_distance);
+
+	skybox_left.n = glm::vec3(1, 0, 0);
+	skybox_left.q = glm::vec3(-skybox_distance, 0, 0);
+
+	skybox_right.n = glm::vec3(-1, 0, 0);
+	skybox_right.q = glm::vec3(skybox_distance, 0, 0);
+
+	skybox_up.n = glm::vec3(0, -1, 0);
+	skybox_up.q = glm::vec3(0, skybox_distance, 0);
 
 	//disc
 
@@ -109,102 +155,111 @@ bool CMyApp::Init()
 	disc02.r = 1;
 
 	//gyemant
+	/*
+	arrayOfTriangles[2].A = glm::vec3(-0.866, 1.5, 0.75);
+	arrayOfTriangles[2].B = glm::vec3(-1.732,   0, 0.75);
+	arrayOfTriangles[2].C = glm::vec3(-0.866, 0.5, 0.0 );
+	
+	arrayOfTriangles[3].A = glm::vec3(-0.866, 0.5, 0.0);
+	arrayOfTriangles[3].B = glm::vec3(-1.732, 0, 0.75 );
+	arrayOfTriangles[3].C = glm::vec3(-0.866, -0.5, 0.0);
+	
+	arrayOfTriangles[4].A = glm::vec3(-0.866, -0.5, 0.0);
+	arrayOfTriangles[4].B = glm::vec3(-1.732, 0, 0.75);
+	arrayOfTriangles[4].C = glm::vec3(-0.866, -1.5, 0.75);
+	
+	arrayOfTriangles[5].A = glm::vec3(-0.866, -0.5, 0.0);
+	arrayOfTriangles[5].B = glm::vec3(-0.866, -1.5, 0.75);
+	arrayOfTriangles[5].C = glm::vec3(0, -1, 0);
+	
+	arrayOfTriangles[6].A = glm::vec3(0, -1, 0);
+	arrayOfTriangles[6].B = glm::vec3(-0.866, -1.5, 0.75);
+	arrayOfTriangles[6].C = glm::vec3(0.866, -1.5, 0.75);
+	
+	arrayOfTriangles[7].A = glm::vec3(0, -1, 0);
+	arrayOfTriangles[7].B = glm::vec3(0.866, -1.5, 0.75);
+	arrayOfTriangles[7].C = glm::vec3(0.866, -0.5, 0.0);
+	
+	arrayOfTriangles[8].A = glm::vec3(0.866, -0.5, 0.0);
+	arrayOfTriangles[8].B = glm::vec3(0.866, -1.5, 0.75);
+	arrayOfTriangles[8].C = glm::vec3(1.732, 0, 0.75);
+	
+	arrayOfTriangles[9].A = glm::vec3(0.866, -0.5, 0.0);
+	arrayOfTriangles[9].B = glm::vec3(1.732, 0, 0.75);
+	arrayOfTriangles[9].C = glm::vec3(0.866, 0.5, 0.0);
+	
+	arrayOfTriangles[10].A = glm::vec3(0.866, 0.5, 0.0);
+	arrayOfTriangles[10].B = glm::vec3(1.732, 0, 0.75);
+	arrayOfTriangles[10].C = glm::vec3(0.866, 1.5, 0.75);
+	
+	arrayOfTriangles[11].A = glm::vec3(0.866, 0.5, 0.0);
+	arrayOfTriangles[11].B = glm::vec3(0.866, 1.5, 0.75);
+	arrayOfTriangles[11].C = glm::vec3(0, 1, 0);
+	
+	arrayOfTriangles[12].A = glm::vec3(0, 1, 0);
+	arrayOfTriangles[12].B = glm::vec3(0.866, 1.5, 0.75);
+	arrayOfTriangles[12].C = glm::vec3(-0.866, 1.5, 0.75);
+	
+	arrayOfTriangles[13].A = glm::vec3(0, 1, 0);
+	arrayOfTriangles[13].B = glm::vec3(-0.866, 1.5, 0.75);
+	arrayOfTriangles[13].C = glm::vec3(-0.866, 0.5, 0.0);
+	//kozepso 6szog
+	arrayOfTriangles[14].A = glm::vec3(0, 1, 0);
+	arrayOfTriangles[14].B = glm::vec3(-0.866, 0.5, 0);
+	arrayOfTriangles[14].C = glm::vec3(0.0, 0.0, 0.0);
+	
+	arrayOfTriangles[15].A = glm::vec3(-0.866, 0.5, 0);
+	arrayOfTriangles[15].B = glm::vec3(-0.866, -0.5, 0);
+	arrayOfTriangles[15].C = glm::vec3(0.0, 0.0, 0.0);
+	
+	arrayOfTriangles[16].A = glm::vec3(-0.866, -0.5, 0);
+	arrayOfTriangles[16].B = glm::vec3(0, -1, 0);
+	arrayOfTriangles[16].C = glm::vec3(0.0, 0.0, 0.0);
+	
+	arrayOfTriangles[17].A = glm::vec3(0, -1, 0);
+	arrayOfTriangles[17].B = glm::vec3(0.866, -0.5, 0);
+	arrayOfTriangles[17].C = glm::vec3(0.0, 0.0, 0.0);
+	
+	arrayOfTriangles[18].A = glm::vec3(0.866, -0.5, 0);
+	arrayOfTriangles[18].B = glm::vec3(0.866, 0.5, 0);
+	arrayOfTriangles[18].C = glm::vec3(0.0, 0.0, 0.0);
+	
+	arrayOfTriangles[19].A = glm::vec3(0.866, 0.5, 0);
+	arrayOfTriangles[19].B = glm::vec3(0, 1, 0);
+	arrayOfTriangles[19].C = glm::vec3(0.0, 0.0, 0.0);
+	//dereka
+	arrayOfTriangles[20].A = glm::vec3(-0.866, 1.5, 0.75);
+	arrayOfTriangles[20].B = glm::vec3(0.866, 1.5, 0.75);
+	arrayOfTriangles[20].C = glm::vec3(0.0, 0.0, 3.0);
+	
+	arrayOfTriangles[21].A = glm::vec3(-1.732, 0, 0.75);
+	arrayOfTriangles[21].B = glm::vec3(-0.866, 1.5, 0.75);
+	arrayOfTriangles[21].C = glm::vec3(0.0, 0.0, 3.0);
+	
+	arrayOfTriangles[22].A = glm::vec3(-0.866, -1.5, 0.75);
+	arrayOfTriangles[22].B = glm::vec3(-1.732,  0, 0.75);
+	arrayOfTriangles[22].C = glm::vec3(0.0, 0.0, 3.0);
+	
+	arrayOfTriangles[23].A = glm::vec3(0.866, -1.5, 0.75);
+	arrayOfTriangles[23].B = glm::vec3(-0.866, -1.5, 0.75);
+	arrayOfTriangles[23].C = glm::vec3(0.0, 0.0, 3.0);
+	
+	arrayOfTriangles[24].A = glm::vec3(1.732, 0, 0.75);
+	arrayOfTriangles[24].B = glm::vec3(0.866, -1.5, 0.75);
+	arrayOfTriangles[24].C = glm::vec3(0.0, 0.0, 3.0);
+	
+	arrayOfTriangles[25].A = glm::vec3(0.866, 1.5, 0.75);
+	arrayOfTriangles[25].B = glm::vec3(1.732, 0, 0.75);
+	arrayOfTriangles[25].C = glm::vec3(0.0, 0.0, 3.0);
 
-	//arrayOfTriangles[2].A = glm::vec3(-0.866, 1.5, 0.75);
-	//arrayOfTriangles[2].B = glm::vec3(-1.732,   0, 0.75);
-	//arrayOfTriangles[2].C = glm::vec3(-0.866, 0.5, 0.0 );
-	//
-	//arrayOfTriangles[3].A = glm::vec3(-0.866, 0.5, 0.0);
-	//arrayOfTriangles[3].B = glm::vec3(-1.732, 0, 0.75 );
-	//arrayOfTriangles[3].C = glm::vec3(-0.866, -0.5, 0.0);
-	//
-	//arrayOfTriangles[4].A = glm::vec3(-0.866, -0.5, 0.0);
-	//arrayOfTriangles[4].B = glm::vec3(-1.732, 0, 0.75);
-	//arrayOfTriangles[4].C = glm::vec3(-0.866, -1.5, 0.75);
-	//
-	//arrayOfTriangles[5].A = glm::vec3(-0.866, -0.5, 0.0);
-	//arrayOfTriangles[5].B = glm::vec3(-0.866, -1.5, 0.75);
-	//arrayOfTriangles[5].C = glm::vec3(0, -1, 0);
-	//
-	//arrayOfTriangles[6].A = glm::vec3(0, -1, 0);
-	//arrayOfTriangles[6].B = glm::vec3(-0.866, -1.5, 0.75);
-	//arrayOfTriangles[6].C = glm::vec3(0.866, -1.5, 0.75);
-	//
-	//arrayOfTriangles[7].A = glm::vec3(0, -1, 0);
-	//arrayOfTriangles[7].B = glm::vec3(0.866, -1.5, 0.75);
-	//arrayOfTriangles[7].C = glm::vec3(0.866, -0.5, 0.0);
-	//
-	//arrayOfTriangles[8].A = glm::vec3(0.866, -0.5, 0.0);
-	//arrayOfTriangles[8].B = glm::vec3(0.866, -1.5, 0.75);
-	//arrayOfTriangles[8].C = glm::vec3(1.732, 0, 0.75);
-	//
-	//arrayOfTriangles[9].A = glm::vec3(0.866, -0.5, 0.0);
-	//arrayOfTriangles[9].B = glm::vec3(1.732, 0, 0.75);
-	//arrayOfTriangles[9].C = glm::vec3(0.866, 0.5, 0.0);
-	//
-	//arrayOfTriangles[10].A = glm::vec3(0.866, 0.5, 0.0);
-	//arrayOfTriangles[10].B = glm::vec3(1.732, 0, 0.75);
-	//arrayOfTriangles[10].C = glm::vec3(0.866, 1.5, 0.75);
-	//
-	//arrayOfTriangles[11].A = glm::vec3(0.866, 0.5, 0.0);
-	//arrayOfTriangles[11].B = glm::vec3(0.866, 1.5, 0.75);
-	//arrayOfTriangles[11].C = glm::vec3(0, 1, 0);
-	//
-	//arrayOfTriangles[12].A = glm::vec3(0, 1, 0);
-	//arrayOfTriangles[12].B = glm::vec3(0.866, 1.5, 0.75);
-	//arrayOfTriangles[12].C = glm::vec3(-0.866, 1.5, 0.75);
-	//
-	//arrayOfTriangles[13].A = glm::vec3(0, 1, 0);
-	//arrayOfTriangles[13].B = glm::vec3(-0.866, 1.5, 0.75);
-	//arrayOfTriangles[13].C = glm::vec3(-0.866, 0.5, 0.0);
-	////kozepso 6szog
-	//arrayOfTriangles[14].A = glm::vec3(0, 1, 0);
-	//arrayOfTriangles[14].B = glm::vec3(-0.866, 0.5, 0);
-	//arrayOfTriangles[14].C = glm::vec3(0.0, 0.0, 0.0);
-	//
-	//arrayOfTriangles[15].A = glm::vec3(-0.866, 0.5, 0);
-	//arrayOfTriangles[15].B = glm::vec3(-0.866, -0.5, 0);
-	//arrayOfTriangles[15].C = glm::vec3(0.0, 0.0, 0.0);
-	//
-	//arrayOfTriangles[16].A = glm::vec3(-0.866, -0.5, 0);
-	//arrayOfTriangles[16].B = glm::vec3(0, -1, 0);
-	//arrayOfTriangles[16].C = glm::vec3(0.0, 0.0, 0.0);
-	//
-	//arrayOfTriangles[17].A = glm::vec3(0, -1, 0);
-	//arrayOfTriangles[17].B = glm::vec3(0.866, -0.5, 0);
-	//arrayOfTriangles[17].C = glm::vec3(0.0, 0.0, 0.0);
-	//
-	//arrayOfTriangles[18].A = glm::vec3(0.866, -0.5, 0);
-	//arrayOfTriangles[18].B = glm::vec3(0.866, 0.5, 0);
-	//arrayOfTriangles[18].C = glm::vec3(0.0, 0.0, 0.0);
-	//
-	//arrayOfTriangles[19].A = glm::vec3(0.866, 0.5, 0);
-	//arrayOfTriangles[19].B = glm::vec3(0, 1, 0);
-	//arrayOfTriangles[19].C = glm::vec3(0.0, 0.0, 0.0);
-	////dereka
-	//arrayOfTriangles[20].A = glm::vec3(-0.866, 1.5, 0.75);
-	//arrayOfTriangles[20].B = glm::vec3(0.866, 1.5, 0.75);
-	//arrayOfTriangles[20].C = glm::vec3(0.0, 0.0, 3.0);
-	//
-	//arrayOfTriangles[21].A = glm::vec3(-1.732, 0, 0.75);
-	//arrayOfTriangles[21].B = glm::vec3(-0.866, 1.5, 0.75);
-	//arrayOfTriangles[21].C = glm::vec3(0.0, 0.0, 3.0);
-	//
-	//arrayOfTriangles[22].A = glm::vec3(-0.866, -1.5, 0.75);
-	//arrayOfTriangles[22].B = glm::vec3(-1.732,  0, 0.75);
-	//arrayOfTriangles[22].C = glm::vec3(0.0, 0.0, 3.0);
-	//
-	//arrayOfTriangles[23].A = glm::vec3(0.866, -1.5, 0.75);
-	//arrayOfTriangles[23].B = glm::vec3(-0.866, -1.5, 0.75);
-	//arrayOfTriangles[23].C = glm::vec3(0.0, 0.0, 3.0);
-	//
-	//arrayOfTriangles[24].A = glm::vec3(1.732, 0, 0.75);
-	//arrayOfTriangles[24].B = glm::vec3(0.866, -1.5, 0.75);
-	//arrayOfTriangles[24].C = glm::vec3(0.0, 0.0, 3.0);
-	//
-	//arrayOfTriangles[25].A = glm::vec3(0.866, 1.5, 0.75);
-	//arrayOfTriangles[25].B = glm::vec3(1.732, 0, 0.75);
-	//arrayOfTriangles[25].C = glm::vec3(0.0, 0.0, 3.0);
+	for (int i = 2; i < 26; ++i)
+	{
+		arrayOfTriangles[i].A += glm::vec3(0, 0, 20);
+		arrayOfTriangles[i].B += glm::vec3(0, 0, 20);
+		arrayOfTriangles[i].C += glm::vec3(0, 0, 20);
+
+	}
+	*/
 	
 	//Nap
 	materials[0].amb = glm::vec3(1.0, 0.95, 0.85);
@@ -328,55 +383,57 @@ bool CMyApp::Init()
 	materials[spheres_count+1].reflective = true;
 	materials[spheres_count+1].f0 = getF0(glm::vec3(0.14, 0.16, 0.13), glm::vec3(4.1, 2.3, 3.1));
 
-	//Gyemant
+	//Tetraeder
 
-	for (int i = spheres_count+2; i < triangles_count; ++i)
+	for (int i = spheres_count+2; i < spheres_count+triangles_count; ++i)
 	{
-		materials[i].amb = glm::vec3(0.3f, 0.3f, 0.3f);
-		materials[i].dif = glm::vec3(0.7f, 0.7f, 0.7f);
-		materials[i].spec = glm::vec3(0.75f, 0.75f, 0.75f);
+		//materials[i].amb = glm::vec3(0.1f, 0.3f, 0.2f);
+		//materials[i].dif = glm::vec3(0.2f, 0.7f, 0.4f);
+		materials[i].spec = glm::vec3(0.7, 0.7, 0.7);
 		materials[i].pow = 25.0f;
-		materials[i].refractive = false;
-		materials[i].reflective = false;
-		//materials[i].f0 = getF0(glm::vec3(1.4, 1.5, 1.6), glm::vec3(0.01));
-		//materials[i].n = 1.8;
+		materials[i].refractive = true;
+		materials[i].reflective = true;
+		materials[i].f0 = getF0(glm::vec3(1.4, 1.5, 1.6), glm::vec3(0.01));
+		//materials[i].f0 = getF0(glm::vec3(0.17, 0.35, 1.5), glm::vec3(3.1, 2.7, 1.9));
+		materials[i].n = 1.1;
 	
 	}
 	//Sik
-	materials[spheres_count+triangles_count].amb = glm::vec3(0.0f, 0.0f, 0.0f);
-	materials[spheres_count+triangles_count].dif = glm::vec3(0.3f, 0.34f, 0.36f);
-	materials[spheres_count+triangles_count].spec = glm::vec3(0.8f, 0.8f, 0.8f);
-	materials[spheres_count+triangles_count].pow = 60.0f;
-	materials[spheres_count+triangles_count].refractive = false;
-	materials[spheres_count+triangles_count].reflective = false;
+	materials[spheres_count + triangles_count].amb = glm::vec3(0.0f, 0.0f, 0.0f);
+	materials[spheres_count + triangles_count].dif = glm::vec3(0.3f, 0.34f, 0.36f);
+	materials[spheres_count + triangles_count].spec = glm::vec3(0.8f, 0.8f, 0.8f);
+	materials[spheres_count + triangles_count].pow = 60.0f;
+	materials[spheres_count + triangles_count].refractive = false;
+	materials[spheres_count + triangles_count].reflective = false;
 	materials[spheres_count + triangles_count].f0 = getF0(glm::vec3(0.6), glm::vec3(2.6));
 
+	//Skybox
+	for (int i = spheres_count + triangles_count + 1; i <= spheres_count + triangles_count + skybox_count; ++i)
+	{
+		materials[i].amb = glm::vec3(0.5f, 0.5f, 0.5f);
+		materials[i].dif = glm::vec3(0.5f, 0.5f, 0.5f);
+		materials[i].spec = glm::vec3(0.5f, 0.5f, 0.5f);
+		materials[i].pow = 20.0f;
+		materials[i].refractive = false;
+		materials[i].reflective = false;
+
+	}
+
 	//Disc
-	materials[spheres_count+triangles_count+1].amb = glm::vec3(0.0f, 0.15f, 0.3f);
-	materials[spheres_count+triangles_count+1].dif = glm::vec3(0.0f, 0.3f, 0.5f);
-	materials[spheres_count+triangles_count+1].spec = glm::vec3(0.8f, 0.8f, 0.8f);
-	materials[spheres_count+triangles_count+1].pow = 110.0f;
-	materials[spheres_count+triangles_count+1].refractive = false;
-	materials[spheres_count+triangles_count+1].reflective = false;
+	materials[spheres_count+triangles_count + skybox_count +1].amb = glm::vec3(0.0f, 0.15f, 0.3f);
+	materials[spheres_count+triangles_count + skybox_count +1].dif = glm::vec3(0.0f, 0.3f, 0.5f);
+	materials[spheres_count+triangles_count + skybox_count +1].spec = glm::vec3(0.8f, 0.8f, 0.8f);
+	materials[spheres_count+triangles_count + skybox_count +1].pow = 110.0f;
+	materials[spheres_count+triangles_count + skybox_count +1].refractive = false;
+	materials[spheres_count+triangles_count + skybox_count +1].reflective = false;
 
 
-	materials[spheres_count+triangles_count+2].amb = glm::vec3(0.0f, 0.15f, 0.3f);
-	materials[spheres_count+triangles_count+2].dif = glm::vec3(0.0f, 0.3f, 0.5f);
-	materials[spheres_count+triangles_count+2].spec = glm::vec3(0.8f, 0.8f, 0.8f);
-	materials[spheres_count+triangles_count+2].pow = 110.0f;
-	materials[spheres_count+triangles_count+2].refractive = false;
-	materials[spheres_count+triangles_count+2].reflective = false;
-
-
-	
-	
-
-	
-
-	//
-	// geometria letrehozasa
-	//
-	
+	materials[spheres_count+triangles_count+ skybox_count + 2].amb = glm::vec3(0.0f, 0.15f, 0.3f);
+	materials[spheres_count+triangles_count+ skybox_count + 2].dif = glm::vec3(0.0f, 0.3f, 0.5f);
+	materials[spheres_count+triangles_count+ skybox_count + 2].spec = glm::vec3(0.8f, 0.8f, 0.8f);
+	materials[spheres_count+triangles_count+ skybox_count + 2].pow = 110.0f;
+	materials[spheres_count+triangles_count+ skybox_count + 2].refractive = false;
+	materials[spheres_count+triangles_count+ skybox_count + 2].reflective = false;
 
 
 
@@ -397,7 +454,7 @@ bool CMyApp::Init()
 	// egyéb inicializálás
 	//
 
-	m_camera.SetProj(45.0f, 640.0f/480.0f, 0.01f, 1000.0f);
+	m_camera.SetProj(45.0f, 640.0f/480.0f, 0.1f, 1000.0f);
 
 	// textúra betöltése
 
@@ -406,8 +463,15 @@ bool CMyApp::Init()
 	m_EarthNormalID = TextureFromFile("earth_normal.jpg");
 	m_MoonTextureID = TextureFromFile("moon.jpg");
 	m_MoonNormalID = TextureFromFile("moon_normal.jpg");
-	m_PlaneTextureID = TextureFromFile("grid.bmp");
-	//m_SkyTextureID = TextureFromFile("sky.jpg");
+	m_GroundTextureID = TextureFromFile("grid.bmp");
+	
+	m_SkyboxTexture_back = TextureFromFile("skybox/backImage.jpg");
+	m_SkyboxTexture_down = TextureFromFile("skybox/downImage.jpg");
+	m_SkyboxTexture_front = TextureFromFile("skybox/frontImage.jpg");
+	m_SkyboxTexture_left = TextureFromFile("skybox/leftImage.jpg");
+	m_SkyboxTexture_right = TextureFromFile("skybox/rightImage.jpg");
+	m_SkyboxTexture_up = TextureFromFile("skybox/upImage.jpg");
+
 
 
 	//haromszog vertexei
@@ -424,7 +488,6 @@ bool CMyApp::Init()
 	m_vb.InitBuffers();
 
 	
-
 	// mesh betöltés
 	//m_mesh = ObjParser::parse("suzanne.obj");
 	//m_mesh->initBuffers();
@@ -440,8 +503,14 @@ void CMyApp::Clean()
 	glDeleteTextures(1, &m_EarthNormalID);
 	glDeleteTextures(1, &m_MoonTextureID);
 	glDeleteTextures(1, &m_MoonNormalID);
-	glDeleteTextures(1, &m_PlaneTextureID);
-	//glDeleteTextures(1, &m_SkyTextureID);
+	glDeleteTextures(1, &m_GroundTextureID);
+	glDeleteTextures(1, &m_SkyboxTexture_back);
+	glDeleteTextures(1, &m_SkyboxTexture_down);
+	glDeleteTextures(1, &m_SkyboxTexture_front);
+	glDeleteTextures(1, &m_SkyboxTexture_left);
+	glDeleteTextures(1, &m_SkyboxTexture_right);
+	glDeleteTextures(1, &m_SkyboxTexture_up);
+
 
 	m_program.Clean();
 }
@@ -465,15 +534,6 @@ void CMyApp::Render()
 
 	m_program.On();
 
-	glm::mat4 matWorld = glm::mat4(1.0f);
-	glm::mat4 matWorldIT = glm::transpose( glm::inverse( matWorld ) );
-	glm::mat4 mvp = m_camera.GetViewProj() *matWorld;
-
-	//glm::mat4 mat = glm::rotate<float>(50, glm::vec3(0, 1, 1));
-	//std::cout << mat[0][0] << " " << mat[0][1] << " " << mat[0][2] << " " << mat[0][3] << std::endl;
-	//std::cout << mat[1][0] << " " << mat[1][1] << " " << mat[1][2] << " " << mat[1][3] << std::endl;
-	//std::cout << mat[2][0] << " " << mat[2][1] << " " << mat[2][2] << " " << mat[2][3] << std::endl;
-	//std::cout << mat[3][0] << " " << mat[3][1] << " " << mat[3][2] << " " << mat[3][3] << std::endl << std::endl;
 	float rot;
 	
 	if (pause)
@@ -486,6 +546,7 @@ void CMyApp::Render()
 		rot = SDL_GetTicks() / 1000.0f - sumElapsedTime;
 	}
 	m_program.SetUniform("u_rot", rot);
+	m_program.SetUniform("skybox_ratio", (float)skybox_distance * 2);
 	m_program.SetUniform("u_shadow", shadow);
 	m_program.SetUniform("useNormalMap", useNormalMap);
 	m_program.SetUniform("u_glow", glow);
@@ -536,8 +597,29 @@ void CMyApp::Render()
 
 	//Sik atadasa
 
-	m_program.SetUniform("plane01.n", plane01.n);
-	m_program.SetUniform("plane01.q", plane01.q);
+	m_program.SetUniform("ground.n", ground.n);
+	m_program.SetUniform("ground.q", ground.q);
+
+	//Skybox atadasa
+
+	m_program.SetUniform("skybox_back.n", skybox_back.n);
+	m_program.SetUniform("skybox_back.q", skybox_back.q);
+
+	m_program.SetUniform("skybox_down.n", skybox_down.n);
+	m_program.SetUniform("skybox_down.q", skybox_down.q);
+
+	m_program.SetUniform("skybox_front.n", skybox_front.n);
+	m_program.SetUniform("skybox_front.q", skybox_front.q);
+
+	m_program.SetUniform("skybox_left.n", skybox_left.n);
+	m_program.SetUniform("skybox_left.q", skybox_left.q);
+
+	m_program.SetUniform("skybox_right.n", skybox_right.n);
+	m_program.SetUniform("skybox_right.q", skybox_right.q);
+
+	m_program.SetUniform("skybox_up.n", skybox_up.n);
+	m_program.SetUniform("skybox_up.q", skybox_up.q);
+
 
 	//Disc atadasa
 	disc01.n = glm::normalize(glm::vec3(cosf(rot / 2), 0, sinf(rot / 2)));
@@ -571,8 +653,14 @@ void CMyApp::Render()
 	m_program.SetTexture("u_earth_normal",  2, m_EarthNormalID);
 	m_program.SetTexture("u_moon_texture",  3, m_MoonTextureID);
 	m_program.SetTexture("u_moon_normal",   4, m_MoonNormalID);
-	m_program.SetTexture("u_plane_texture", 5, m_PlaneTextureID);
-	//m_program.SetTexture("u_sky_texture",   6, m_SkyTextureID);
+	m_program.SetTexture("u_ground_texture", 5, m_GroundTextureID);
+	m_program.SetTexture("skybox_texture_back", 6, m_SkyboxTexture_back);
+	m_program.SetTexture("skybox_texture_down", 7, m_SkyboxTexture_down);
+	m_program.SetTexture("skybox_texture_front", 8, m_SkyboxTexture_front);
+	m_program.SetTexture("skybox_texture_left", 9, m_SkyboxTexture_left);
+	m_program.SetTexture("skybox_texture_right", 10, m_SkyboxTexture_right);
+	m_program.SetTexture("skybox_texture_up", 11, m_SkyboxTexture_up);
+
 
 	for (int i = 0; i < materials_count; ++i)
 	{

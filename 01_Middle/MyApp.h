@@ -73,8 +73,10 @@ protected:
 	//raytrace specifikusak
 	static int const spheres_count = 10; //10 vagy 110
 	static int const triangles_count = 2;
+	static int const skybox_count = 6;
 	static int const lights_count = 3;
-	static int const materials_count = spheres_count + triangles_count + 3;
+	static int const materials_count = spheres_count + triangles_count + skybox_count + 3;
+	static int const skybox_distance = 10000.0;
 	
 
 	glm::vec4 arrayOfSpheres[spheres_count];
@@ -86,8 +88,15 @@ protected:
 	GLuint m_EarthNormalID;
 	GLuint m_MoonTextureID;
 	GLuint m_MoonNormalID;
-	GLuint m_PlaneTextureID;
-	//GLuint m_SkyTextureID;
+	GLuint m_GroundTextureID;
+	
+	GLuint m_SkyboxTexture_back;
+	GLuint m_SkyboxTexture_down;
+	GLuint m_SkyboxTexture_front;
+	GLuint m_SkyboxTexture_left;
+	GLuint m_SkyboxTexture_right;
+	GLuint m_SkyboxTexture_up;
+
 
 
 	struct Light
@@ -110,7 +119,15 @@ protected:
 	Light lights[lights_count];
 	Triangle arrayOfTriangles[triangles_count];
 	Material materials[materials_count];
-	Plane plane01;
+	Plane ground;
+
+	Plane skybox_back;
+	Plane skybox_down;
+	Plane skybox_front;
+	Plane skybox_left;
+	Plane skybox_right;
+	Plane skybox_up;
+
 	Disc disc01;
 	Disc disc02;
 
