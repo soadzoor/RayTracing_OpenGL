@@ -119,7 +119,7 @@ protected:
 	Light lights[lights_count];
 	Triangle arrayOfTriangles[triangles_count];
 	Material materials[materials_count];
-	Plane ground;
+	Disc ground;
 
 	Plane skybox_back;
 	Plane skybox_down;
@@ -127,9 +127,6 @@ protected:
 	Plane skybox_left;
 	Plane skybox_right;
 	Plane skybox_up;
-
-	Disc disc01;
-	Disc disc02;
 
 	// belsõ eljárások
 	glm::vec3 getF0(glm::vec3 n, glm::vec3 k);

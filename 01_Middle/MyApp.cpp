@@ -121,8 +121,9 @@ bool CMyApp::Init()
 
 	//sik
 
+	ground.o = glm::vec3(0, -10, 0);
 	ground.n = glm::vec3(0, 1, 0);
-	ground.q = glm::vec3(0, -10, 0);
+	ground.r = 30;
 
 	//skybox
 
@@ -143,16 +144,6 @@ bool CMyApp::Init()
 
 	skybox_up.n = glm::vec3(0, -1, 0);
 	skybox_up.q = glm::vec3(0, skybox_distance, 0);
-
-	//disc
-
-	disc01.o = glm::vec3(0,0,8);
-	disc01.n = glm::normalize(glm::vec3(0, 0, 1));
-	disc01.r = 1;
-
-	disc02.o = glm::vec3(0, 0, 8);
-	disc02.n = glm::normalize(glm::vec3(0, 0, -1));
-	disc02.r = 1;
 
 	//gyemant
 	/*
@@ -595,10 +586,11 @@ void CMyApp::Render()
 	}
 
 
-	//Sik atadasa
+	//Talapzat atadasa
 
+	m_program.SetUniform("ground.o", ground.o);
 	m_program.SetUniform("ground.n", ground.n);
-	m_program.SetUniform("ground.q", ground.q);
+	m_program.SetUniform("ground.r", ground.r);
 
 	//Skybox atadasa
 
@@ -619,18 +611,6 @@ void CMyApp::Render()
 
 	m_program.SetUniform("skybox_up.n", skybox_up.n);
 	m_program.SetUniform("skybox_up.q", skybox_up.q);
-
-
-	//Disc atadasa
-	disc01.n = glm::normalize(glm::vec3(cosf(rot / 2), 0, sinf(rot / 2)));
-	m_program.SetUniform("disc01.n", disc01.n);
-	m_program.SetUniform("disc01.r", disc01.r);
-	m_program.SetUniform("disc01.o", disc01.o);
-
-	disc02.n = glm::normalize(glm::vec3(cosf(rot / 2), 0, sinf(rot / 2)));
-	m_program.SetUniform("disc02.n", -disc02.n);
-	m_program.SetUniform("disc02.r", disc02.r);
-	m_program.SetUniform("disc02.o", disc02.o);
 
 	//Melyseg atadasa
 

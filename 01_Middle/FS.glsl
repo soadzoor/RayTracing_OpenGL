@@ -81,15 +81,13 @@ uniform float u_rot;
 uniform float skybox_ratio;
 
 
-uniform Plane ground;
+uniform Disc ground;
 uniform Plane skybox_back;
 uniform Plane skybox_down;
 uniform Plane skybox_front;
 uniform Plane skybox_left;
 uniform Plane skybox_right;
 uniform Plane skybox_up;
-uniform Disc disc01;
-uniform Disc disc02;
 
 uniform int u_depth;
 uniform bool u_shadow;
@@ -317,7 +315,7 @@ bool findmin(in Ray ray, inout HitRec hit_rec)
 			hit = true;
 		}
 	}
-	if (intersectPlane(ray, ground, hit_temp, spheres_count + triangles_count))
+	if (intersectDisc(ray, ground, hit_temp, spheres_count + triangles_count))
 	{
 		if (hit_temp.t < min_t || min_t < 0)
 		{
@@ -372,26 +370,6 @@ bool findmin(in Ray ray, inout HitRec hit_rec)
 		hit = true;
 	}
 	if (intersectPlane(ray, skybox_up, hit_temp, spheres_count + triangles_count + 6))
-	{
-		if (hit_temp.t < min_t || min_t < 0)
-		{
-			min_t = hit_temp.t;
-			hit_rec = hit_temp;
-		}
-		hit = true;
-	}
-
-	if (intersectDisc(ray, disc01, hit_temp, spheres_count + triangles_count + skybox_count + 1))
-	{
-		if (hit_temp.t < min_t || min_t < 0)
-		{
-			min_t = hit_temp.t;
-			hit_rec = hit_temp;
-		}
-		hit = true;
-	}
-
-	if (intersectDisc(ray, disc02, hit_temp, spheres_count + triangles_count + skybox_count + 2))
 	{
 		if (hit_temp.t < min_t || min_t < 0)
 		{
