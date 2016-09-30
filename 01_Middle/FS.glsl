@@ -70,11 +70,14 @@ struct HitRec
 
 const int spheres_count = 10;
 const int triangles_count = 2;
+const int discs_count = 1;
+const int torus_count = 1;
 const int skybox_count = 6;
-const int materials_count = spheres_count + triangles_count + skybox_count + 3;
+const int materials_count = spheres_count + triangles_count + discs_count + torus_count + skybox_count;
 const int lights_count = 3;
 uniform Light u_lights[lights_count];
 uniform vec4 u_spheres[spheres_count];
+uniform vec2 torus;
 uniform Triangle u_triangles[triangles_count];
 uniform Material u_materials[materials_count];
 uniform float u_rot;
@@ -186,7 +189,7 @@ bool intersectSphere(in Ray ray, in vec4 sphere, out HitRec hit_rec, in int ind)
 
 bool intersectPlane(in Ray ray, in Plane plane, out HitRec hit_rec, in int ind)
 {
-	if (dot(ray.dir, plane.n) > 0)
+	if (dot(ray.dir, plane.n) > 0) //culling
 	{
 		return false;
 	}
@@ -227,7 +230,6 @@ bool intersectDisc(in Ray ray, in Disc disc, out HitRec hit_rec, in int ind)
 
 	return false;
 }
-
 
 bool intersectTriangle(Ray ray, in Triangle t, out HitRec hit_rec, in int ind) //Moller-Trumbore
 {
@@ -278,6 +280,120 @@ bool intersectTriangle(Ray ray, in Triangle t, out HitRec hit_rec, in int ind) /
   return false;
 }
 
+bool intersectTorus(Ray ray, in vec2 torus, out HitRec hit_rec, in int ind)
+{
+	float Ra2 = torus.x*torus.x;
+	float ra2 = torus.y*torus.y;
+	
+	float m = dot(ray.origin, ray.origin);
+	float n = dot(ray.origin, ray.dir);
+		
+	float k = (m - ra2 - Ra2)/2.0;
+	float a = n;
+	float b = n*n + Ra2*ray.dir.z*ray.dir.z + k;					//
+	float c = k*n + Ra2*ray.origin.z*ray.dir.z;						//ha a  z-jet y-ra atirom, akkor fekszik a torus
+	float d = k*k + Ra2*ray.origin.z*ray.origin.z - Ra2*ra2;		//
+	
+    //----------------------------------
+
+	float p = -3.0*a*a     + 2.0*b;
+	float q =  2.0*a*a*a   - 2.0*a*b   + 2.0*c;
+	float r = -3.0*a*a*a*a + 4.0*a*a*b - 8.0*a*c + 4.0*d;
+	p /= 3.0;
+	r /= 3.0;
+	float Q = p*p + r;
+	float R = 3.0*r*p - p*p*p - q*q;
+	
+	float h = R*R - Q*Q*Q;
+	float z = 0.0;
+	if(h < 0.0)
+	{
+		float sQ = sqrt(Q);
+		z = 2.0*sQ*cos( acos(R/(sQ*Q)) / 3.0 );
+	}
+	else
+	{
+		float sQ = pow( sqrt(h) + abs(R), 1.0/3.0 );
+		z = sign(R)*abs( sQ + Q/sQ );
+
+	}
+	
+	z = p - z;
+	
+    //----------------------------------
+	
+	float d1 = z   - 3.0*p;
+	float d2 = z*z - 3.0*r;
+
+	if (abs(d1) < EPSILON)
+	{
+		if (d2 < 0.0)
+		{
+			return false;
+		}
+		d2 = sqrt(d2);
+	}
+	else
+	{
+		if(d1 < 0.0)
+		{
+			return false;
+		}
+		d1 = sqrt( d1/2.0 );
+		d2 = q/d1;
+	}
+
+    //----------------------------------
+	
+	float result = -1;
+
+	h = d1*d1 - z + d2;
+	if(h > 0.0)
+	{
+		h = sqrt(h);
+		float t1 = -d1 - h - a;
+		float t2 = -d1 + h - a;
+		if (t1 > 0.0)
+		{
+			result = t1;
+		}
+		else if (t2 > 0.0)
+		{
+			result = t2;
+		}
+	}
+
+	h = d1*d1 - z - d2;
+	if (h > 0.0)
+	{
+		h = sqrt(h);
+		float t1 = d1 - h - a;
+		float t2 = d1 + h - a;
+		if (t1 > 0.0)
+		{
+			result = min(result, t1);
+			result = result < 0.0 ? result = t1 : result;
+		}
+		else if (t2 > 0.0)
+		{
+			result = min(result, t2);
+			result = result < 0.0 ? result = t2 : result;
+		}
+	}
+	float t = result;
+	if (t > 0.0) //intersection
+	{
+		hit_rec.t = t;
+		hit_rec.ind = ind;
+		hit_rec.point = ray.origin + ray.dir * t;
+		vec3 pos = vec3(hit_rec.point);
+		hit_rec.normal = normalize(pos*(dot(pos,pos)- torus.y*torus.y - torus.x*torus.x*vec3(1.0, 1.0, -1.0)));
+		hit_rec.origo = vec3(0.0, 0.0, 0.0);
+		return true;
+	}
+	return false;
+}
+
 vec3 glow(in float d, in vec3 glow_)
 {
 	return glow_*clamp((2/(0.5f + d*d)), 0, 1);
@@ -324,7 +440,7 @@ bool findmin(in Ray ray, inout HitRec hit_rec)
 		}
 		hit = true;
 	}
-	if (intersectPlane(ray, skybox_back, hit_temp, spheres_count + triangles_count + 1))
+	if (intersectTorus(ray, torus, hit_temp, spheres_count + triangles_count + 1))
 	{
 		if (hit_temp.t < min_t || min_t < 0)
 		{
@@ -333,7 +449,7 @@ bool findmin(in Ray ray, inout HitRec hit_rec)
 		}
 		hit = true;
 	}
-	if (intersectPlane(ray, skybox_down, hit_temp, spheres_count + triangles_count + 2))
+	if (intersectPlane(ray, skybox_back, hit_temp, spheres_count + triangles_count + 2))
 	{
 		if (hit_temp.t < min_t || min_t < 0)
 		{
@@ -342,7 +458,7 @@ bool findmin(in Ray ray, inout HitRec hit_rec)
 		}
 		hit = true;
 	}
-	if (intersectPlane(ray, skybox_front, hit_temp, spheres_count + triangles_count + 3))
+	if (intersectPlane(ray, skybox_down, hit_temp, spheres_count + triangles_count + 3))
 	{
 		if (hit_temp.t < min_t || min_t < 0)
 		{
@@ -351,7 +467,7 @@ bool findmin(in Ray ray, inout HitRec hit_rec)
 		}
 		hit = true;
 	}
-	if (intersectPlane(ray, skybox_left, hit_temp, spheres_count + triangles_count + 4))
+	if (intersectPlane(ray, skybox_front, hit_temp, spheres_count + triangles_count + 4))
 	{
 		if (hit_temp.t < min_t || min_t < 0)
 		{
@@ -360,7 +476,7 @@ bool findmin(in Ray ray, inout HitRec hit_rec)
 		}
 		hit = true;
 	}
-	if (intersectPlane(ray, skybox_right, hit_temp, spheres_count + triangles_count + 5))
+	if (intersectPlane(ray, skybox_left, hit_temp, spheres_count + triangles_count + 5))
 	{
 		if (hit_temp.t < min_t || min_t < 0)
 		{
@@ -369,7 +485,16 @@ bool findmin(in Ray ray, inout HitRec hit_rec)
 		}
 		hit = true;
 	}
-	if (intersectPlane(ray, skybox_up, hit_temp, spheres_count + triangles_count + 6))
+	if (intersectPlane(ray, skybox_right, hit_temp, spheres_count + triangles_count + 6))
+	{
+		if (hit_temp.t < min_t || min_t < 0)
+		{
+			min_t = hit_temp.t;
+			hit_rec = hit_temp;
+		}
+		hit = true;
+	}
+	if (intersectPlane(ray, skybox_up, hit_temp, spheres_count + triangles_count + 7))
 	{
 		if (hit_temp.t < min_t || min_t < 0)
 		{
@@ -382,27 +507,27 @@ bool findmin(in Ray ray, inout HitRec hit_rec)
 	return hit;
 }
 
-vec3 shade(in HitRec min_hit, in Ray ray)
+vec3 shade(in HitRec closest_hit, in Ray ray)
 {
-	vec3 ref_dir = normalize(reflect(min_hit.point - ray.origin, min_hit.normal));
-	vec3 temp_col = u_materials[min_hit.ind].amb;
+	vec3 ref_dir = normalize(reflect(closest_hit.point - ray.origin, closest_hit.normal));
+	vec3 temp_col = u_materials[closest_hit.ind].amb;
 	vec3 diffuse = vec3(0);
 	vec3 specular = vec3(0);
 
 	for (int j = 0; j < lights_count; ++j)
 	{
-		vec3 light_vec = u_lights[j].pos - min_hit.point;
+		vec3 light_vec = u_lights[j].pos - closest_hit.point;
 		//float distance = length(light_vec);
 		light_vec = normalize(light_vec);
-		float diffintensity = clamp(dot(min_hit.normal, light_vec), 0, 1);
+		float diffintensity = clamp(dot(closest_hit.normal, light_vec), 0, 1);
 			
-		specular = clamp(((u_materials[min_hit.ind].spec*u_lights[j].col)*pow(clamp(dot(light_vec, ref_dir),0,1), u_materials[min_hit.ind].pow)), 0, 1);
-		diffuse = clamp((u_materials[min_hit.ind].dif*diffintensity*u_lights[j].col)/(1),0,1);
+		specular = clamp(((u_materials[closest_hit.ind].spec*u_lights[j].col)*pow(clamp(dot(light_vec, ref_dir),0,1), u_materials[closest_hit.ind].pow)), 0, 1);
+		diffuse = clamp((u_materials[closest_hit.ind].dif*diffintensity*u_lights[j].col)/(1),0,1);
 
 			
 		if (u_shadow)
 		{
-			HitRec shadow_hit = min_hit;
+			HitRec shadow_hit = closest_hit;
 			int ind = shadow_hit.ind;
 			Ray shadow_ray;
 			shadow_ray.origin = shadow_hit.point+1.5*shadow_hit.normal*EPSILON;
@@ -434,7 +559,7 @@ vec3 fresnel(in vec3 dir, in vec3 normal, in vec3 f0)
 vec3 trace(Ray ray)
 {
 	vec3 color = vec3(0);
-	HitRec min_hit;
+	HitRec closest_hit;
 
 	float u,v;
 	vec2 uv;
@@ -448,48 +573,48 @@ vec3 trace(Ray ray)
 
 	while (continueLoop)
 	{
-		if(findmin(ray, min_hit))
+		if(findmin(ray, closest_hit))
 		{
-			u = 0.5 + atan(-min_hit.normal.z, -min_hit.normal.x)/(2*3.1415);
-			v = 0.5 - asin(-min_hit.normal.y)/3.1415;
+			u = 0.5 + atan(-closest_hit.normal.z, -closest_hit.normal.x)/(2*3.1415);
+			v = 0.5 - asin(-closest_hit.normal.y)/3.1415;
 
 			if (useNormalMap)
 			{
-				if (min_hit.ind == 3)
+				if (closest_hit.ind == 3)
 				{
 					u += u_rot/2;
 					uv = vec2(u, v);
 					vec3 normalFromMap = normalize(2*( (texture(u_earth_normal, -uv)).bgr ) - 1);
 			
-					mat3 R = calculateR(min_hit.normal);
-					min_hit.normal = R*normalFromMap;
+					mat3 R = calculateR(closest_hit.normal);
+					closest_hit.normal = R*normalFromMap;
 				}
-				else if (min_hit.ind == 4)
+				else if (closest_hit.ind == 4)
 				{
 					u += u_rot/7;
 					uv = vec2(u, v);
 					vec3 normalFromMap = normalize(2*( (texture(u_moon_normal, -uv)).bgr ) - 1);
 			
-					mat3 R = calculateR(min_hit.normal);
-					min_hit.normal = R*normalFromMap;
+					mat3 R = calculateR(closest_hit.normal);
+					closest_hit.normal = R*normalFromMap;
 				}
 			}
 			
 			bounce_count++;
 			
-			Material mat = u_materials[min_hit.ind];
-			vec3 shade_col = min_hit.ind == 0 ? mat.amb : shade(min_hit, ray);
+			Material mat = u_materials[closest_hit.ind];
+			vec3 shade_col = closest_hit.ind == 0 ? mat.amb : shade(closest_hit, ray);
 		
 			color += shade_col*trace_coeff;
 			
-			if (min_hit.ind == 0) //sun
+			if (closest_hit.ind == 0) //sun
 			{
 				u += u_rot/5;
 				v += u_rot/5;
 				vec2 uv = vec2(u, v);
 				color *= texture(u_sun_texture, -uv).bgr + vec3(0,0,0.5);
 			}
-			else if (min_hit.ind == 3) //earth
+			else if (closest_hit.ind == 3) //earth
 			{
 				if (!useNormalMap)
 				{
@@ -499,7 +624,7 @@ vec3 trace(Ray ray)
 				vec2 uv = vec2(u, v);
 				color *= texture(u_earth_texture, -uv).bgr;
 			}
-			else if (min_hit.ind == 4) //moon
+			else if (closest_hit.ind == 4) //moon
 			{
 				if (!useNormalMap)
 				{
@@ -508,33 +633,33 @@ vec3 trace(Ray ray)
 				vec2 uv = vec2(u, v);
 				color *= texture(u_moon_texture, -uv).bgr;
 			}
-			else if (min_hit.ind == spheres_count+triangles_count) //ground
+			else if (closest_hit.ind == spheres_count+triangles_count) //ground
 			{
-				color *= texture(u_ground_texture, 0.15*min_hit.point.xz).bgr;
+				color *= texture(u_ground_texture, 0.15*closest_hit.point.xz).bgr;
 			}
-			else if (min_hit.ind == spheres_count + triangles_count + 1) //skybox_back
+			else if (closest_hit.ind == spheres_count + triangles_count + 2) //skybox_back
 			{
-				color *= texture(skybox_texture_back, (-min_hit.point.xy + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
+				color *= texture(skybox_texture_back, (-closest_hit.point.xy + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
 			}
-			else if (min_hit.ind == spheres_count + triangles_count + 2) //skybox_down
+			else if (closest_hit.ind == spheres_count + triangles_count + 3) //skybox_down
 			{
-				color *= texture(skybox_texture_down, (min_hit.point.xz + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
+				color *= texture(skybox_texture_down, (closest_hit.point.xz + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
 			}
-			else if (min_hit.ind == spheres_count + triangles_count + 3) //skybox_front
+			else if (closest_hit.ind == spheres_count + triangles_count + 4) //skybox_front
 			{
-				color *= texture(skybox_texture_front, (min_hit.point.xy*vec2(1, -1) + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
+				color *= texture(skybox_texture_front, (closest_hit.point.xy*vec2(1, -1) + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
 			}
-			else if (min_hit.ind == spheres_count + triangles_count + 4) //skybox_left
+			else if (closest_hit.ind == spheres_count + triangles_count + 5) //skybox_left
 			{
-				color *= texture(skybox_texture_left, (min_hit.point.yz + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
+				color *= texture(skybox_texture_left, (closest_hit.point.yz + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
 			}
-			else if (min_hit.ind == spheres_count + triangles_count + 5) //skybox_right
+			else if (closest_hit.ind == spheres_count + triangles_count + 6) //skybox_right
 			{
-				color *= texture(skybox_texture_right, (min_hit.point.zy*vec2(1, -1) + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
+				color *= texture(skybox_texture_right, (closest_hit.point.zy*vec2(1, -1) + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
 			}
-			else if (min_hit.ind == spheres_count + triangles_count + 6) //skybox_up
+			else if (closest_hit.ind == spheres_count + triangles_count + 7) //skybox_up
 			{
-				color *= texture(skybox_texture_up, (min_hit.point.xz + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
+				color *= texture(skybox_texture_up, (closest_hit.point.xz + vec2(skybox_ratio/2.0, skybox_ratio/2.0)) / skybox_ratio).bgr;
 			}
 			if ((mat.reflective || mat.refractive) && bounce_count <= u_depth)
 			{
@@ -549,39 +674,39 @@ vec3 trace(Ray ray)
 					Ray refr_ray;
 					
 					//                     kivulrol jon?                        igen                                        nem
-					refr_ray.dir = dot(ray.dir, min_hit.normal) < 0 ? refract(ray.dir, min_hit.normal, eta) : refract(ray.dir, -min_hit.normal, 1/eta);
+					refr_ray.dir = dot(ray.dir, closest_hit.normal) < 0 ? refract(ray.dir, closest_hit.normal, eta) : refract(ray.dir, -closest_hit.normal, 1/eta);
 				
 					if (refr_ray.dir == vec3(0.0)) //teljes belso visszaverodes
 					{
-						ray.dir = normalize(reflect(temp_ray, min_hit.normal));
-						ray.origin = min_hit.point - 1.5*min_hit.normal*EPSILON;
-						trace_coeff = trace_coeff*fresnel(ray.dir, min_hit.normal, mat.f0);
+						ray.dir = normalize(reflect(temp_ray, closest_hit.normal));
+						ray.origin = closest_hit.point - 1.5*closest_hit.normal*EPSILON;
+						trace_coeff = trace_coeff*fresnel(ray.dir, closest_hit.normal, mat.f0);
 						//total_internal_reflection = true;
 					}
 					else
 					{
-						float esign = dot(ray.dir, min_hit.normal) < 0 ? 1.0 : -1.0;
-						refr_ray.origin = min_hit.point - min_hit.normal*EPSILON*esign;
+						float esign = dot(ray.dir, closest_hit.normal) < 0 ? 1.0 : -1.0;
+						refr_ray.origin = closest_hit.point - closest_hit.normal*EPSILON*esign;
 
 						refr_ray.dir = normalize(refr_ray.dir);
 						
 						if (!mat.reflective)
 						{
 							ray = refr_ray;
-							//trace_coeff *= (vec3(1.0) - fresnel(ray.dir, min_hit.normal, mat.f0))*f;
+							//trace_coeff *= (vec3(1.0) - fresnel(ray.dir, closest_hit.normal, mat.f0))*f;
 						}
 						else
 						{
-							stack[stack_size].trace_coeff = trace_coeff*(vec3(1.0) - fresnel(ray.dir, min_hit.normal, mat.f0));
+							stack[stack_size].trace_coeff = trace_coeff*(vec3(1.0) - fresnel(ray.dir, closest_hit.normal, mat.f0));
 							stack[stack_size].depth = bounce_count;
 							stack[stack_size++].ray = refr_ray;
 						}
 					}
 				}
 				//mirror
-				if (mat.reflective && !total_internal_reflection && (min_hit.ind != 3 || (min_hit.ind == 3 && color.z > color.x && color.z > color.y))) //A fold csak a vizen tukrozodjon
+				if (mat.reflective && !total_internal_reflection && (closest_hit.ind != 3 || (closest_hit.ind == 3 && color.z > color.x && color.z > color.y))) //A fold csak a vizen tukrozodjon
 				{
-					if (dot(ray.dir, min_hit.normal) >= 0)
+					if (dot(ray.dir, closest_hit.normal) >= 0)
 					{
 						//if (bounce_count > 3)
 						//{
@@ -589,16 +714,16 @@ vec3 trace(Ray ray)
 						//}
 						//else
 						{
-							trace_coeff = trace_coeff*fresnel(ray.dir, -min_hit.normal, mat.f0);
-							ray.dir = normalize(reflect(ray.dir, -min_hit.normal));
-							ray.origin = min_hit.point - 1.5*min_hit.normal*EPSILON;
+							trace_coeff = trace_coeff*fresnel(ray.dir, -closest_hit.normal, mat.f0);
+							ray.dir = normalize(reflect(ray.dir, -closest_hit.normal));
+							ray.origin = closest_hit.point - 1.5*closest_hit.normal*EPSILON;
 						}
 					}
 					else
 					{
-						trace_coeff = trace_coeff*fresnel(ray.dir, min_hit.normal, mat.f0);
-						ray.dir = normalize(reflect(ray.dir, min_hit.normal));
-						ray.origin = min_hit.point + 1.5*min_hit.normal*EPSILON;
+						trace_coeff = trace_coeff*fresnel(ray.dir, closest_hit.normal, mat.f0);
+						ray.dir = normalize(reflect(ray.dir, closest_hit.normal));
+						ray.origin = closest_hit.point + 1.5*closest_hit.normal*EPSILON;
 					}
 				}
 			}
@@ -635,7 +760,7 @@ vec3 trace(Ray ray)
 			float d = length(hit_point);
 			vec3 glowcolor = vec3(1,0.95,0.1);
 			vec3 glowness;
-			if (length(min_hit.point-u_eye)+u_spheres[0].w < length(u_spheres[0].xyz - u_eye))
+			if (length(closest_hit.point-u_eye)+u_spheres[0].w < length(u_spheres[0].xyz - u_eye))
 			{
 				glowness = vec3(0);
 			}

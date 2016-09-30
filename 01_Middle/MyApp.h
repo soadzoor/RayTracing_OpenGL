@@ -35,24 +35,7 @@ public:
 	float sumElapsedTime = 0;
 	
 
-	struct Triangle
-	{
-		glm::vec3 A;
-		glm::vec3 B;
-		glm::vec3 C;
-	};
-
-	struct Plane
-	{
-		glm::vec3 n;
-		glm::vec3 q;
-	};
 	
-	struct Disc
-	{
-		glm::vec3 o, n;
-		float r;
-	};
 
 
 	bool Init();
@@ -71,15 +54,18 @@ public:
 
 protected:
 	//raytrace specifikusak
-	static int const spheres_count = 10; //10 vagy 110
+	static int const spheres_count = 10; //10, +100
 	static int const triangles_count = 2;
+	static int const discs_count = 1;
+	static int const tori_count = 1;
 	static int const skybox_count = 6;
 	static int const lights_count = 3;
-	static int const materials_count = spheres_count + triangles_count + skybox_count + 3;
-	static int const skybox_distance = 10000.0;
+	static int const materials_count = spheres_count + triangles_count + discs_count + tori_count + skybox_count;
+	static int const skybox_distance = 100.0;
 	
 
 	glm::vec4 arrayOfSpheres[spheres_count];
+	glm::vec2 torus;
 
 	
 
@@ -97,7 +83,24 @@ protected:
 	GLuint m_SkyboxTexture_right;
 	GLuint m_SkyboxTexture_up;
 
+	struct Triangle
+	{
+		glm::vec3 A;
+		glm::vec3 B;
+		glm::vec3 C;
+	};
 
+	struct Plane
+	{
+		glm::vec3 n;
+		glm::vec3 q;
+	};
+
+	struct Disc
+	{
+		glm::vec3 o, n;
+		float r;
+	};
 
 	struct Light
 	{

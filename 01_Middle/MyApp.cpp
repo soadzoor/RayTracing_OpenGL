@@ -119,11 +119,14 @@ bool CMyApp::Init()
 	//arrayOfTriangles[5].C = glm::vec3(1.5, 1, 20.5); //4
 
 
-	//sik
+	//ground
 
 	ground.o = glm::vec3(0, -10, 0);
 	ground.n = glm::vec3(0, 1, 0);
 	ground.r = 30;
+
+	//torus
+	torus = glm::vec2(9.0, 1.6);
 
 	//skybox
 
@@ -317,23 +320,15 @@ bool CMyApp::Init()
 	materials[7].reflective = false;
 
 	//arany
-	//materials[8].amb = glm::vec3(0.24725, 0.1995, 0.0745)/5.0f;
-	//materials[8].dif = glm::vec3(0.01, 0.01, 0.01);
+
 	materials[8].spec = glm::vec3(0.628281, 0.555802, 0.366065);
 	materials[8].pow = 51.2f;
 	materials[8].refractive = false;
 	materials[8].reflective = true;
 	materials[8].f0 = getF0(glm::vec3(0.17, 0.35, 1.5), glm::vec3(3.1, 2.7, 1.9));//arany kioltasi tenyezo);
-	//materials[9].pow = 70.0f;
-	//materials[9].refractive = true;
-	//materials[9].reflective = true;
-	//materials[9].f0 = getF0(glm::vec3(1.5), glm::vec3(0.00));
-	//materials[9].n = 1.5;
 
 	//uveg
-	//materials[9].amb = glm::vec3(0.0f, 0.0f, 0.0f);
-	//materials[9].dif = glm::vec3(0.01f, 0.01f, 0.01f);
-	//materials[9].spec = glm::vec3(0.8f, 0.8f, 0.8f);
+
 	materials[9].pow = 70.0f;
 	materials[9].refractive = true;
 	materials[9].reflective = true;
@@ -389,7 +384,7 @@ bool CMyApp::Init()
 		materials[i].n = 1.1;
 	
 	}
-	//Sik
+	//Ground (discs)
 	materials[spheres_count + triangles_count].amb = glm::vec3(0.0f, 0.0f, 0.0f);
 	materials[spheres_count + triangles_count].dif = glm::vec3(0.3f, 0.34f, 0.36f);
 	materials[spheres_count + triangles_count].spec = glm::vec3(0.8f, 0.8f, 0.8f);
@@ -398,8 +393,16 @@ bool CMyApp::Init()
 	materials[spheres_count + triangles_count].reflective = false;
 	materials[spheres_count + triangles_count].f0 = getF0(glm::vec3(0.6), glm::vec3(2.6));
 
+	//Torus
+	materials[spheres_count + triangles_count + discs_count].amb = glm::vec3(0.0f, 0.1f, 0.3f);
+	materials[spheres_count + triangles_count + discs_count].dif = glm::vec3(0.0f, 0.2f, 0.5f);
+	materials[spheres_count + triangles_count + discs_count].spec = glm::vec3(0.8f, 0.8f, 0.8f);
+	materials[spheres_count + triangles_count + discs_count].pow = 60.0f;
+	materials[spheres_count + triangles_count + discs_count].refractive = false;
+	materials[spheres_count + triangles_count + discs_count].reflective = false;
+
 	//Skybox
-	for (int i = spheres_count + triangles_count + 1; i <= spheres_count + triangles_count + skybox_count; ++i)
+	for (int i = spheres_count + triangles_count + discs_count + tori_count; i < spheres_count + triangles_count + discs_count + tori_count + skybox_count; ++i)
 	{
 		materials[i].amb = glm::vec3(0.5f, 0.5f, 0.5f);
 		materials[i].dif = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -409,24 +412,6 @@ bool CMyApp::Init()
 		materials[i].reflective = false;
 
 	}
-
-	//Disc
-	materials[spheres_count+triangles_count + skybox_count +1].amb = glm::vec3(0.0f, 0.15f, 0.3f);
-	materials[spheres_count+triangles_count + skybox_count +1].dif = glm::vec3(0.0f, 0.3f, 0.5f);
-	materials[spheres_count+triangles_count + skybox_count +1].spec = glm::vec3(0.8f, 0.8f, 0.8f);
-	materials[spheres_count+triangles_count + skybox_count +1].pow = 110.0f;
-	materials[spheres_count+triangles_count + skybox_count +1].refractive = false;
-	materials[spheres_count+triangles_count + skybox_count +1].reflective = false;
-
-
-	materials[spheres_count+triangles_count+ skybox_count + 2].amb = glm::vec3(0.0f, 0.15f, 0.3f);
-	materials[spheres_count+triangles_count+ skybox_count + 2].dif = glm::vec3(0.0f, 0.3f, 0.5f);
-	materials[spheres_count+triangles_count+ skybox_count + 2].spec = glm::vec3(0.8f, 0.8f, 0.8f);
-	materials[spheres_count+triangles_count+ skybox_count + 2].pow = 110.0f;
-	materials[spheres_count+triangles_count+ skybox_count + 2].refractive = false;
-	materials[spheres_count+triangles_count+ skybox_count + 2].reflective = false;
-
-
 
 	//
 	// shaderek betöltése
@@ -586,13 +571,17 @@ void CMyApp::Render()
 	}
 
 
-	//Talapzat atadasa
+	//Talapzat atadasa (disc)
 
 	m_program.SetUniform("ground.o", ground.o);
 	m_program.SetUniform("ground.n", ground.n);
 	m_program.SetUniform("ground.r", ground.r);
 
-	//Skybox atadasa
+	//Torus atadasa (vec2)
+	
+	m_program.SetUniform("torus", torus);
+
+	//Skybox atadasa (plane)
 
 	m_program.SetUniform("skybox_back.n", skybox_back.n);
 	m_program.SetUniform("skybox_back.q", skybox_back.q);
