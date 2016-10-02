@@ -139,8 +139,8 @@ int main( int argc, char* args[] )
 		std::cout << "[app.Init] Az alkalmazás inicializálása közben hibatörtént!" << std::endl;
 		return 1;
 	}
-	Uint32	last_update = SDL_GetTicks();
-	int		frame_cnt = 0;
+	Uint32	lastUpdate = SDL_GetTicks();
+	int		frameCount = 0;
 
 	while (!quit)
 	{
@@ -184,17 +184,17 @@ int main( int argc, char* args[] )
 		app.Update();
 		app.Render();
 
-		++frame_cnt;
+		++frameCount;
 
-		if (SDL_GetTicks() - last_update >= 1000)
+		if (SDL_GetTicks() - lastUpdate >= 1000)
 		{
 
 			window_title.str(std::string());
-			window_title << "OpenGL " << glVersion[0] << "." << glVersion[1] << ", avg. FPS: " << frame_cnt;
+			window_title << "OpenGL " << glVersion[0] << "." << glVersion[1] << ", avg. FPS: " << frameCount;
 			SDL_SetWindowTitle(win, window_title.str().c_str());
 
-			last_update = SDL_GetTicks();
-			frame_cnt = 0;
+			lastUpdate = SDL_GetTicks();
+			frameCount = 0;
 		}
 
 		SDL_GL_SwapWindow(win);
