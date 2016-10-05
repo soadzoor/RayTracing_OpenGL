@@ -6,7 +6,6 @@
 #define toriCount 1
 #define skyboxCount 6
 #define lightsCount 3
-#define materialsCount spheresCount + trianglesCount + discsCount + toriCount + skyboxCount
 #define skyboxDistance 10000.0
 
 // GLEW
@@ -59,7 +58,7 @@ public:
 protected:
 	glm::vec4 arrayOfSpheres[spheresCount];
 	glm::vec2 torus;
-
+	static const int materialsCount = spheresCount + trianglesCount + discsCount + toriCount + skyboxCount;
 	
 
 	GLuint sunTexture	  = 0;

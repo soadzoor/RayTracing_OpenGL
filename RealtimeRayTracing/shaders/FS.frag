@@ -2,19 +2,18 @@
 
 #define EPSILON 0.001
 #define PI 3.14159265359
-#define STACK_SIZE 16
+#define STACK_SIZE 8
 #define spheresCount 10
 #define trianglesCount 2
 #define discsCount 1
 #define toriCount 1
 #define skyboxCount 6
-#define materialsCount spheresCount + trianglesCount + discsCount + toriCount + skyboxCount
 #define lightsCount 3
-
-// pipeline-ból bejövõ per-fragment attribútumok
+const int materialsCount = spheresCount + trianglesCount + discsCount + toriCount + skyboxCount;
+// attribs from the vertex shader
 in vec3 vsRay;
 
-// kimenõ érték - a fragment színe
+// color of the fragment
 out vec4 fragColor;
 
 uniform vec3 eye;
