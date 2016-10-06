@@ -107,53 +107,7 @@ struct Stack
 	int depth;
 };
 
-
-//double cbrt(double x) 
-//{    
-//    if (abs(x) < EPSILON) return 0;
-//	bool isNegativ = x < 0.0;
-//    if (isNegativ)
-//	{
-//		x *= -1;
-//	}
-//
-//    double r = x;
-//    double ex = 0;
-//
-//    while (r < 0.125) { r *= 8; ex--; }
-//    while (r > 1.0) { r *= 0.125; ex++; }
-//
-//    r = (-0.46946116 * r + 1.072302) * r + 0.3812513;
-//
-//    while (ex < 0) { r *= 0.5; ex++; }
-//    while (ex > 0) { r *= 2; ex--; }
-//
-//    r = (2.0 / 3.0) * r + (1.0 / 3.0) * x / (r * r);
-//    r = (2.0 / 3.0) * r + (1.0 / 3.0) * x / (r * r);
-//    r = (2.0 / 3.0) * r + (1.0 / 3.0) * x / (r * r);
-//    r = (2.0 / 3.0) * r + (1.0 / 3.0) * x / (r * r);
-//
-//    return isNegativ ? -r : r;
-//}
-//double cbrt(double n)
-//{	
-//	double guess = n/2.0;
-//	double result;
-//	for (int i = 0; i < n; ++i)
-//	{
-//	    result = n / guess;
-//	    guess = (guess + result) / 2.0;
-//	}
-//	return result;
-//}
-
-//double taylor(double x)
-//{
-//	double sq3 = sqrt(3.0);
-//	return sq3/2.0 + x/6.0 - x*x/(12.0*sq3) + 2.0*x*x*x / 81.0 - 35.0*x*x*x*x/(1296.0*sq3) + 8.0*x*x*x*x*x/729.0 - 1001.0*sq3*x*x*x*x*x*x/209952.0 + 128.0*x*x*x*x*x*x*x/19683.0 - 46189.0*sq3*x*x*x*x*x*x*x*x/15116544.0 + 7040.0*x*x*x*x*x*x*x*x*x/1594323.0;// - 5311735*sq3*x*x*x*x*x*x*x*x*x*x/48880128.0 + 46592.0*x*x*x*x*x*x*x*x*x*x*x/14348907.0 - 434113615.0*sq3*x*x*x*x*x*x*x*x*x*x*x*x/264479053824.0 + 974848.0*x*x*x*x*x*x*x*x*x*x*x*x*x / 387420489.0 - 6177770675.0*sq3*x*x*x*x*x*x*x*x*x*x*x*x*x*x/4760622968832.0 + 21168128.0*x*x*x*x*x*x*x*x*x*x*x*x*x*x*x / 10460353203.0 - 2178281940005.0*sq3*x*x*x*x*x*x*x*x*x*x*x*x*x*x*x*x/2056589122535424.0 + 157515776.0*x*x*x*x*x*x*x*x*x*x*x*x*x*x*x*x*x/94143178827.0;
-//}
-
-mat3 rotationMatrix(vec3 axis, float angle)
+mat3 rotationMatrix(in vec3 axis, in float angle)
 {
     axis = normalize(axis);
     float s = sin(angle);
@@ -165,7 +119,7 @@ mat3 rotationMatrix(vec3 axis, float angle)
                 oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c);
 }
 
-mat3 calculateR(vec3 normal)
+mat3 calculateR(in vec3 normal)
 {
 	normalize(normal);
 
@@ -181,7 +135,7 @@ mat3 calculateR(vec3 normal)
 
 
 
-bool intersectSphere(in Ray ray, in vec4 sphere, out HitRec hit_rec, in int ind)
+bool intersectSphere(in Ray ray, in vec4 sphere, out HitRec hitRec, in int ind)
 {
 	vec3 dist = ray.origin - sphere.xyz;
 	float b = dot(dist, ray.dir)*2.0; //skalaris szorzat
@@ -193,9 +147,9 @@ bool intersectSphere(in Ray ray, in vec4 sphere, out HitRec hit_rec, in int ind)
 	{
 		return false;
 	}
-	float sqrt_discr = sqrt(discr);
-	float t1 = (-b + sqrt_discr)/2.0/a;
-	float t2 = (-b - sqrt_discr)/2.0/a;
+	float sqrtDiscr = sqrt(discr);
+	float t1 = (-b + sqrtDiscr)/2.0/a;
+	float t2 = (-b - sqrtDiscr)/2.0/a;
 	float t;
 	if (t1 < EPSILON)
 	{
@@ -221,18 +175,18 @@ bool intersectSphere(in Ray ray, in vec4 sphere, out HitRec hit_rec, in int ind)
 	{
 		t = t1;
 	}
-	hit_rec.ind = ind;
-	hit_rec.t = t;
-	hit_rec.origo = vec3(sphere.xyz);
-	hit_rec.point = ray.origin + t*ray.dir;
+	hitRec.ind = ind;
+	hitRec.t = t;
+	hitRec.origo = vec3(sphere.xyz);
+	hitRec.point = ray.origin + t*ray.dir;
 
 
-	hit_rec.normal = normalize((hit_rec.point-hit_rec.origo) / sphere.w);
+	hitRec.normal = normalize((hitRec.point-hitRec.origo) / sphere.w);
 
 	return true;
 }
 
-bool intersectPlane(in Ray ray, in Plane plane, out HitRec hit_rec, in int ind)
+bool intersectPlane(in Ray ray, in Plane plane, out HitRec hitRec, in int ind)
 {
 	if (dot(ray.dir, plane.n) > 0) //culling
 	{
@@ -245,24 +199,24 @@ bool intersectPlane(in Ray ray, in Plane plane, out HitRec hit_rec, in int ind)
 	{
 		return false;
 	}
-	hit_rec.ind = ind;
-	hit_rec.t = t;
-	hit_rec.origo = plane.q;
-	hit_rec.point = ray.origin + t*ray.dir;
-	hit_rec.normal = plane.n;
+	hitRec.ind = ind;
+	hitRec.t = t;
+	hitRec.origo = plane.q;
+	hitRec.point = ray.origin + t*ray.dir;
+	hitRec.normal = plane.n;
 	
 	return true;
 }
 
-bool intersectDisc(in Ray ray, in Disc disc, out HitRec hit_rec, in int ind)
+bool intersectDisc(in Ray ray, in Disc disc, out HitRec hitRec, in int ind)
 {
 	Plane plane1;
 	plane1.n = disc.n;
 	plane1.q = disc.o;
 
-    if (intersectPlane(ray, plane1, hit_rec, ind)) 
+    if (intersectPlane(ray, plane1, hitRec, ind)) 
 	{ 
-        vec3 p = ray.origin + hit_rec.t*ray.dir; 
+        vec3 p = ray.origin + hitRec.t*ray.dir; 
         vec3 v = p - disc.o; 
         float d2 = dot(v, v); 
         if (!(d2 <= disc.r*disc.r))
@@ -276,11 +230,11 @@ bool intersectDisc(in Ray ray, in Disc disc, out HitRec hit_rec, in int ind)
 	return false;
 }
 
-bool intersectTriangle(Ray ray, in Triangle t, out HitRec hit_rec, in int ind) //Moller-Trumbore
+bool intersectTriangle(in Ray ray, in Triangle t, out HitRec hitRec, in int ind) //Moller-Trumbore
 {
   vec3 e1, e2;  //Edge1, Edge2
   vec3 P, Q, T;
-  float det, inv_det, u, v;
+  float det, invDet, u, v;
   float t1;
 
   //Find vectors for two edges sharing V1
@@ -292,13 +246,13 @@ bool intersectTriangle(Ray ray, in Triangle t, out HitRec hit_rec, in int ind) /
   det = dot(e1, P);
   //NOT CULLING
   //if(det < EPSILON ) return false;
-  inv_det = 1.f / det;
+  invDet = 1.f / det;
 
   //calculate distance from V1 to ray origin
   T = ray.origin - t.A;
 
   //Calculate u parameter and test bound
-  u = dot(T, P) * inv_det;
+  u = dot(T, P) * invDet;
   //The intersection lies outside of the triangle
   if(u < 0.f || u > 1.f) return false;
 
@@ -306,26 +260,26 @@ bool intersectTriangle(Ray ray, in Triangle t, out HitRec hit_rec, in int ind) /
   Q = cross(T, e1);
 
   //Calculate V parameter and test bound
-  v = dot(ray.dir, Q) * inv_det;
+  v = dot(ray.dir, Q) * invDet;
   //The intersection lies outside of the triangle
   if(v < 0.f || u + v  > 1.f) return false;
 
-  t1 = dot(e2, Q) * inv_det;
+  t1 = dot(e2, Q) * invDet;
 
   if(t1 > EPSILON) 
   { //ray intersection
-		hit_rec.t = t1;
-		hit_rec.ind = ind;
-		hit_rec.point = ray.origin + ray.dir * t1;
-		hit_rec.normal = normalize(cross(t.B-t.A, t.C-t.A));
-		hit_rec.origo = (t.A+t.B+t.C)/3;
+		hitRec.t = t1;
+		hitRec.ind = ind;
+		hitRec.point = ray.origin + ray.dir * t1;
+		hitRec.normal = normalize(cross(t.B-t.A, t.C-t.A));
+		hitRec.origo = (t.A+t.B+t.C)/3;
 		return true;
   }
 
   return false;
 }
 
-bool intersectTorus(in Ray ray, in vec2 torus, out HitRec hit_rec, in int ind)
+bool intersectTorus(in Ray ray, in vec2 torus, out HitRec hitRec, in int ind)
 {
 	ray.origin.z -= 40.0;
 	float Ra2 = torus.x*torus.x;
@@ -409,121 +363,121 @@ bool intersectTorus(in Ray ray, in vec2 torus, out HitRec hit_rec, in int ind)
 	
     if (result > 0.0 && result < 100.0) //hit
     {
-        hit_rec.t = result;
-        hit_rec.point = ray.origin + hit_rec.t*ray.dir;
-		hit_rec.ind = ind;
-        hit_rec.normal = normalize( hit_rec.point*(dot(hit_rec.point,hit_rec.point)- torus.y*torus.y - torus.x*torus.x*vec3(1.0,-1.0,1.0)));
+        hitRec.t = result;
+        hitRec.point = ray.origin + hitRec.t*ray.dir;
+		hitRec.ind = ind;
+        hitRec.normal = normalize( hitRec.point*(dot(hitRec.point,hitRec.point)- torus.y*torus.y - torus.x*torus.x*vec3(1.0,-1.0,1.0)));
         return true;
     }
 	return false;
 }
 
-vec3 glow(in float d, in vec3 glow_)
+vec3 glow(in float d, in vec3 glow)
 {
-	return glow_*clamp((2/(0.5f + d*d)), 0, 1);
+	return glow*clamp((2/(0.5f + d*d)), 0, 1);
 }
 
-bool findmin(in Ray ray, inout HitRec hit_rec)
+bool findmin(in Ray ray, inout HitRec hitRec)
 {
-	HitRec hit_temp;
+	HitRec hitTemp;
 	
-	float min_t = -1;
+	float minT = -1.0;
 	bool hit = false;
 	
 	for (int i = 0; i < spheresCount; ++i) 
 	{
-		if (intersectSphere(ray, spheres[i], hit_temp, i))
+		if (intersectSphere(ray, spheres[i], hitTemp, i))
 		{
 			
-			if (hit_temp.t < min_t || min_t < 0)
+			if (hitTemp.t < minT || minT < 0.0)
 			{
-				min_t = hit_temp.t;
-				hit_rec = hit_temp;
+				minT = hitTemp.t;
+				hitRec = hitTemp;
 			}
 			hit = true;
 		}
 	}
 	for (int i = spheresCount; i < spheresCount + trianglesCount; ++i)
 	{
-		if (intersectTriangle(ray, triangles[i-spheresCount], hit_temp, i))
+		if (intersectTriangle(ray, triangles[i-spheresCount], hitTemp, i))
 		{
-			if (hit_temp.t < min_t || min_t < 0)
+			if (hitTemp.t < minT || minT < 0.0)
 			{
-				min_t = hit_temp.t;
-				hit_rec = hit_temp;
+				minT = hitTemp.t;
+				hitRec = hitTemp;
 			}
 			hit = true;
 		}
 	}
-	if (intersectDisc(ray, ground, hit_temp, spheresCount + trianglesCount))
+	if (intersectDisc(ray, ground, hitTemp, spheresCount + trianglesCount))
 	{
-		if (hit_temp.t < min_t || min_t < 0)
+		if (hitTemp.t < minT || minT < 0.0)
 		{
-			min_t = hit_temp.t;
-			hit_rec = hit_temp;
+			minT = hitTemp.t;
+			hitRec = hitTemp;
 		}
 		hit = true;
 	}
-	if (showTorus ? intersectTorus(ray, torus, hit_temp, spheresCount + trianglesCount + 1) : false)
+	if (showTorus ? intersectTorus(ray, torus, hitTemp, spheresCount + trianglesCount + 1) : false)
 	{
-		if (hit_temp.t < min_t || min_t < 0)
+		if (hitTemp.t < minT || minT < 0.0)
 		{
-			min_t = hit_temp.t;
-			hit_rec = hit_temp;
+			minT = hitTemp.t;
+			hitRec = hitTemp;
 		}
 		hit = true;
 	}
-	if (intersectPlane(ray, skyboxBack, hit_temp, spheresCount + trianglesCount + 2))
+	if (intersectPlane(ray, skyboxBack, hitTemp, spheresCount + trianglesCount + 2))
 	{
-		if (hit_temp.t < min_t || min_t < 0)
+		if (hitTemp.t < minT || minT < 0.0)
 		{
-			min_t = hit_temp.t;
-			hit_rec = hit_temp;
+			minT = hitTemp.t;
+			hitRec = hitTemp;
 		}
 		hit = true;
 	}
-	if (intersectPlane(ray, skyboxDown, hit_temp, spheresCount + trianglesCount + 3))
+	if (intersectPlane(ray, skyboxDown, hitTemp, spheresCount + trianglesCount + 3))
 	{
-		if (hit_temp.t < min_t || min_t < 0)
+		if (hitTemp.t < minT || minT < 0.0)
 		{
-			min_t = hit_temp.t;
-			hit_rec = hit_temp;
+			minT = hitTemp.t;
+			hitRec = hitTemp;
 		}
 		hit = true;
 	}
-	if (intersectPlane(ray, skyboxFront, hit_temp, spheresCount + trianglesCount + 4))
+	if (intersectPlane(ray, skyboxFront, hitTemp, spheresCount + trianglesCount + 4))
 	{
-		if (hit_temp.t < min_t || min_t < 0)
+		if (hitTemp.t < minT || minT < 0.0)
 		{
-			min_t = hit_temp.t;
-			hit_rec = hit_temp;
+			minT = hitTemp.t;
+			hitRec = hitTemp;
 		}
 		hit = true;
 	}
-	if (intersectPlane(ray, skyboxLeft, hit_temp, spheresCount + trianglesCount + 5))
+	if (intersectPlane(ray, skyboxLeft, hitTemp, spheresCount + trianglesCount + 5))
 	{
-		if (hit_temp.t < min_t || min_t < 0)
+		if (hitTemp.t < minT || minT < 0.0)
 		{
-			min_t = hit_temp.t;
-			hit_rec = hit_temp;
+			minT = hitTemp.t;
+			hitRec = hitTemp;
 		}
 		hit = true;
 	}
-	if (intersectPlane(ray, skyboxRight, hit_temp, spheresCount + trianglesCount + 6))
+	if (intersectPlane(ray, skyboxRight, hitTemp, spheresCount + trianglesCount + 6))
 	{
-		if (hit_temp.t < min_t || min_t < 0)
+		if (hitTemp.t < minT || minT < 0.0)
 		{
-			min_t = hit_temp.t;
-			hit_rec = hit_temp;
+			minT = hitTemp.t;
+			hitRec = hitTemp;
 		}
 		hit = true;
 	}
-	if (intersectPlane(ray, skyboxUp, hit_temp, spheresCount + trianglesCount + 7))
+	if (intersectPlane(ray, skyboxUp, hitTemp, spheresCount + trianglesCount + 7))
 	{
-		if (hit_temp.t < min_t || min_t < 0)
+		if (hitTemp.t < minT || minT < 0.0)
 		{
-			min_t = hit_temp.t;
-			hit_rec = hit_temp;
+			minT = hitTemp.t;
+			hitRec = hitTemp;
 		}
 		hit = true;
 	}
@@ -577,7 +531,7 @@ vec3 fresnel(in vec3 dir, in vec3 normal, in vec3 f0)
 	return f;
 }
 
-vec3 trace(Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/Voglsam_2013_RRT/Voglsam_2013_RRT-Thesis.pdf
+vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/Voglsam_2013_RRT/Voglsam_2013_RRT-Thesis.pdf
 {
 	vec3 color = vec3(0);
 	HitRec closestHit;
@@ -585,7 +539,7 @@ vec3 trace(Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/Vog
 	vec2 uv;
 
 	Stack stack[STACK_SIZE]; // max depth
-	int stack_size = 0; // current depth
+	int stackSize = 0; // current depth
 	int bounceCount = 1;
 	vec3 coeff = vec3(1.0);
 	bool continueLoop = true;
@@ -623,9 +577,9 @@ vec3 trace(Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/Vog
 			bounceCount++;
 			
 			Material mat = materials[closestHit.ind];
-			vec3 shade_col = closestHit.ind == 0 ? mat.amb : shade(closestHit, ray);
+			vec3 shadeCol = closestHit.ind == 0 ? mat.amb : shade(closestHit, ray);
 		
-			color += shade_col*coeff;
+			color += shadeCol*coeff;
 			
 			if (closestHit.ind == 0) //sun
 			{
@@ -687,15 +641,15 @@ vec3 trace(Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/Vog
 				if (mat.refractive)
 				{
 					float eta = 1/mat.n;
-					vec3 temp_ray = ray.dir;
+					vec3 tempRay = ray.dir;
 					Ray refractedRay;
 
 					//                     coming from outside the object  ?                        yes                                       no
 					refractedRay.dir = dot(ray.dir, closestHit.normal) < 0.0 ? refract(ray.dir, closestHit.normal, eta) : refract(ray.dir, -closestHit.normal, 1/eta);
 				
-					if (refractedRay.dir == vec3(0.0)) //total internal reflection
+					if (length(refractedRay.dir) < EPSILON) //total internal reflection ( refract returns with vec3(0.0) if it's a TIR )
 					{
-						ray.dir = normalize(reflect(temp_ray, closestHit.normal));
+						ray.dir = normalize(reflect(tempRay, closestHit.normal));
 						ray.origin = closestHit.point - 1.5*closestHit.normal*EPSILON;
 						coeff = coeff*fresnel(ray.dir, closestHit.normal, mat.f0);
 					}
@@ -710,9 +664,9 @@ vec3 trace(Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/Vog
 						}
 						else
 						{
-							stack[stack_size].coeff = coeff*(vec3(1.0) - fresnel(ray.dir, closestHit.normal, mat.f0));
-							stack[stack_size].depth = bounceCount;
-							stack[stack_size++].ray = refractedRay;
+							stack[stackSize].coeff = coeff*(vec3(1.0) - fresnel(ray.dir, closestHit.normal, mat.f0));
+							stack[stackSize].depth = bounceCount;
+							stack[stackSize++].ray = refractedRay;
 						}
 					}
 				}
@@ -753,11 +707,11 @@ vec3 trace(Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/Vog
 			continueLoop = false;
 		}
 
-		if (!continueLoop && stack_size > 0)
+		if (!continueLoop && stackSize > 0)
 		{
-			ray = stack[--stack_size].ray;
-			bounceCount = stack[stack_size].depth;
-			coeff = stack[stack_size].coeff;
+			ray = stack[--stackSize].ray;
+			bounceCount = stack[stackSize].depth;
+			coeff = stack[stackSize].coeff;
 			continueLoop = true;
 		}
 		//

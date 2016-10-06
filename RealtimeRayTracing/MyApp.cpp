@@ -32,12 +32,12 @@ bool CMyApp::Init()
 	//
 	// Lights
 	//
-	lights[0].col = glm::vec3(1, 1, 1);
-	lights[0].pos = glm::vec3(0.0, 0.0, 0.0);
-	lights[1].col = glm::vec3(1, 1, 1);
-	lights[1].pos = glm::vec3(-2, 20, 0);
-	lights[2].col = glm::vec3(1, 1, 1);
-	lights[2].pos = glm::vec3(20, 20, 0);
+	lights[0].col = glm::vec3( 1.0,  1.0, 1.0);
+	lights[0].pos = glm::vec3( 0.0,  0.0, 0.0);
+	lights[1].col = glm::vec3( 1.0,  1.0, 1.0);
+	lights[1].pos = glm::vec3(-2.0, 20.0, 0.0);
+	lights[2].col = glm::vec3( 1.0,  1.0, 1.0);
+	lights[2].pos = glm::vec3(20.0, 20.0, 0.0);
 
 	//
 	// Spheres
