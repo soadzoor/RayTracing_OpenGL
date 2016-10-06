@@ -123,9 +123,9 @@ mat3 calculateR(in vec3 normal)
 {
 	normalize(normal);
 
-	float cosAngle = dot(normal, vec3(0, 0, 1));
+	float cosAngle = dot(normal, vec3(0.0, 0.0, 1.0));
 	float angle = acos(cosAngle);
-	vec3 axis = cross(normal, vec3(0, 0, 1));
+	vec3 axis = cross(normal, vec3(0.0, 0.0, 1.0));
 
 	mat3 R = rotationMatrix(axis, angle);
 	return R;
@@ -188,7 +188,7 @@ bool intersectSphere(in Ray ray, in vec4 sphere, out HitRec hitRec, in int ind)
 
 bool intersectPlane(in Ray ray, in Plane plane, out HitRec hitRec, in int ind)
 {
-	if (dot(ray.dir, plane.n) > 0) //culling
+	if (dot(ray.dir, plane.n) > 0.0) //culling
 	{
 		return false;
 	}
