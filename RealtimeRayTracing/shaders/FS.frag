@@ -1,4 +1,4 @@
-#version 130
+#version 120
 
 #define EPSILON 0.001
 #define PI 3.14159265359
@@ -143,7 +143,7 @@ bool intersectSphere(in Ray ray, in vec4 sphere, out HitRec hitRec, in int ind)
 	float c = dot(dist, dist) - dot(sphere.w, sphere.w);
 
 	float discr = b*b - 4.0 * a * c;
-	if (discr < 0)
+	if (discr < 0.0)
 	{
 		return false;
 	}
@@ -558,7 +558,7 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 				{
 					u += time/2;
 					uv = vec2(u, v);
-					vec3 normalFromMap = normalize(2*( (texture(earthNormalMap, -uv)).bgr ) - 1);
+					vec3 normalFromMap = normalize(2*( (texture2D(earthNormalMap, -uv)).bgr ) - 1);
 			
 					mat3 R = calculateR(closestHit.normal);
 					closestHit.normal = R*normalFromMap;
@@ -567,7 +567,7 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 				{
 					u += time/7;
 					uv = vec2(u, v);
-					vec3 normalFromMap = normalize(2*( (texture(moonNormalMap, -uv)).bgr ) - 1);
+					vec3 normalFromMap = normalize(2*( (texture2D(moonNormalMap, -uv)).bgr ) - 1);
 			
 					mat3 R = calculateR(closestHit.normal);
 					closestHit.normal = R*normalFromMap;
@@ -586,7 +586,7 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 				u += time/5;
 				v += time/5;
 				vec2 uv = vec2(u, v);
-				color *= texture(sunTexture, -uv).bgr + vec3(0,0,0.5);
+				color *= texture2D(sunTexture, -uv).bgr + vec3(0,0,0.5);
 			}
 			else if (closestHit.ind == 3) //earth
 			{
@@ -596,7 +596,7 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 				}
 			
 				vec2 uv = vec2(u, v);
-				color *= texture(earthTexture, -uv).bgr;
+				color *= texture2D(earthTexture, -uv).bgr;
 			}
 			else if (closestHit.ind == 4) //moon
 			{
@@ -605,35 +605,35 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 					u += time/7;
 				}
 				vec2 uv = vec2(u, v);
-				color *= texture(moonTexture, -uv).bgr;
+				color *= texture2D(moonTexture, -uv).bgr;
 			}
 			else if (closestHit.ind == spheresCount+trianglesCount) //ground
 			{
-				color *= texture(groundTexture, 0.15*closestHit.point.xz).bgr;
+				color *= texture2D(groundTexture, 0.15*closestHit.point.xz).bgr;
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 2) //skyboxBack
 			{
-				color *= texture(skyboxTextureBack, (-closestHit.point.xy + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
+				color *= texture2D(skyboxTextureBack, (-closestHit.point.xy + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 3) //skyboxDown
 			{
-				color *= texture(skyboxTextureDown, (closestHit.point.xz + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
+				color *= texture2D(skyboxTextureDown, (closestHit.point.xz + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 4) //skyboxFront
 			{
-				color *= texture(skyboxTextureFront, (closestHit.point.xy*vec2(1, -1) + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
+				color *= texture2D(skyboxTextureFront, (closestHit.point.xy*vec2(1, -1) + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 5) //skyboxLeft
 			{
-				color *= texture(skyboxTextureLeft, (closestHit.point.yz + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
+				color *= texture2D(skyboxTextureLeft, (closestHit.point.yz + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 6) //skyboxRight
 			{
-				color *= texture(skyboxTextureRight, (closestHit.point.zy*vec2(1, -1) + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
+				color *= texture2D(skyboxTextureRight, (closestHit.point.zy*vec2(1, -1) + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 7) //skyboxUp
 			{
-				color *= texture(skyboxTextureUp, (closestHit.point.xz + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
+				color *= texture2D(skyboxTextureUp, (closestHit.point.xz + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
 			}
 			if ((mat.reflective || mat.refractive) && bounceCount <= depth)
 			{
