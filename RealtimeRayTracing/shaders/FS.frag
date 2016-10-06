@@ -107,7 +107,7 @@ struct Stack
 	int depth;
 };
 
-mat3 rotationMatrix(in vec3 axis, in float angle)
+mat3 rotationMatrix(in vec3 axis, in float angle) //http://www.neilmendoza.com/glsl-rotation-about-an-arbitrary-axis/
 {
     axis = normalize(axis);
     float s = sin(angle);
