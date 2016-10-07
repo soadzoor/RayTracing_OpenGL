@@ -11,6 +11,7 @@
 6. Actions:  
 "p": pause moving objects  
 "n": toggle normalmaps  
-"1": toggle shadows  
+"1": toggle shadows
+"2": toggle torus
 "g": toggle sunglow  
 "v": toggle vsync  

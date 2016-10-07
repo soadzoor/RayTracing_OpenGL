@@ -29,6 +29,8 @@ bool CMyApp::Init()
 	glEnable(GL_CULL_FACE);		// Discard back-facing triangles
 	//glEnable(GL_DEPTH_TEST);	// Z-buffer test. Currently no need for this.
 
+	camera = gCamera(glm::vec3(0.0, 0.0, 35.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+
 	//
 	// Lights
 	//
@@ -410,12 +412,6 @@ bool CMyApp::Init()
 	{
 		return false;
 	}
-
-	//
-	// Initializing camera (currently no need for this)
-	//
-
-	//camera.SetProj(45.0f, 640.0f/480.0f, 2.0f, 4.0f);
 
 	//
 	// Loading textures
