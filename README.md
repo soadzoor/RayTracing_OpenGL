@@ -15,3 +15,5 @@
 "2": toggle torus  
 "g": toggle sunglow  
 "v": toggle vsync  
+"left arrow": decrease ray depth
+"right arrow": increase ray depth
