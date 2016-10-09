@@ -12,7 +12,7 @@
 "p": pause moving objects  
 "n": toggle normalmaps  
 "1": toggle shadows  
-"2": toggle torus  
+"t": toggle torus  
 "g": toggle sunglow  
 "v": toggle vsync  
 "left arrow": decrease ray depth  

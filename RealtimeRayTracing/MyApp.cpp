@@ -728,7 +728,7 @@ void CMyApp::KeyboardDown(SDL_KeyboardEvent& key)
 			isShadowOn ? std::cout << "Shadows ON" << std::endl : std::cout << "Shadows OFF" << std::endl;
 			break;
 		}
-		case SDLK_2:
+		case SDLK_t:
 		{
 			showTorus = !showTorus;
 			showTorus ? std::cout << "Torus ON" << std::endl : std::cout << "Torus OFF" << std::endl;
