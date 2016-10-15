@@ -24,6 +24,8 @@
 #include "gShaderProgram.h"
 #include "gVertexBuffer.h"
 
+#include <string>
+
 class CMyApp
 {
 public:
@@ -40,6 +42,10 @@ public:
 	float curElapsedTime = 0;
 	float sumElapsedTime = 0;
 	int depth = 1;
+	int currentColorMode = 5;
+
+	void colorModeToTernary(int currentColorMode);
+	int colorModeInTernary[3];
 
 	bool Init();
 	void Clean();
@@ -59,7 +65,16 @@ protected:
 	glm::vec4 arrayOfSpheres[spheresCount];
 	glm::vec2 torus;
 	static const int materialsCount = spheresCount + trianglesCount + discsCount + toriCount + skyboxCount;
-	
+	const std::string colorModes[27] = {"RRR", "RRG", "RRB",
+										"RGR", "RGG", "RGB",
+										"RBR", "RBG", "RBB",
+										"GRR", "GRG", "GRB",
+										"GGR", "GGG", "GGB",
+										"GBR", "GBG", "GBB",
+										"BRR", "BRG", "BRB",
+										"BGR", "BGG", "BGB",
+										"BBR", "BBG", "BBB"};
+
 
 	GLuint sunTexture	  = 0;
 	GLuint earthTexture	  = 0;
@@ -122,6 +137,8 @@ protected:
 	Plane skyboxLeft;
 	Plane skyboxRight;
 	Plane skyboxUp;
+
+	
 
 	// belsõ eljárások
 	glm::vec3 getF0(glm::vec3 n, glm::vec3 k);

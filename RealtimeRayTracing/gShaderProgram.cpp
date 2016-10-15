@@ -197,7 +197,6 @@ void gShaderProgram::SetUniform(const char* _uniform, float _a, float _b, float 
 	GLint loc = getLocation(_uniform);
 	glUniform3f( loc, _a, _b, _c );
 }
-
 void gShaderProgram::SetUniform(const char* _uniform, float _a, float _b, float _c, float _d)
 {
 	GLint loc = getLocation(_uniform);

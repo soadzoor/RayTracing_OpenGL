@@ -13,9 +13,6 @@ const int materialsCount = spheresCount + trianglesCount + discsCount + toriCoun
 // attribs from the vertex shader
 in vec3 vsRay;
 
-// color of the fragment
-out vec4 fragColor;
-
 uniform vec3 eye;
 
 uniform sampler2D sunTexture;
@@ -100,6 +97,8 @@ uniform bool useNormalMap;
 uniform bool isGlowOn;
 uniform bool showTorus;
 
+uniform int colorModeInTernary[3];
+
 struct Stack
 {
 	Ray ray;
@@ -181,7 +180,7 @@ bool intersectSphere(in Ray ray, in vec4 sphere, out HitRec hitRec, in int ind)
 	hitRec.point = ray.origin + t*ray.dir;
 
 
-	hitRec.normal = normalize((hitRec.point-hitRec.origo) / sphere.w);
+	hitRec.normal = normalize(hitRec.point - hitRec.origo);
 
 	return true;
 }
@@ -485,7 +484,7 @@ bool findmin(in Ray ray, inout HitRec hitRec)
 	return hit;
 }
 
-vec3 shade(in HitRec closestHit, in Ray ray)
+vec3 shade(in HitRec closestHit, in Ray ray) //Blinn-Phong
 {
 	vec3 refDir = normalize(reflect(closestHit.point - ray.origin, closestHit.normal));
 	vec3 color = materials[closestHit.ind].amb;
@@ -533,7 +532,7 @@ vec3 fresnel(in vec3 dir, in vec3 normal, in vec3 f0)
 
 vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/Voglsam_2013_RRT/Voglsam_2013_RRT-Thesis.pdf
 {
-	vec3 color = vec3(0);
+	vec3 color = vec3(0.0);
 	HitRec closestHit;
 	float u,v;
 	vec2 uv;
@@ -750,6 +749,6 @@ void main()
 	ray.origin = eye;
 	ray.dir = normalize(vsRay);
 	vec3 color = trace(ray);
-
-	fragColor = vec4(color, 1);
+	
+	gl_FragColor = vec4(color[colorModeInTernary[0]], color[colorModeInTernary[1]], color[colorModeInTernary[2]], 1.0);
 }

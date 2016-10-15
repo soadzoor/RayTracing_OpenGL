@@ -9,6 +9,7 @@
 4. You can open up the project and press *Build and run*. Tested on Visual Studio 2013 and 2015.
 5. You can move with "WASD" and look around with your mouse, but you have to hold the left mousebutton on the window to do so.
 6. Actions:  
+"left shift": while holding it, your speed is reduced to half
 "p": pause moving objects  
 "n": toggle normalmaps  
 "1": toggle shadows  
@@ -17,3 +18,4 @@
 "v": toggle vsync  
 "left arrow": decrease ray depth  
 "right arrow": increase ray depth  
+"up arrow/down arrow": change color mode  

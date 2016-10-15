@@ -21,6 +21,14 @@ glm::vec3 CMyApp::getF0(glm::vec3 n, glm::vec3 k) //toresmutato, kioltasi tenyez
 
 	return f0;
 }
+void CMyApp::colorModeToTernary(int currentColorMode)
+{
+	colorModeInTernary[2] = currentColorMode % 3;
+	currentColorMode /= 3;
+	colorModeInTernary[1] = currentColorMode % 3;
+	currentColorMode /= 3;
+	colorModeInTernary[0] = currentColorMode % 3;
+}
 
 bool CMyApp::Init()
 {
@@ -257,9 +265,9 @@ bool CMyApp::Init()
 	//
 	// Blue sphere
 	//
-	materials[2].amb = glm::vec3(0, 0, 0.2f);
-	materials[2].dif = glm::vec3(0, 0, 0.4f);
-	materials[2].spec = glm::vec3(0.8f, 0.5f, 0.6f);
+	materials[2].amb = glm::vec3(0.0, 0.0, 0.2f);
+	materials[2].dif = glm::vec3(0.0, 0.0, 0.4f);
+	materials[2].spec = glm::vec3(0.0);
 	materials[2].pow = 20.0f;
 	materials[2].refractive = false;
 	materials[2].reflective = false;
@@ -435,15 +443,17 @@ bool CMyApp::Init()
 	//
 	vb.AddAttribute(0, 3);
 
-	vb.AddData(0, -1, -1, 0);
-	vb.AddData(0, 1, -1, 0);
-	vb.AddData(0, -1, 1, 0);
-	vb.AddData(0, 1, 1, 0);
+	vb.AddData(0, -1, -1, 0); // A
+	vb.AddData(0, 1, -1, 0);  // B
+	vb.AddData(0, -1, 1, 0);  // D
+	vb.AddData(0, 1, 1, 0);   // C
 
 	vb.AddIndex(0, 1, 2); // 2 triangles with proper vertex positions = 1 square
 	vb.AddIndex(3, 2, 1); //
 
 	vb.InitBuffers();
+
+	colorModeToTernary(currentColorMode);
 
 	return true;
 }
@@ -525,6 +535,7 @@ void CMyApp::Render()
 	program.SetUniform("eye", eye);
 	program.SetUniform("up", up);
 	program.SetUniform("fw", fw);
+	program.SetUniform("right", right);
 	program.SetUniform("ratio", camera.GetRatio());
 	program.SetUniform("time", time);
 	program.SetUniform("skyboxRatio", (float)skyboxDistance * 2);
@@ -637,6 +648,15 @@ void CMyApp::Render()
 		program.SetUniform(buffer, materials[i].n);
 	}
 	//
+	// Pass color mode to GPU
+	//
+	program.SetUniform("colorModeInTernary[0]", colorModeInTernary[0]);
+	program.SetUniform("colorModeInTernary[1]", colorModeInTernary[1]);
+	program.SetUniform("colorModeInTernary[2]", colorModeInTernary[2]);
+	
+
+
+	//
 	// Turn on VAO (VBO also turns on with it)
 	//
 	vb.On();
@@ -732,6 +752,24 @@ void CMyApp::KeyboardDown(SDL_KeyboardEvent& key)
 		{
 			showTorus = !showTorus;
 			showTorus ? std::cout << "Torus ON" << std::endl : std::cout << "Torus OFF" << std::endl;
+			break;
+		}
+		case SDLK_DOWN:
+		{
+			if (currentColorMode > 0)
+			{
+				std::cout << "Current color mode: " << colorModes[--currentColorMode] << std::endl;
+				colorModeToTernary(currentColorMode);
+			}
+			break;
+		}
+		case SDLK_UP:
+		{
+			if (currentColorMode < 26)
+			{
+				std::cout << "Current color mode: " << colorModes[++currentColorMode] << std::endl;
+				colorModeToTernary(currentColorMode);
+			}
 			break;
 		}
 	}
