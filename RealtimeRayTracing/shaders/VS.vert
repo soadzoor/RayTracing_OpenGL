@@ -17,9 +17,9 @@ uniform float ratio;
 
 void main()
 {
-	gl_Position = vec4( vertPosition, 1 );
+	gl_Position = vec4( vertPosition, 1.0 );
 
-	vec3 pos = eye + fw*3 + ratio*right*vertPosition.x + up*vertPosition.y;
+	vec3 pos = eye + fw*3.0 + ratio*right*vertPosition.x + up*vertPosition.y;
 
 	vsRay = pos - eye;
 }

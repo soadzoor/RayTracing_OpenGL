@@ -137,49 +137,26 @@ mat3 calculateR(in vec3 normal)
 bool intersectSphere(in Ray ray, in vec4 sphere, out HitRec hitRec, in int ind)
 {
 	vec3 dist = ray.origin - sphere.xyz;
-	float b = dot(dist, ray.dir)*2.0; //skalaris szorzat
+	float b = dot(dist, ray.dir)*2.0;
 	float a = dot(ray.dir, ray.dir);
 	float c = dot(dist, dist) - dot(sphere.w, sphere.w);
 
 	float discr = b*b - 4.0 * a * c;
-	if (discr < 0.0)
-	{
-		return false;
-	}
+	if (discr < 0.0) return false;
 	float sqrtDiscr = sqrt(discr);
 	float t1 = (-b + sqrtDiscr)/2.0/a;
 	float t2 = (-b - sqrtDiscr)/2.0/a;
 	float t;
-	if (t1 < EPSILON)
-	{
-		t1 = -EPSILON;
-	}
-	if (t2 < EPSILON)
-	{
-		t2 = -EPSILON;
-	}
-	if (t1 < 0.0 && t2 < 0.0)
-	{
-		return false;
-	}
-	if (t1 < 0.0)
-	{
-		return false;
-	}
-	if (t2 > 0.0)
-	{
-		t = t2;
-	}
-	else
-	{
-		t = t1;
-	}
+	if (t1 < EPSILON) t1 = -EPSILON;
+	if (t2 < EPSILON) t2 = -EPSILON;
+	if (t1 < 0.0) return false;
+	if (t2 > 0.0) t = t2;
+	else t = t1;
+
 	hitRec.ind = ind;
 	hitRec.t = t;
 	hitRec.origo = vec3(sphere.xyz);
 	hitRec.point = ray.origin + t*ray.dir;
-
-
 	hitRec.normal = normalize(hitRec.point - hitRec.origo);
 
 	return true;
@@ -192,12 +169,10 @@ bool intersectPlane(in Ray ray, in Plane plane, out HitRec hitRec, in int ind)
 		return false;
 	}
 
-	float t = (dot(plane.n,(plane.q - ray.origin))) / (dot(plane.n, ray.dir));
+	float t = dot(plane.n,(plane.q - ray.origin)) / dot(plane.n, ray.dir);
 
-	if (t < EPSILON )
-	{
-		return false;
-	}
+	if (t < EPSILON ) return false;
+
 	hitRec.ind = ind;
 	hitRec.t = t;
 	hitRec.origo = plane.q;
@@ -209,11 +184,11 @@ bool intersectPlane(in Ray ray, in Plane plane, out HitRec hitRec, in int ind)
 
 bool intersectDisc(in Ray ray, in Disc disc, out HitRec hitRec, in int ind)
 {
-	Plane plane1;
-	plane1.n = disc.n;
-	plane1.q = disc.o;
+	Plane plane;
+	plane.n = disc.n;
+	plane.q = disc.o;
 
-    if (intersectPlane(ray, plane1, hitRec, ind)) 
+    if (intersectPlane(ray, plane, hitRec, ind)) 
 	{ 
         vec3 p = ray.origin + hitRec.t*ray.dir; 
         vec3 v = p - disc.o; 
@@ -271,7 +246,7 @@ bool intersectTriangle(in Ray ray, in Triangle t, out HitRec hitRec, in int ind)
 		hitRec.ind = ind;
 		hitRec.point = ray.origin + ray.dir * t1;
 		hitRec.normal = normalize(cross(t.B-t.A, t.C-t.A));
-		hitRec.origo = (t.A+t.B+t.C)/3;
+		hitRec.origo = (t.A+t.B+t.C)/3.0;
 		return true;
   }
 
@@ -373,10 +348,10 @@ bool intersectTorus(in Ray ray, in vec2 torus, out HitRec hitRec, in int ind)
 
 vec3 glow(in float d, in vec3 glow)
 {
-	return glow*clamp((2/(0.5f + d*d)), 0, 1);
+	return glow*clamp((2.0/(0.5f + d*d)), 0.0, 1.0);
 }
 
-bool findmin(in Ray ray, inout HitRec hitRec)
+bool findClosest(in Ray ray, inout HitRec hitRec)
 {
 	HitRec hitTemp;
 	
@@ -509,7 +484,7 @@ vec3 shade(in HitRec closestHit, in Ray ray) //Blinn-Phong
 			Ray shadowRay;
 			shadowRay.origin = shadowHit.point+1.5*shadowHit.normal*EPSILON;
 			shadowRay.dir = lights[j].pos-shadowHit.point;
-			findmin(shadowRay, shadowHit);
+			findClosest(shadowRay, shadowHit);
 			if (shadowHit.ind != 0 && shadowHit.ind != 5 && shadowHit.ind != 6 && shadowHit.ind != spheresCount+trianglesCount && shadowHit.ind != ind && ind <= spheresCount + trianglesCount)
 			{
 				specular = vec3(0.0); 
@@ -546,7 +521,7 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 
 	while (continueLoop)
 	{
-		if(findmin(ray, closestHit))
+		if(findClosest(ray, closestHit))
 		{
 			u = 0.5 + atan(-closestHit.normal.z, -closestHit.normal.x)/(2*PI);
 			v = 0.5 - asin(-closestHit.normal.y)/PI;
@@ -557,7 +532,7 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 				{
 					u += time/2;
 					uv = vec2(u, v);
-					vec3 normalFromMap = normalize(2*( (texture2D(earthNormalMap, -uv)).bgr ) - 1);
+					vec3 normalFromMap = normalize(2.0*( (texture2D(earthNormalMap, -uv)).bgr ) - 1.0);
 			
 					mat3 R = calculateR(closestHit.normal);
 					closestHit.normal = R*normalFromMap;
@@ -566,7 +541,7 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 				{
 					u += time/7;
 					uv = vec2(u, v);
-					vec3 normalFromMap = normalize(2*( (texture2D(moonNormalMap, -uv)).bgr ) - 1);
+					vec3 normalFromMap = normalize(2.0*( (texture2D(moonNormalMap, -uv)).bgr ) - 1.0);
 			
 					mat3 R = calculateR(closestHit.normal);
 					closestHit.normal = R*normalFromMap;
@@ -582,10 +557,10 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 			
 			if (closestHit.ind == 0) //sun
 			{
-				u += time/5;
-				v += time/5;
+				u += time/5.0;
+				v += time/5.0;
 				vec2 uv = vec2(u, v);
-				color *= texture2D(sunTexture, -uv).bgr + vec3(0,0,0.5);
+				color *= texture2D(sunTexture, -uv).bgr + vec3(0.0, 0.0, 0.5);
 			}
 			else if (closestHit.ind == 3) //earth
 			{
@@ -601,7 +576,7 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 			{
 				if (!useNormalMap)
 				{
-					u += time/7;
+					u += time/7.0;
 				}
 				vec2 uv = vec2(u, v);
 				color *= texture2D(moonTexture, -uv).bgr;
@@ -644,7 +619,7 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 					Ray refractedRay;
 
 					//                     coming from outside the object  ?                        yes                                       no
-					refractedRay.dir = dot(ray.dir, closestHit.normal) < 0.0 ? refract(ray.dir, closestHit.normal, eta) : refract(ray.dir, -closestHit.normal, 1/eta);
+					refractedRay.dir = dot(ray.dir, closestHit.normal) <= 0.0 ? refract(ray.dir, closestHit.normal, eta) : refract(ray.dir, -closestHit.normal, 1/eta);
 				
 					if (length(refractedRay.dir) < EPSILON) //total internal reflection ( refract returns with vec3(0.0) if it's a TIR )
 					{
@@ -676,20 +651,20 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 					{
 						if (bounceCount > 2)
 						{
-							continueLoop = false; //igy gyorsabb, es nincs nagy kulonbseg latvanyban
+							continueLoop = false; //faster this way and makes little-to-no difference
 						}
 						else
 						{
 							coeff = coeff*fresnel(ray.dir, -closestHit.normal, mat.f0);
 							ray.dir = normalize(reflect(ray.dir, -closestHit.normal));
-							ray.origin = closestHit.point - 1.5*closestHit.normal*EPSILON;
+							ray.origin = closestHit.point - closestHit.normal*EPSILON;
 						}
 					}
 					else
 					{
 						coeff = coeff*fresnel(ray.dir, closestHit.normal, mat.f0);
 						ray.dir = normalize(reflect(ray.dir, closestHit.normal));
-						ray.origin = closestHit.point + 1.5*closestHit.normal*EPSILON;
+						ray.origin = closestHit.point + closestHit.normal*EPSILON;
 					}
 				}
 			}
@@ -727,7 +702,7 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 			vec3 glowness;
 			if (length(closestHit.point-eye)+spheres[0].w < length(spheres[0].xyz - eye))
 			{
-				glowness = vec3(0);
+				glowness = vec3(0.0);
 			}
 			else
 			{
