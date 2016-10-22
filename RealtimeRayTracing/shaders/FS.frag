@@ -11,7 +11,7 @@
 #define lightsCount 3
 const int materialsCount = spheresCount + trianglesCount + discsCount + toriCount + skyboxCount;
 // attribs from the vertex shader
-in vec3 vsRay;
+varying vec3 vsRay;
 
 uniform vec3 eye;
 

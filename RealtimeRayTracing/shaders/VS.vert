@@ -5,7 +5,7 @@ in vec3 vertPosition;
 
 // a pipeline-ban tovább adandó értékek
 
-varying out vec3 vsRay;
+varying vec3 vsRay;
 
 // shader külsõ paraméterei
 
