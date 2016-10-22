@@ -1,15 +1,12 @@
 #ignore thumbnails created by windows
 Thumbs.db
 #Ignore files build by Visual Studio
-*.obj
 *.exe
 *.pdb
 *.user
 *.aps
 *.pch
 *.vspscc
-*.vcxproj
-*.filter
 *.user
 *_i.c
 *_p.c
@@ -26,14 +23,6 @@ Thumbs.db
 *.lib
 *.sbr
 *.sdf
-obj/
 [Rr]elease*/
 _ReSharper*/
 [Tt]est[Rr]esult*
-
-01_Middle/01_Middle.vcxproj
-01_Middle/01_Middle.vcxproj.filters
-01_Middle/01_Middle.vcxproj.user
-01_Middle/01_Middle.vcxproj
-01_Middle/01_Middle.vcxproj.filters
-01_Middle/01_Middle.vcxproj.user
