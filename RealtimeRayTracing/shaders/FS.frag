@@ -220,7 +220,7 @@ bool intersectTriangle(in Ray ray, in Triangle t, out HitRec hitRec, in int ind)
   det = dot(e1, P);
   //NOT CULLING
   //if(det < EPSILON ) return false;
-  invDet = 1.f / det;
+  invDet = 1.0 / det;
 
   //calculate distance from V1 to ray origin
   T = ray.origin - t.A;
@@ -228,7 +228,7 @@ bool intersectTriangle(in Ray ray, in Triangle t, out HitRec hitRec, in int ind)
   //Calculate u parameter and test bound
   u = dot(T, P) * invDet;
   //The intersection lies outside of the triangle
-  if(u < 0.f || u > 1.f) return false;
+  if(u < 0.0 || u > 1.0) return false;
 
   //Prepare to test v parameter
   Q = cross(T, e1);
@@ -236,7 +236,7 @@ bool intersectTriangle(in Ray ray, in Triangle t, out HitRec hitRec, in int ind)
   //Calculate V parameter and test bound
   v = dot(ray.dir, Q) * invDet;
   //The intersection lies outside of the triangle
-  if(v < 0.f || u + v  > 1.f) return false;
+  if(v < 0.0 || u + v  > 1.0) return false;
 
   t1 = dot(e2, Q) * invDet;
 
@@ -348,7 +348,7 @@ bool intersectTorus(in Ray ray, in vec2 torus, out HitRec hitRec, in int ind)
 
 vec3 glow(in float d, in vec3 glow)
 {
-	return glow*clamp((2.0/(0.5f + d*d)), 0.0, 1.0);
+	return glow*clamp((2.0/(0.5 + d*d)), 0.0, 1.0);
 }
 
 bool findClosest(in Ray ray, inout HitRec hitRec)
@@ -500,7 +500,7 @@ vec3 shade(in HitRec closestHit, in Ray ray) //Blinn-Phong
 vec3 fresnel(in vec3 dir, in vec3 normal, in vec3 f0)
 {
 	float cosa = abs(dot(normal, dir));
-	vec3 f = f0 + (vec3(1.0)-f0)*pow((1-cosa), 5);
+	vec3 f = f0 + (vec3(1.0)-f0)*pow((1.0-cosa), 5.0);
 
 	return f;
 }
@@ -523,25 +523,25 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 	{
 		if(findClosest(ray, closestHit))
 		{
-			u = 0.5 + atan(-closestHit.normal.z, -closestHit.normal.x)/(2*PI);
-			v = 0.5 - asin(-closestHit.normal.y)/PI;
+			u = 0.5 - atan(-closestHit.normal.z, -closestHit.normal.x)/(2.0*PI);
+			v = 0.5 + asin(-closestHit.normal.y)/PI;
 
 			if (useNormalMap)
 			{
 				if (closestHit.ind == 3)
 				{
-					u += time/2;
+					u += time/2.0;
 					uv = vec2(u, v);
-					vec3 normalFromMap = normalize(2.0*( (texture2D(earthNormalMap, -uv)).bgr ) - 1.0);
+					vec3 normalFromMap = normalize(2.0*( (texture2D(earthNormalMap, uv)).rgb ) - 1.0);
 			
 					mat3 R = calculateR(closestHit.normal);
 					closestHit.normal = R*normalFromMap;
 				}
 				else if (closestHit.ind == 4)
 				{
-					u += time/7;
+					u += time/7.0;
 					uv = vec2(u, v);
-					vec3 normalFromMap = normalize(2.0*( (texture2D(moonNormalMap, -uv)).bgr ) - 1.0);
+					vec3 normalFromMap = normalize(2.0*( (texture2D(moonNormalMap, uv)).rgb ) - 1.0);
 			
 					mat3 R = calculateR(closestHit.normal);
 					closestHit.normal = R*normalFromMap;
@@ -560,17 +560,17 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 				u += time/5.0;
 				v += time/5.0;
 				vec2 uv = vec2(u, v);
-				color *= texture2D(sunTexture, -uv).bgr + vec3(0.0, 0.0, 0.5);
+				color *= texture2D(sunTexture, uv).rgb + vec3(0.0, 0.0, 0.5);
 			}
 			else if (closestHit.ind == 3) //earth
 			{
 				if (!useNormalMap)
 				{
-					u += time/2;
+					u += time/2.0;
 				}
 			
 				vec2 uv = vec2(u, v);
-				color *= texture2D(earthTexture, -uv).bgr;
+				color *= texture2D(earthTexture, uv).rgb;
 			}
 			else if (closestHit.ind == 4) //moon
 			{
@@ -579,47 +579,47 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 					u += time/7.0;
 				}
 				vec2 uv = vec2(u, v);
-				color *= texture2D(moonTexture, -uv).bgr;
+				color *= texture2D(moonTexture, uv).rgb;
 			}
 			else if (closestHit.ind == spheresCount+trianglesCount) //ground
 			{
-				color *= texture2D(groundTexture, 0.15*closestHit.point.xz).bgr;
+				color *= texture2D(groundTexture, 0.15*closestHit.point.xz).rgb;
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 2) //skyboxBack
 			{
-				color *= texture2D(skyboxTextureBack, (-closestHit.point.xy + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
+				color *= texture2D(skyboxTextureBack, (-closestHit.point.xy + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).rgb;
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 3) //skyboxDown
 			{
-				color *= texture2D(skyboxTextureDown, (closestHit.point.xz + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
+				color *= texture2D(skyboxTextureDown, (closestHit.point.xz + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).rgb;
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 4) //skyboxFront
 			{
-				color *= texture2D(skyboxTextureFront, (closestHit.point.xy*vec2(1, -1) + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
+				color *= texture2D(skyboxTextureFront, (closestHit.point.xy*vec2(1, -1) + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).rgb;
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 5) //skyboxLeft
 			{
-				color *= texture2D(skyboxTextureLeft, (closestHit.point.yz + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
+				color *= texture2D(skyboxTextureLeft, (closestHit.point.yz + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).rgb;
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 6) //skyboxRight
 			{
-				color *= texture2D(skyboxTextureRight, (closestHit.point.zy*vec2(1, -1) + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
+				color *= texture2D(skyboxTextureRight, (closestHit.point.zy*vec2(1, -1) + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).rgb;
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 7) //skyboxUp
 			{
-				color *= texture2D(skyboxTextureUp, (closestHit.point.xz + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).bgr;
+				color *= texture2D(skyboxTextureUp, (closestHit.point.xz + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).rgb;
 			}
 			if ((mat.reflective || mat.refractive) && bounceCount <= depth)
 			{
 				//glass
 				if (mat.refractive)
 				{
-					float eta = 1/mat.n;
+					float eta = 1.0/mat.n;
 					vec3 tempRay = ray.dir;
 					Ray refractedRay;
 
 					//                     coming from outside the object  ?                        yes                                       no
-					refractedRay.dir = dot(ray.dir, closestHit.normal) <= 0.0 ? refract(ray.dir, closestHit.normal, eta) : refract(ray.dir, -closestHit.normal, 1/eta);
+					refractedRay.dir = dot(ray.dir, closestHit.normal) <= 0.0 ? refract(ray.dir, closestHit.normal, eta) : refract(ray.dir, -closestHit.normal, 1.0/eta);
 				
 					if (length(refractedRay.dir) < EPSILON) //total internal reflection ( refract returns with vec3(0.0) if it's a TIR )
 					{
@@ -672,8 +672,6 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 			{
 				continueLoop = false;
 			}
-
-
 		}
 		else
 		{

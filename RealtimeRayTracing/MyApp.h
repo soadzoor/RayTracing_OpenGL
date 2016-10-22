@@ -62,7 +62,7 @@ public:
 	void Resize(int, int);
 
 protected:
-	glm::vec4 arrayOfSpheres[spheresCount];
+	glm::vec4 spheres[spheresCount];
 	glm::vec2 torus;
 	static const int materialsCount = spheresCount + trianglesCount + discsCount + toriCount + skyboxCount;
 	const std::string colorModes[27] = {"RRR", "RRG", "RRB",
@@ -127,7 +127,7 @@ protected:
 	};
 	
 	Light    lights[lightsCount];
-	Triangle arrayOfTriangles[trianglesCount];
+	Triangle triangles[trianglesCount];
 	Material materials[materialsCount];
 	Disc     ground;
 

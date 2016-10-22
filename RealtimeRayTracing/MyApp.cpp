@@ -52,32 +52,32 @@ bool CMyApp::Init()
 	//
 	// Spheres
 	//
-	arrayOfSpheres[0] = glm::vec4(0, 0, 0, 1.4); // sun
-	arrayOfSpheres[1] = glm::vec4(0.0); // green sphere
-	arrayOfSpheres[2] = glm::vec4(0.0); // blue sphere
-	arrayOfSpheres[3] = glm::vec4(0.0); // earth
-	arrayOfSpheres[4] = glm::vec4(0.0); // moon
+	spheres[0] = glm::vec4(0, 0, 0, 1.4); // sun
+	spheres[1] = glm::vec4(0.0); // green sphere
+	spheres[2] = glm::vec4(0.0); // blue sphere
+	spheres[3] = glm::vec4(0.0); // earth
+	spheres[4] = glm::vec4(0.0); // moon
 
 	//
 	// Spheres of lightsources
 	//
-	arrayOfSpheres[5] = glm::vec4(lights[1].pos.x, lights[1].pos.y, lights[1].pos.z, 0.05);
-	arrayOfSpheres[6] = glm::vec4(lights[2].pos.x, lights[2].pos.y, lights[2].pos.z, 0.05);
+	spheres[5] = glm::vec4(lights[1].pos.x, lights[1].pos.y, lights[1].pos.z, 0.05);
+	spheres[6] = glm::vec4(lights[2].pos.x, lights[2].pos.y, lights[2].pos.z, 0.05);
 
 	//
 	// Red sphere with static position
 	//
-	arrayOfSpheres[7] = glm::vec4(lights[1].pos.x + 0.6, lights[1].pos.y - 0.6, lights[1].pos.z - 0.6, 0.3);
+	spheres[7] = glm::vec4(lights[1].pos.x + 0.6, lights[1].pos.y - 0.6, lights[1].pos.z - 0.6, 0.3);
 
 	//
-	// Mirror sphere
+	// Golden sphere
 	//
-	arrayOfSpheres[8] = glm::vec4(6, 0, -10, 1.4);
+	spheres[8] = glm::vec4(6, 0, -10, 1.4);
 
 	//
 	// Glass sphere
 	//
-	arrayOfSpheres[9] = glm::vec4(-7, 0, 0, 1.4);
+	spheres[9] = glm::vec4(-7, 0, 0, 1.4);
 
 	// 10x10 mirror spheres (spheresCount == 10 --> disabled)
 
@@ -85,20 +85,20 @@ bool CMyApp::Init()
 	//{
 	//	for (int j = 0; j < 10; ++j)
 	//	{
-	//		arrayOfSpheres[(i-10)*10+j+10] = glm::vec4(20+i, -4, j, 0.4);
+	//		spheres[(i-10)*10+j+10] = glm::vec4(20+i, -4, j, 0.4);
 	//	}
 	//}
 
 	//
 	// Triangles
 	//
-	arrayOfTriangles[0].A = glm::vec3(-14, 14, -14);
-	arrayOfTriangles[0].B = glm::vec3(-14, -5, -12);
-	arrayOfTriangles[0].C = glm::vec3(14,  -5, -12);
+	triangles[0].A = glm::vec3(-14, 14, -14);
+	triangles[0].B = glm::vec3(-14, -5, -12);
+	triangles[0].C = glm::vec3(14,  -5, -12);
 
-	arrayOfTriangles[1].A = glm::vec3(-14, 14, -14);
-	arrayOfTriangles[1].B = glm::vec3(14 , -5, -12);
-	arrayOfTriangles[1].C = glm::vec3(14,  14, -14);
+	triangles[1].A = glm::vec3(-14, 14, -14);
+	triangles[1].B = glm::vec3(14 , -5, -12);
+	triangles[1].C = glm::vec3(14,  14, -14);
 
 	//
 	// Ground
@@ -424,19 +424,19 @@ bool CMyApp::Init()
 	//
 	// Loading textures
 	//
-	sunTexture = TextureFromFile("sun.jpg");
-	earthTexture = TextureFromFile("earth.jpg");
-	earthNormalMap = TextureFromFile("earthNormal.jpg");
-	moonTexture = TextureFromFile("moon.jpg");
-	moonNormalMap = TextureFromFile("moonNormal.jpg");
-	groundTexture = TextureFromFile("grid.bmp");
+	sunTexture     = TextureFromFile("textures/sun.jpg");
+	earthTexture   = TextureFromFile("textures/earth.jpg");
+	earthNormalMap = TextureFromFile("textures/earthNormal.jpg");
+	moonTexture    = TextureFromFile("textures/moon.jpg");
+	moonNormalMap  = TextureFromFile("textures/moonNormal.jpg");
+	groundTexture  = TextureFromFile("textures/grid.bmp"); //repeating
 	
-	skyboxTextureBack = TextureFromFile("skybox/backImage.jpg");
-	skyboxTextureDown = TextureFromFile("skybox/downImage.jpg");
-	skyboxTextureFront = TextureFromFile("skybox/frontImage.jpg");
-	skyboxTextureLeft = TextureFromFile("skybox/leftImage.jpg");
-	skyboxTextureRight = TextureFromFile("skybox/rightImage.jpg");
-	skyboxTextureUp = TextureFromFile("skybox/upImage.jpg");
+	skyboxTextureBack  = TextureFromFile("textures/skybox/backImage.jpg", true);
+	skyboxTextureDown  = TextureFromFile("textures/skybox/downImage.jpg", true);
+	skyboxTextureFront = TextureFromFile("textures/skybox/frontImage.jpg", true);
+	skyboxTextureLeft  = TextureFromFile("textures/skybox/leftImage.jpg", true);
+	skyboxTextureRight = TextureFromFile("textures/skybox/rightImage.jpg", true);
+	skyboxTextureUp    = TextureFromFile("textures/skybox/upImage.jpg", true);
 
 	//
 	// Creating a square on the XY plane
@@ -518,10 +518,10 @@ void CMyApp::Render()
 	//
 	// Moving specific spheres on a circle-shape
 	//
-	arrayOfSpheres[1] = glm::vec4(2 * sinf(time / 2), 0, 2 * cosf(time / 2), 0.26);
-	arrayOfSpheres[2] = glm::vec4(2.5* cos(time / 3), 0, 2.5 * sinf(time / 3), 0.18);
-	arrayOfSpheres[3] = glm::vec4(5 * cosf(time / 5), 0, 5 * sinf(time / 5), 0.366);
-	arrayOfSpheres[4] = glm::vec4(5 * cosf(time / 5) + 1.0*cos(2 * time), 0, 5 * sinf(time / 5) + 1.0*sinf(2 * time), 0.1);
+	spheres[1] = glm::vec4(2 * sinf(time / 2), 0, 2 * cosf(time / 2), 0.26);
+	spheres[2] = glm::vec4(2.5* cos(time / 3), 0, 2.5 * sinf(time / 3), 0.18);
+	spheres[3] = glm::vec4(5 * cosf(time / 5), 0, 5 * sinf(time / 5), 0.366);
+	spheres[4] = glm::vec4(5 * cosf(time / 5) + 1.0*cos(2 * time), 0, 5 * sinf(time / 5) + 1.0*sinf(2 * time), 0.1);
 	//
 	// Get momentous data from camera
 	//
@@ -530,7 +530,7 @@ void CMyApp::Render()
 	glm::vec3 right = camera.GetRight();
 	glm::vec3 up = glm::cross(right, fw);
 	//
-	// Passing uniform variables to GPU
+	// Pass uniform variables to GPU
 	//
 	program.SetUniform("eye", eye);
 	program.SetUniform("up", up);
@@ -545,7 +545,7 @@ void CMyApp::Render()
 	program.SetUniform("showTorus", showTorus);
 	program.SetUniform("depth", depth); // --> bounces count
 	//
-	// Passing lights to GPU
+	// Pass lights to GPU
 	//
 	for (int i = 0; i < lightsCount; ++i)
 	{
@@ -556,41 +556,41 @@ void CMyApp::Render()
 		program.SetUniform(buffer, lights[i].col);
 	}
 	//
-	// Passing spheres to GPU
+	// Pass spheres to GPU
 	//
 	for (int i = 0; i < spheresCount; ++i)
 	{
 		char buffer[50];
 		sprintf(buffer, "spheres[%i]", i);
-		program.SetUniform(buffer, arrayOfSpheres[i]);
+		program.SetUniform(buffer, spheres[i]);
 	}
 	//
-	// Passing triangles to GPU (3 vec3)
+	// Pass triangles to GPU (3 vec3)
 	//
 	for (int i = 0; i < trianglesCount; ++i)
 	{
 		char buffer[50];
 		sprintf(buffer, "triangles[%i].A", i);
-		program.SetUniform(buffer, arrayOfTriangles[i].A);
+		program.SetUniform(buffer, triangles[i].A);
 
 		sprintf(buffer, "triangles[%i].B", i);
-		program.SetUniform(buffer, arrayOfTriangles[i].B);
+		program.SetUniform(buffer, triangles[i].B);
 
 		sprintf(buffer, "triangles[%i].C", i);
-		program.SetUniform(buffer, arrayOfTriangles[i].C);
+		program.SetUniform(buffer, triangles[i].C);
 	}
 	//
-	// Passing ground to GPU (disc)
+	// Pass ground to GPU (disc)
 	//
 	program.SetUniform("ground.o", ground.o);
 	program.SetUniform("ground.n", ground.n);
 	program.SetUniform("ground.r", ground.r);
 	//
-	// Passing torus to GPU (vec2)
+	// Pass torus to GPU (vec2)
 	//
 	program.SetUniform("torus", torus);
 	//
-	// Passing skybox to GPU (planes)
+	// Pass skybox to GPU (planes)
 	//
 	program.SetUniform("skyboxBack.n",  skyboxBack.n);
 	program.SetUniform("skyboxBack.q",  skyboxBack.q);
