@@ -1,5 +1,4 @@
 #version 120
-
 // VBO-ból érkezõ változók
 in vec3 vertPosition;
 

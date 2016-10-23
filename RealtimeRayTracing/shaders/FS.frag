@@ -615,7 +615,6 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 				if (mat.refractive)
 				{
 					float eta = 1.0/mat.n;
-					vec3 tempRay = ray.dir;
 					Ray refractedRay;
 
 					//                     coming from outside the object  ?                        yes                                       no
@@ -623,8 +622,8 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 				
 					if (length(refractedRay.dir) < EPSILON) //total internal reflection ( refract returns with vec3(0.0) if it's a TIR )
 					{
-						ray.dir = normalize(reflect(tempRay, closestHit.normal));
-						ray.origin = closestHit.point - 1.5*closestHit.normal*EPSILON;
+						ray.dir = normalize(reflect(ray.dir, closestHit.normal));
+						ray.origin = closestHit.point - closestHit.normal*EPSILON;
 						coeff = coeff*fresnel(ray.dir, closestHit.normal, mat.f0);
 					}
 					else
@@ -638,7 +637,7 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 						}
 						else
 						{
-							stack[stackSize].coeff = coeff*(vec3(1.0) - fresnel(ray.dir, closestHit.normal, mat.f0));
+							stack[stackSize].coeff = coeff*(vec3(1.0) - fresnel(refractedRay.dir, closestHit.normal, mat.f0));
 							stack[stackSize].depth = bounceCount;
 							stack[stackSize++].ray = refractedRay;
 						}
@@ -647,24 +646,15 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 				//mirror
 				if (mat.reflective && (closestHit.ind != 3 || (closestHit.ind == 3 && color.z > color.x && color.z > color.y))) //A fold csak a vizen tukrozodjon
 				{
-					if (dot(ray.dir, closestHit.normal) >= 0.0)
-					{
-						if (bounceCount > 2)
-						{
-							continueLoop = false; //faster this way and makes little-to-no difference
-						}
-						else
-						{
-							coeff = coeff*fresnel(ray.dir, -closestHit.normal, mat.f0);
-							ray.dir = normalize(reflect(ray.dir, -closestHit.normal));
-							ray.origin = closestHit.point - closestHit.normal*EPSILON;
-						}
-					}
-					else
+					if (dot(ray.dir, closestHit.normal) < 0.0) //coming from outside
 					{
 						coeff = coeff*fresnel(ray.dir, closestHit.normal, mat.f0);
 						ray.dir = normalize(reflect(ray.dir, closestHit.normal));
 						ray.origin = closestHit.point + closestHit.normal*EPSILON;
+					}
+					else
+					{
+						continueLoop = false;
 					}
 				}
 			}
@@ -677,14 +667,6 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 		{
 			color += vec3(0.6, 0.75, 0.9)*coeff;
 			continueLoop = false;
-		}
-
-		if (!continueLoop && stackSize > 0)
-		{
-			ray = stack[--stackSize].ray;
-			bounceCount = stack[stackSize].depth;
-			coeff = stack[stackSize].coeff;
-			continueLoop = true;
 		}
 		//
 		// glow
@@ -708,6 +690,15 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 			}
 			color += glowness;
 		}
+
+		if (!continueLoop && stackSize > 0)
+		{
+			ray = stack[--stackSize].ray;
+			bounceCount = stack[stackSize].depth;
+			coeff = stack[stackSize].coeff;
+			continueLoop = true;
+		}
+		
 		
 		
 	}

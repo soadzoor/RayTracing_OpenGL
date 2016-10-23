@@ -67,7 +67,7 @@ bool CMyApp::Init()
 	//
 	// Red sphere with static position
 	//
-	spheres[7] = glm::vec4(lights[1].pos.x + 0.6, lights[1].pos.y - 0.6, lights[1].pos.z - 0.6, 0.3);
+	spheres[7] = glm::vec4(lights[1].pos.x + 0.3, lights[1].pos.y - 0.6, lights[1].pos.z - 0.3, 0.3);
 
 	//
 	// Golden sphere
@@ -335,7 +335,7 @@ bool CMyApp::Init()
 	materials[9].pow = 70.0f;
 	materials[9].refractive = true;
 	materials[9].reflective = true;
-	materials[9].f0 = getF0(glm::vec3(1.5), glm::vec3(0.00));
+	materials[9].f0 = getF0(glm::vec3(1.5), glm::vec3(1.0));
 	materials[9].n = 1.5;
 
 	//
@@ -402,7 +402,7 @@ bool CMyApp::Init()
 	{
 		materials[i].amb = glm::vec3(0.5f, 0.5f, 0.5f);
 		materials[i].dif = glm::vec3(0.5f, 0.5f, 0.5f);
-		materials[i].spec = glm::vec3(0.5f, 0.5f, 0.5f);
+		materials[i].spec = glm::vec3(0.0f);
 		materials[i].pow = 20.0f;
 		materials[i].refractive = false;
 		materials[i].reflective = false;
