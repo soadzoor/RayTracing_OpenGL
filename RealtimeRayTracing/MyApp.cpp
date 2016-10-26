@@ -60,6 +60,7 @@ bool CMyApp::Init()
 	std::cout << "T: toggle Torus" << std::endl;
 	std::cout << "G: toggle Glowing Effect on the Sun" << std::endl;
 	std::cout << "V: toggle Vsync" << std::endl;
+	std::cout << "P: pause scene" << std::endl;
 	std::cout << "Left/Right arrow: change depth" << std::endl;
 	std::cout << "Up/Down arrow: change ColorMode" << std::endl;
 	std::cout << "Esc: exit FullScreen" << std::endl << std::endl;

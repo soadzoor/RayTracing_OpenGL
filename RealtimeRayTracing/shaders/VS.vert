@@ -1,6 +1,6 @@
 #version 120
 // VBO-ból érkezõ változók
-in vec3 vertPosition;
+attribute vec3 vertPosition;
 
 // a pipeline-ban tovább adandó értékek
 

@@ -8,10 +8,7 @@
 #define trianglesCount 2
 
 // attribs from the vertex shader
-in vec3 vsRay;
-
-// Frag Color
-out vec4 fragColor;
+varying vec3 vsRay;
 
 uniform vec3 eye;
 
@@ -821,5 +818,5 @@ void main()
 	ray.dir = normalize(vsRay);
 	vec3 color = trace(ray);
 	
-	fragColor = vec4(color[colorModeInTernary[0]], color[colorModeInTernary[1]], color[colorModeInTernary[2]], 1.0);
+	gl_FragColor = vec4(color[colorModeInTernary[0]], color[colorModeInTernary[1]], color[colorModeInTernary[2]], 1.0);
 }

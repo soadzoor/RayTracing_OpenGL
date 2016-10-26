@@ -205,7 +205,7 @@ int main( int argc, char* args[] )
 
 		++frameCount;
 
-		if (SDL_GetTicks() - lastUpdate >= 1000)
+		if (SDL_GetTicks() - lastUpdate > 1000)
 		{
 
 			window_title.str(std::string());
