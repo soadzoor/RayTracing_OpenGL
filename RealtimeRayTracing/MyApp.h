@@ -1,12 +1,6 @@
 #pragma once
 
 #define spheresCount 10
-#define trianglesCount 2
-#define discsCount 1
-#define toriCount 1
-#define skyboxCount 6
-#define lightsCount 3
-#define skyboxDistance 10000.0
 
 // GLEW
 #include <GL/glew.h>
@@ -43,6 +37,7 @@ public:
 	float sumElapsedTime = 0;
 	int depth = 1;
 	int currentColorMode = 5;
+	float time = 0.0;
 
 	void colorModeToTernary(int currentColorMode);
 	int colorModeInTernary[3];
@@ -62,9 +57,6 @@ public:
 	void Resize(int, int);
 
 protected:
-	glm::vec4 spheres[spheresCount];
-	glm::vec2 torus;
-	static const int materialsCount = spheresCount + trianglesCount + discsCount + toriCount + skyboxCount;
 	const std::string colorModes[27] = {"RRR", "RRG", "RRB",
 										"RGR", "RGG", "RGB",
 										"RBR", "RBG", "RBB",
@@ -90,63 +82,50 @@ protected:
 	GLuint skyboxTextureRight = 0;
 	GLuint skyboxTextureUp	  = 0;
 
-	struct Triangle
+	struct Sphere
 	{
-		glm::vec3 A;
-		glm::vec3 B;
-		glm::vec3 C;
+		glm::vec4 vec = glm::vec4(0.0);
+		GLuint Location = 0;
+		Sphere() : vec(glm::vec4(0.0)), Location(0) {};
+		Sphere(glm::vec4 v, GLuint loc) : vec(v), Location(loc) {};
 	};
+	Sphere spheres[spheresCount];
 
-	struct Plane
-	{
-		glm::vec3 n;
-		glm::vec3 q;
-	};
-
-	struct Disc
-	{
-		glm::vec3 o, n;
-		float r;
-	};
-
-	struct Light
-	{
-		glm::vec3 col;
-		glm::vec3 pos;
-	};
-	struct Material
-	{
-		glm::vec3 amb  = glm::vec3(0.0);
-		glm::vec3 dif  = glm::vec3(0.0);
-		glm::vec3 spec = glm::vec3(0.0);
-		float pow;
-		bool refractive;
-		bool reflective;
-		float n = 1.0f;
-		glm::vec3 f0 = glm::vec3(0.0);
-	};
-	
-	Light    lights[lightsCount];
-	Triangle triangles[trianglesCount];
-	Material materials[materialsCount];
-	Disc     ground;
-
-	Plane skyboxBack;
-	Plane skyboxDown;
-	Plane skyboxFront;
-	Plane skyboxLeft;
-	Plane skyboxRight;
-	Plane skyboxUp;
-
-	
-
-	// belsõ eljárások
-	glm::vec3 getF0(glm::vec3 n, glm::vec3 k);
-
-	// OpenGL-es dolgok
+	// OpenGL stuff
 
 	gCamera			camera;
 	gShaderProgram	program;
 	gVertexBuffer	vb;
+
+	// Uniform locations
+
+	GLint eyeLocation;
+	GLint upLocation;
+	GLint fwLocation;
+	GLint rightLocation;
+	GLint ratioLocation;
+	GLint timeLocation;
+	GLint isShadowOnLocation;
+	GLint useNormalMapLocation;
+	GLint isGlowOnLocation;
+	GLint showTorusLocation;
+	GLint depthLocation;
+
+	GLint sunTextureLocation;
+	GLint earthTextureLocation;
+	GLint earthNormalMapLocation;
+	GLint moonTextureLocation;
+	GLint moonNormalMapLocation;
+	GLint groundTextureLocation;
+	GLint skyboxTextureBackLocation;
+	GLint skyboxTextureDownLocation;
+	GLint skyboxTextureFrontLocation;
+	GLint skyboxTextureLeftLocation;
+	GLint skyboxTextureRightLocation;
+	GLint skyboxTextureUpLocation;
+
+	GLint colorModeInTernary0Location;
+	GLint colorModeInTernary1Location;
+	GLint colorModeInTernary2Location;
 };
 

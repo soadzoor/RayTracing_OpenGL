@@ -2,16 +2,16 @@
 
 #define EPSILON 0.001
 #define PI 3.14159265359
+#define skyboxDistance 10000.0
 #define STACK_SIZE 8
 #define spheresCount 10
 #define trianglesCount 2
-#define discsCount 1
-#define toriCount 1
-#define skyboxCount 6
-#define lightsCount 3
-const int materialsCount = spheresCount + trianglesCount + discsCount + toriCount + skyboxCount;
+
 // attribs from the vertex shader
-varying vec3 vsRay;
+in vec3 vsRay;
+
+// Frag Color
+out vec4 fragColor;
 
 uniform vec3 eye;
 
@@ -40,8 +40,8 @@ struct Material
 	vec3 dif;
 	vec3 spec;
 	float pow;
-	bool reflective;
 	bool refractive;
+	bool reflective;
 	vec3 f0;
 	float n;
 };
@@ -58,8 +58,8 @@ struct Plane
 struct Disc
 {
 	vec3  o;
-	float r;
 	vec3  n;
+	float r;
 };
 struct Triangle
 {
@@ -74,22 +74,48 @@ struct HitRec
 	vec3 origo;
 };
 
-uniform Light lights[lightsCount];
 uniform vec4 spheres[spheresCount];
-uniform vec2 torus;
-uniform Triangle triangles[trianglesCount];
-uniform Material materials[materialsCount];
+vec2 torus = vec2(1.0, 0.25);
 uniform float time;
-uniform float skyboxRatio;
 
+Light light0 = Light(vec3(1.0), vec3(0.0));
+Light light1 = Light(vec3(1.0), vec3(-2.0, 20.0, 0.0));
+Light light2 = Light(vec3(1.0), vec3(20.0, 20.0, 0.0));
 
-uniform Disc ground;
-uniform Plane skyboxBack;
-uniform Plane skyboxDown;
-uniform Plane skyboxFront;
-uniform Plane skyboxLeft;
-uniform Plane skyboxRight;
-uniform Plane skyboxUp;
+Disc ground = Disc(vec3(0.0, -10.0, 0.0), vec3(0.0, 1.0, 0.0), 30.0);
+
+Plane skyboxBack  = Plane(vec3(0.0, 0.0, -1.0), vec3(0.0, 0.0, skyboxDistance));
+Plane skyboxDown  = Plane(vec3(0.0, 1.0, 0.0),  vec3(0.0, -skyboxDistance, 0.0));
+Plane skyboxFront = Plane(vec3(0.0, 0.0, 1.0),  vec3(0.0, 0.0, -skyboxDistance));
+Plane skyboxLeft  = Plane(vec3(1.0, 0.0, 0.0),  vec3(-skyboxDistance, 0.0, 0.0));
+Plane skyboxRight = Plane(vec3(-1.0, 0.0, 0.0), vec3(skyboxDistance, 0.0, 0.0));
+Plane skyboxUp    = Plane(vec3(0.0, -1.0, 0.0), vec3(0.0, skyboxDistance, 0.0));
+
+Triangle triangle0 = Triangle(
+	vec3(-14.0, 14.0, -14.0),
+	vec3(-14.0, -5.0, -12.0),
+	vec3( 14.0, -5.0, -12.0)
+);
+
+Triangle triangle1 = Triangle(
+	vec3(-14.0, 14.0, -14.0),
+	vec3( 14.0, -5.0, -12.0),
+	vec3( 14.0, 14.0, -14.0)
+);
+
+Material material0  = Material(vec3(1.0, 0.95, 0.85), vec3(0.0, 0.0, 0.0), vec3(0.0), 30.0, false, false, vec3(0.0), 1.0); // sun
+Material material1  = Material(vec3(0.0, 0.2, 0.0), vec3(0.0, 0.4, 0.0), vec3(0.8), 20.0, false, false, vec3(0.0), 1.0);   // green sphere
+Material material2  = Material(vec3(0.0, 0.0, 0.2), vec3(0.0, 0.0, 0.4), vec3(0.0), 50.0, false, false, vec3(0.0), 1.0);   // blue sphere
+Material material3  = Material(vec3(0.5, 0.5, 0.5), vec3(0.5, 0.5, 0.5), vec3(0.5), 30.0, false, false, vec3(0.0), 1.0);    // earth
+Material material4  = Material(vec3(0.5, 0.5, 0.5), vec3(0.5, 0.5, 0.5), vec3(0.5), 20.0, false, false, vec3(0.0), 1.0);   // moon
+Material material5  = Material(vec3(0.5, 0.5, 0.5), vec3(0.8, 0.5, 0.8), vec3(0.9), 20.0, false, false, vec3(0.0), 1.0);   // sphere of lightsources
+Material material7  = Material(vec3(0.2, 0.0, 0.0), vec3(0.5, 0.0, 0.0), vec3(0.8), 66.0, false, false, vec3(0.0), 1.0);   // red sphere
+Material material8  = Material(vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.62, 0.555802, 0.366065), 51.2, false, true, vec3(0.93806, 0.846365, 0.391481), 1.0); //golden sphere
+Material material9  = Material(vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.0), 70.0, true, true, vec3(0.04), 1.5); // glass sphere
+Material material10 = Material(vec3(0.0, 0.0, 0.0), vec3(0.01, 0.01, 0.01), vec3(0.8), 120.0, false, true, vec3(0.9691, 0.90355, 0.952236), 1.0); // triangle 1, 2
+Material material12 = Material(vec3(0.0, 0.0, 0.0), vec3(0.3, 0.34, 0.36), vec3(0.8), 60.0, false, false, vec3(0.0), 1.0);                        // ground
+Material material13 = Material(vec3(0.0, 0.0, 0.4), vec3(0.0, 0.0, 0.4), vec3(0.8), 30.0, false, false, vec3(0.0), 1.0);                          //torus
+Material material14 = Material(vec3(0.5), vec3(0.5), vec3(0.5), 20.0, false, false, vec3(0.0), 1.0);
 
 uniform int depth;
 uniform bool isShadowOn;
@@ -161,49 +187,6 @@ bool intersectSphere(in Ray ray, in vec4 sphere, out HitRec hitRec, in int ind)
 
 	return true;
 }
-
-bool intersectPlane(in Ray ray, in Plane plane, out HitRec hitRec, in int ind)
-{
-	if (dot(ray.dir, plane.n) > 0.0) //culling
-	{
-		return false;
-	}
-
-	float t = dot(plane.n,(plane.q - ray.origin)) / dot(plane.n, ray.dir);
-
-	if (t < EPSILON ) return false;
-
-	hitRec.ind = ind;
-	hitRec.t = t;
-	hitRec.origo = plane.q;
-	hitRec.point = ray.origin + t*ray.dir;
-	hitRec.normal = plane.n;
-	
-	return true;
-}
-
-bool intersectDisc(in Ray ray, in Disc disc, out HitRec hitRec, in int ind)
-{
-	Plane plane;
-	plane.n = disc.n;
-	plane.q = disc.o;
-
-    if (intersectPlane(ray, plane, hitRec, ind)) 
-	{ 
-        vec3 p = ray.origin + hitRec.t*ray.dir; 
-        vec3 v = p - disc.o; 
-        float d2 = dot(v, v); 
-        if (!(d2 <= disc.r*disc.r))
-		{
-			return false;
-		}
-	
-		return true;
-    }
-
-	return false;
-}
-
 bool intersectTriangle(in Ray ray, in Triangle t, out HitRec hitRec, in int ind) //Moller-Trumbore
 {
   vec3 e1, e2;  //Edge1, Edge2
@@ -252,6 +235,49 @@ bool intersectTriangle(in Ray ray, in Triangle t, out HitRec hitRec, in int ind)
 
   return false;
 }
+
+bool intersectPlane(in Ray ray, in Plane plane, out HitRec hitRec, in int ind)
+{
+	if (dot(ray.dir, plane.n) > 0.0) //culling
+	{
+		return false;
+	}
+
+	float t = dot(plane.n,(plane.q - ray.origin)) / dot(plane.n, ray.dir);
+
+	if (t < EPSILON ) return false;
+
+	hitRec.ind = ind;
+	hitRec.t = t;
+	hitRec.origo = plane.q;
+	hitRec.point = ray.origin + t*ray.dir;
+	hitRec.normal = plane.n;
+	
+	return true;
+}
+
+bool intersectDisc(in Ray ray, in Disc disc, out HitRec hitRec, in int ind)
+{
+	Plane plane;
+	plane.n = disc.n;
+	plane.q = disc.o;
+
+    if (intersectPlane(ray, plane, hitRec, ind)) 
+	{ 
+        vec3 p = ray.origin + hitRec.t*ray.dir; 
+        vec3 v = p - disc.o; 
+        float d2 = dot(v, v); 
+        if (!(d2 <= disc.r*disc.r))
+		{
+			return false;
+		}
+	
+		return true;
+    }
+
+	return false;
+}
+
 
 bool intersectTorus(in Ray ray, in vec2 torus, out HitRec hitRec, in int ind)
 {
@@ -371,18 +397,24 @@ bool findClosest(in Ray ray, inout HitRec hitRec)
 			hit = true;
 		}
 	}
-	for (int i = spheresCount; i < spheresCount + trianglesCount; ++i)
-	{
-		if (intersectTriangle(ray, triangles[i-spheresCount], hitTemp, i))
-		{
-			if (hitTemp.t < minT || minT < 0.0)
-			{
-				minT = hitTemp.t;
-				hitRec = hitTemp;
-			}
-			hit = true;
-		}
-	}
+	if (intersectTriangle(ray, triangle0, hitTemp, spheresCount))
+    {
+        if (hitTemp.t < minT || minT < 0.0)
+        {
+            minT = hitTemp.t;
+            hitRec = hitTemp;
+        }
+        hit = true;
+    }
+    if (intersectTriangle(ray, triangle1, hitTemp, spheresCount+1))
+    {
+        if (hitTemp.t < minT || minT < 0.0)
+        {
+            minT = hitTemp.t;
+            hitRec = hitTemp;
+        }
+        hit = true;
+    }
 	if (intersectDisc(ray, ground, hitTemp, spheresCount + trianglesCount))
 	{
 		if (hitTemp.t < minT || minT < 0.0)
@@ -459,40 +491,112 @@ bool findClosest(in Ray ray, inout HitRec hitRec)
 	return hit;
 }
 
+
+Material getMaterial(in int i)
+{
+    if (i == 0)  return material0;
+    if (i == 1)  return material1;
+    if (i == 2)  return material2;
+    if (i == 3)  return material3;
+    if (i == 4)  return material4;
+    if (i == 5)  return material5;
+    if (i == 6)  return material5;   // same material
+    if (i == 7)  return material7;
+    if (i == 8)  return material8;   // gold
+    if (i == 9)  return material9;   // glass
+	if (i >= 10 && i < spheresCount) return material10;
+	if (i == spheresCount || i == spheresCount+1) return material10;
+	if (i == spheresCount+2) return material12;
+	if (i == spheresCount+3) return material13;
+	if (i > spheresCount+3) return material14;
+	else return material0;
+}
+
 vec3 shade(in HitRec closestHit, in Ray ray) //Blinn-Phong
 {
 	vec3 refDir = normalize(reflect(closestHit.point - ray.origin, closestHit.normal));
-	vec3 color = materials[closestHit.ind].amb;
+	vec3 color = getMaterial(closestHit.ind).amb;
 	vec3 diffuse = vec3(0.0);
 	vec3 specular = vec3(0.0);
 
-	for (int j = 0; j < lightsCount; ++j)
-	{
-		vec3 toLight = lights[j].pos - closestHit.point;
-		//float distance = length(toLight);
-		toLight = normalize(toLight);
-		float diffintensity = clamp(dot(closestHit.normal, toLight), 0.0, 1.0);
-			
-		specular = clamp(((materials[closestHit.ind].spec*lights[j].col)*pow(clamp(dot(toLight, refDir), 0.0, 1.0), materials[closestHit.ind].pow)), 0.0, 1.0);
-		diffuse = clamp((materials[closestHit.ind].dif*diffintensity*lights[j].col), 0.0, 1.0);
+	//
+	// with light0
+	//
+	vec3 toLight = light0.pos - closestHit.point;
+	toLight = normalize(toLight);
+	float diffintensity = clamp(dot(closestHit.normal, toLight), 0.0, 1.0);
+		
+	specular = clamp(((getMaterial(closestHit.ind).spec*light0.col)*pow(clamp(dot(toLight, refDir), 0.0, 1.0), getMaterial(closestHit.ind).pow)), 0.0, 1.0);
+	diffuse = clamp((getMaterial(closestHit.ind).dif*diffintensity*light0.col), 0.0, 1.0);
 
-			
-		if (isShadowOn)
+		
+	if (isShadowOn)
+	{
+		HitRec shadowHit = closestHit;
+		int ind = shadowHit.ind;
+		Ray shadowRay;
+		shadowRay.origin = shadowHit.point+1.5*shadowHit.normal*EPSILON;
+		shadowRay.dir = light0.pos-shadowHit.point;
+		findClosest(shadowRay, shadowHit);
+		if (shadowHit.ind != 0 && shadowHit.ind != 5 && shadowHit.ind != 6 && shadowHit.ind != spheresCount+trianglesCount && shadowHit.ind != ind && ind <= spheresCount + trianglesCount)
 		{
-			HitRec shadowHit = closestHit;
-			int ind = shadowHit.ind;
-			Ray shadowRay;
-			shadowRay.origin = shadowHit.point+1.5*shadowHit.normal*EPSILON;
-			shadowRay.dir = lights[j].pos-shadowHit.point;
-			findClosest(shadowRay, shadowHit);
-			if (shadowHit.ind != 0 && shadowHit.ind != 5 && shadowHit.ind != 6 && shadowHit.ind != spheresCount+trianglesCount && shadowHit.ind != ind && ind <= spheresCount + trianglesCount)
-			{
-				specular = vec3(0.0); 
-				diffuse = vec3(0.0);
-			}
+			specular = vec3(0.0); 
+			diffuse = vec3(0.0);
 		}
-		color += diffuse + specular;
 	}
+	color += diffuse + specular;
+	//
+	// with light1
+	//
+	toLight = light1.pos - closestHit.point;
+	toLight = normalize(toLight);
+	diffintensity = clamp(dot(closestHit.normal, toLight), 0.0, 1.0);
+		
+	specular = clamp(((getMaterial(closestHit.ind).spec*light1.col)*pow(clamp(dot(toLight, refDir), 0.0, 1.0), getMaterial(closestHit.ind).pow)), 0.0, 1.0);
+	diffuse = clamp((getMaterial(closestHit.ind).dif*diffintensity*light1.col), 0.0, 1.0);
+
+		
+	if (isShadowOn)
+	{
+		HitRec shadowHit = closestHit;
+		int ind = shadowHit.ind;
+		Ray shadowRay;
+		shadowRay.origin = shadowHit.point+1.5*shadowHit.normal*EPSILON;
+		shadowRay.dir = light1.pos-shadowHit.point;
+		findClosest(shadowRay, shadowHit);
+		if (shadowHit.ind != 0 && shadowHit.ind != 5 && shadowHit.ind != 6 && shadowHit.ind != spheresCount+trianglesCount && shadowHit.ind != ind && ind <= spheresCount + trianglesCount)
+		{
+			specular = vec3(0.0); 
+			diffuse = vec3(0.0);
+		}
+	}
+	color += diffuse + specular;
+	//
+	// with light2
+	//
+	toLight = light2.pos - closestHit.point;
+	toLight = normalize(toLight);
+	diffintensity = clamp(dot(closestHit.normal, toLight), 0.0, 1.0);
+		
+	specular = clamp(((getMaterial(closestHit.ind).spec*light2.col)*pow(clamp(dot(toLight, refDir), 0.0, 1.0), getMaterial(closestHit.ind).pow)), 0.0, 1.0);
+	diffuse = clamp((getMaterial(closestHit.ind).dif*diffintensity*light2.col), 0.0, 1.0);
+
+		
+	if (isShadowOn)
+	{
+		HitRec shadowHit = closestHit;
+		int ind = shadowHit.ind;
+		Ray shadowRay;
+		shadowRay.origin = shadowHit.point+1.5*shadowHit.normal*EPSILON;
+		shadowRay.dir = light2.pos-shadowHit.point;
+		findClosest(shadowRay, shadowHit);
+		if (shadowHit.ind != 0 && shadowHit.ind != 5 && shadowHit.ind != 6 && shadowHit.ind != spheresCount+trianglesCount && shadowHit.ind != ind && ind <= spheresCount + trianglesCount)
+		{
+			specular = vec3(0.0); 
+			diffuse = vec3(0.0);
+		}
+	}
+	color += diffuse + specular;
 
 	return color;
 }
@@ -517,10 +621,11 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 	int bounceCount = 1;
 	vec3 coeff = vec3(1.0);
 	bool continueLoop = true;
-	float f = 1.0;
 
-	while (continueLoop)
+	for (int i = 0; i < STACK_SIZE; ++i)
 	{
+        if (!continueLoop) break;
+        
 		if(findClosest(ray, closestHit))
 		{
 			u = 0.5 - atan(-closestHit.normal.z, -closestHit.normal.x)/(2.0*PI);
@@ -550,7 +655,7 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 			
 			bounceCount++;
 			
-			Material mat = materials[closestHit.ind];
+			Material mat = getMaterial(closestHit.ind);
 			vec3 shadeCol = closestHit.ind == 0 ? mat.amb : shade(closestHit, ray);
 		
 			color += shadeCol*coeff;
@@ -587,34 +692,36 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 2) //skyboxBack
 			{
-				color *= texture2D(skyboxTextureBack, (-closestHit.point.xy + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).rgb;
+				color *= texture2D(skyboxTextureBack, (-closestHit.point.xy + vec2(skyboxDistance, skyboxDistance)) / (2.0*skyboxDistance)).rgb;
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 3) //skyboxDown
 			{
-				color *= texture2D(skyboxTextureDown, (closestHit.point.xz + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).rgb;
+				color *= texture2D(skyboxTextureDown, (closestHit.point.xz + vec2(skyboxDistance, skyboxDistance)) / (2.0*skyboxDistance)).rgb;
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 4) //skyboxFront
 			{
-				color *= texture2D(skyboxTextureFront, (closestHit.point.xy*vec2(1, -1) + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).rgb;
+				color *= texture2D(skyboxTextureFront, (closestHit.point.xy*vec2(1, -1) + vec2(skyboxDistance, skyboxDistance)) / (2.0*skyboxDistance)).rgb;
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 5) //skyboxLeft
 			{
-				color *= texture2D(skyboxTextureLeft, (closestHit.point.yz + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).rgb;
+				color *= texture2D(skyboxTextureLeft, (closestHit.point.yz + vec2(skyboxDistance, skyboxDistance)) / (2.0*skyboxDistance)).rgb;
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 6) //skyboxRight
 			{
-				color *= texture2D(skyboxTextureRight, (closestHit.point.zy*vec2(1, -1) + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).rgb;
+				color *= texture2D(skyboxTextureRight, (closestHit.point.zy*vec2(1, -1) + vec2(skyboxDistance, skyboxDistance)) / (2.0*skyboxDistance)).rgb;
 			}
 			else if (closestHit.ind == spheresCount + trianglesCount + 7) //skyboxUp
 			{
-				color *= texture2D(skyboxTextureUp, (closestHit.point.xz + vec2(skyboxRatio/2.0, skyboxRatio/2.0)) / skyboxRatio).rgb;
+				color *= texture2D(skyboxTextureUp, (closestHit.point.xz + vec2(skyboxDistance, skyboxDistance)) / (2.0*skyboxDistance)).rgb;
 			}
-			if ((mat.reflective || mat.refractive) && bounceCount <= depth)
+			bool hitWater = (closestHit.ind == 3 && color.b > color.r && color.b > color.g);
+			if ((mat.reflective || mat.refractive || hitWater) && bounceCount <= depth)
 			{
 				//glass
 				if (mat.refractive)
 				{
 					float eta = 1.0/mat.n;
+					vec3 tempRay = ray.dir;
 					Ray refractedRay;
 
 					//                     coming from outside the object  ?                        yes                                       no
@@ -622,8 +729,8 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 				
 					if (length(refractedRay.dir) < EPSILON) //total internal reflection ( refract returns with vec3(0.0) if it's a TIR )
 					{
-						ray.dir = normalize(reflect(ray.dir, closestHit.normal));
-						ray.origin = closestHit.point - closestHit.normal*EPSILON;
+						ray.dir = normalize(reflect(tempRay, closestHit.normal));
+						ray.origin = closestHit.point - 1.5*closestHit.normal*EPSILON;
 						coeff = coeff*fresnel(ray.dir, closestHit.normal, mat.f0);
 					}
 					else
@@ -637,22 +744,26 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 						}
 						else
 						{
-							stack[stackSize].coeff = coeff*(vec3(1.0) - fresnel(refractedRay.dir, closestHit.normal, mat.f0));
+                            stack[stackSize].coeff = coeff*(vec3(1.0) - fresnel(ray.dir, closestHit.normal, mat.f0));
 							stack[stackSize].depth = bounceCount;
 							stack[stackSize++].ray = refractedRay;
 						}
 					}
 				}
 				//mirror
-				if (mat.reflective && (closestHit.ind != 3 || (closestHit.ind == 3 && color.z > color.x && color.z > color.y))) //A fold csak a vizen tukrozodjon
+				if ((mat.reflective && closestHit.ind != 3) || (hitWater))
 				{
-					if (dot(ray.dir, closestHit.normal) < 0.0) //coming from outside
+					if (dot(ray.dir, closestHit.normal) < 0.0)
 					{
 						coeff = coeff*fresnel(ray.dir, closestHit.normal, mat.f0);
 						ray.dir = normalize(reflect(ray.dir, closestHit.normal));
 						ray.origin = closestHit.point + closestHit.normal*EPSILON;
 					}
 					else
+					{
+						continueLoop = false;
+					}
+					if (closestHit.ind == 3 && !hitWater)
 					{
 						continueLoop = false;
 					}
@@ -693,19 +804,15 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 
 		if (!continueLoop && stackSize > 0)
 		{
-			ray = stack[--stackSize].ray;
+            ray = stack[--stackSize].ray;
 			bounceCount = stack[stackSize].depth;
 			coeff = stack[stackSize].coeff;
 			continueLoop = true;
 		}
-		
-		
-		
 	}
 
 	return color;
 }
-
 
 void main()
 {
@@ -714,5 +821,5 @@ void main()
 	ray.dir = normalize(vsRay);
 	vec3 color = trace(ray);
 	
-	gl_FragColor = vec4(color[colorModeInTernary[0]], color[colorModeInTernary[1]], color[colorModeInTernary[2]], 1.0);
+	fragColor = vec4(color[colorModeInTernary[0]], color[colorModeInTernary[1]], color[colorModeInTernary[2]], 1.0);
 }

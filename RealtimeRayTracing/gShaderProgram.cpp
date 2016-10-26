@@ -11,6 +11,10 @@ gShaderProgram::gShaderProgram(void) : m_map_uniform_locations(), m_list_shaders
 gShaderProgram::~gShaderProgram(void)
 {
 }
+GLuint gShaderProgram::getProgramId()
+{
+	return m_id_program;
+}
 
 bool gShaderProgram::AttachShader( GLenum _shaderType,  const char* _filename )
 {
@@ -162,57 +166,48 @@ void gShaderProgram::BindFragDataLoc(int _index, const char* _uniform)
 	glBindFragDataLocation(m_id_program, _index, _uniform);
 }
 
-void gShaderProgram::SetUniform(const char* _uniform, glm::vec2& _vec)
+void gShaderProgram::SetUniform(GLint loc, glm::vec2& _vec)
 {
-	GLint loc = getLocation(_uniform);
 	glUniform2fv( loc, 1, &_vec[0] );
 }
 
-void gShaderProgram::SetUniform(const char* _uniform, glm::vec3& _vec)
+void gShaderProgram::SetUniform(GLint loc, glm::vec3& _vec)
 {
-	GLint loc = getLocation(_uniform);
 	glUniform3fv( loc, 1, &_vec[0] );
 }
 
-void gShaderProgram::SetUniform(const char* _uniform, int _i)
+void gShaderProgram::SetUniform(GLint loc, int _i)
 {
-	GLint loc = getLocation(_uniform);
 	glUniform1i( loc, _i );
 }
 
-void gShaderProgram::SetUniform(const char* _uniform, float _f)
+void gShaderProgram::SetUniform(GLint loc, float _f)
 {
-	GLint loc = getLocation(_uniform);
 	glUniform1f( loc, _f );
 }
 
-void gShaderProgram::SetUniform(const char* _uniform, float _a, float _b)
+void gShaderProgram::SetUniform(GLint loc, float _a, float _b)
 {
-	GLint loc = getLocation(_uniform);
 	glUniform2f( loc, _a, _b );
 }
 
-void gShaderProgram::SetUniform(const char* _uniform, float _a, float _b, float _c)
+void gShaderProgram::SetUniform(GLint loc, float _a, float _b, float _c)
 {
-	GLint loc = getLocation(_uniform);
 	glUniform3f( loc, _a, _b, _c );
 }
-void gShaderProgram::SetUniform(const char* _uniform, float _a, float _b, float _c, float _d)
+void gShaderProgram::SetUniform(GLint loc, float _a, float _b, float _c, float _d)
 {
-	GLint loc = getLocation(_uniform);
 	glUniform4f( loc, _a, _b, _c, _d );
 }
 
 
-void gShaderProgram::SetUniform(const char* _uniform, glm::vec4& _vec)
+void gShaderProgram::SetUniform(GLint loc, glm::vec4& _vec)
 {
-	GLint loc = getLocation(_uniform);
 	glUniform4fv( loc, 1, &_vec[0] );
 }
 
-void gShaderProgram::SetUniform(const char* _uniform, glm::mat4& _mat)
+void gShaderProgram::SetUniform(GLint loc, glm::mat4& _mat)
 {
-	GLint loc = getLocation(_uniform);
 	glUniformMatrix4fv( loc, 1, GL_FALSE, &(_mat[0][0]) );
 }
 
@@ -239,16 +234,16 @@ void gShaderProgram::Off()
 	glUseProgram(0);
 }
 
-void gShaderProgram::SetTexture(const char* _uniform, int _sampler, GLuint _textureID)
+void gShaderProgram::SetTexture(GLint loc, int _sampler, GLuint _textureID)
 {
 	glActiveTexture(GL_TEXTURE0 + _sampler);
 	glBindTexture(GL_TEXTURE_2D, _textureID);
-	SetUniform(_uniform, _sampler);
+	SetUniform(loc, _sampler);
 }
 
-void gShaderProgram::SetCubeTexture(const char* _uniform, int _sampler, GLuint _textureID)
+void gShaderProgram::SetCubeTexture(GLint loc, int _sampler, GLuint _textureID)
 {
 	glActiveTexture(GL_TEXTURE0 + _sampler);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, _textureID);
-	SetUniform(_uniform, _sampler);
+	SetUniform(loc, _sampler);
 }
