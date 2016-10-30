@@ -1,7 +1,7 @@
 #pragma once
 
 #define spheresCount 10
-#define trianglesCount 2
+#define trianglesCount 14
 #define discsCount 1
 #define toriCount 1
 #define skyboxCount 6
@@ -95,6 +95,8 @@ protected:
 		glm::vec3 A;
 		glm::vec3 B;
 		glm::vec3 C;
+		Triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c) : A(a), B(b), C(c) {};
+		Triangle() : A(glm::vec3(0.0)), B(glm::vec3(0.0)), C(glm::vec3(0.0)) {};
 	};
 
 	struct Plane

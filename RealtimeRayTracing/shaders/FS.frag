@@ -4,7 +4,7 @@
 #define PI 3.14159265359
 #define STACK_SIZE 8
 #define spheresCount 10
-#define trianglesCount 2
+#define trianglesCount 14
 #define discsCount 1
 #define toriCount 1
 #define skyboxCount 6
@@ -255,7 +255,7 @@ bool intersectTriangle(in Ray ray, in Triangle t, out HitRec hitRec, in int ind)
 
 bool intersectTorus(in Ray ray, in vec2 torus, out HitRec hitRec, in int ind)
 {
-	ray.origin.z -= 40.0;
+	ray.origin.x -= 10.0;
 	float Ra2 = torus.x*torus.x;
 	float ra2 = torus.y*torus.y;
 	
@@ -264,9 +264,9 @@ bool intersectTorus(in Ray ray, in vec2 torus, out HitRec hitRec, in int ind)
 		
 	float k = (m - ra2 - Ra2)/2.0;
 	float a = n;
-	float b = n*n + Ra2*ray.dir.y*ray.dir.y + k;
-	float c = k*n + Ra2*ray.origin.y*ray.dir.y;
-	float d = k*k + Ra2*ray.origin.y*ray.origin.y - Ra2*ra2;
+	float b = n*n + Ra2*ray.dir.z*ray.dir.z + k;
+	float c = k*n + Ra2*ray.origin.z*ray.dir.z;
+	float d = k*k + Ra2*ray.origin.z*ray.origin.z - Ra2*ra2;
 	
     //----------------------------------
 
@@ -335,12 +335,12 @@ bool intersectTorus(in Ray ray, in vec2 torus, out HitRec hitRec, in int ind)
 		else if( t2>0.0 ) result=min(result,t2);
 	}
 	
-    if (result > 0.0 && result < 100.0) //hit
+    if (result > 0.0 && result < 1000.0) //hit
     {
         hitRec.t = result;
         hitRec.point = ray.origin + hitRec.t*ray.dir;
 		hitRec.ind = ind;
-        hitRec.normal = normalize( hitRec.point*(dot(hitRec.point,hitRec.point)- torus.y*torus.y - torus.x*torus.x*vec3(1.0,-1.0,1.0)));
+        hitRec.normal = normalize( hitRec.point*(dot(hitRec.point,hitRec.point)- torus.y*torus.y - torus.x*torus.x*vec3(1.0,1.0,-1.0)));
         return true;
     }
 	return false;
@@ -611,6 +611,7 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 			}
 			if ((mat.reflective || mat.refractive) && bounceCount <= depth)
 			{
+				bool totalInternalReflection = false;
 				//glass
 				if (mat.refractive)
 				{
@@ -619,12 +620,13 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 
 					//                     coming from outside the object  ?                        yes                                       no
 					refractedRay.dir = dot(ray.dir, closestHit.normal) <= 0.0 ? refract(ray.dir, closestHit.normal, eta) : refract(ray.dir, -closestHit.normal, 1.0/eta);
-				
-					if (length(refractedRay.dir) < EPSILON) //total internal reflection ( refract returns with vec3(0.0) if it's a TIR )
+					totalInternalReflection = length(refractedRay.dir) < EPSILON;
+					if (totalInternalReflection) //total internal reflection ( refract returns with vec3(0.0) if it's a TIR )
 					{
-						ray.dir = normalize(reflect(ray.dir, closestHit.normal));
+						//color = vec3(1.0, 0.0, 0.0);
+						ray.dir = normalize(reflect(ray.dir, -closestHit.normal));
 						ray.origin = closestHit.point - closestHit.normal*EPSILON;
-						coeff = coeff*fresnel(ray.dir, closestHit.normal, mat.f0);
+						//coeff = coeff*fresnel(ray.dir, closestHit.normal, mat.f0);
 					}
 					else
 					{
@@ -644,7 +646,7 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 					}
 				}
 				//mirror
-				if (mat.reflective && (closestHit.ind != 3 || (closestHit.ind == 3 && color.z > color.x && color.z > color.y))) //A fold csak a vizen tukrozodjon
+				if (mat.reflective && !totalInternalReflection && (closestHit.ind != 3 || (closestHit.ind == 3 && color.z > color.x && color.z > color.y))) //A fold csak a vizen tukrozodjon
 				{
 					if (dot(ray.dir, closestHit.normal) < 0.0) //coming from outside
 					{

@@ -100,6 +100,36 @@ bool CMyApp::Init()
 	triangles[1].B = glm::vec3(14 , -5, -12);
 	triangles[1].C = glm::vec3(14,  14, -14);
 
+	float hCubeSide = 2.0; //half the cube's side
+	glm::vec3 cubeCenter = glm::vec3(10.0, 0.0, 0.0);
+	glm::vec3 cube1 = glm::vec3(cubeCenter.x - hCubeSide, cubeCenter.y - hCubeSide, cubeCenter.z - hCubeSide);
+	glm::vec3 cube2 = glm::vec3(cubeCenter.x - hCubeSide, cubeCenter.y - hCubeSide, cubeCenter.z + hCubeSide);
+	glm::vec3 cube3 = glm::vec3(cubeCenter.x + hCubeSide, cubeCenter.y - hCubeSide, cubeCenter.z + hCubeSide);
+	glm::vec3 cube4 = glm::vec3(cubeCenter.x + hCubeSide, cubeCenter.y - hCubeSide, cubeCenter.z - hCubeSide);
+	glm::vec3 cube5 = glm::vec3(cubeCenter.x - hCubeSide, cubeCenter.y + hCubeSide, cubeCenter.z - hCubeSide);
+	glm::vec3 cube6 = glm::vec3(cubeCenter.x - hCubeSide, cubeCenter.y + hCubeSide, cubeCenter.z + hCubeSide);
+	glm::vec3 cube7 = glm::vec3(cubeCenter.x + hCubeSide, cubeCenter.y + hCubeSide, cubeCenter.z + hCubeSide);
+	glm::vec3 cube8 = glm::vec3(cubeCenter.x + hCubeSide, cubeCenter.y + hCubeSide, cubeCenter.z - hCubeSide);
+
+	// Down
+	triangles[2] = Triangle(cube1, cube3, cube2);
+	triangles[3] = Triangle(cube1, cube4, cube3);
+	// Front		    
+	triangles[4] = Triangle(cube2, cube3, cube6);
+	triangles[5] = Triangle(cube6, cube3, cube7);
+	// Left			    
+	triangles[6] = Triangle(cube1, cube2, cube5);
+	triangles[7] = Triangle(cube5, cube2, cube6);
+	// Right		    
+	triangles[8] = Triangle(cube3, cube4, cube7);
+	triangles[9] = Triangle(cube7, cube4, cube8);
+	// Up
+	triangles[10] = Triangle(cube5, cube6, cube7);
+	triangles[11] = Triangle(cube5, cube7, cube8);
+	// Back
+	triangles[12] = Triangle(cube1, cube8, cube4);
+	triangles[13] = Triangle(cube1, cube5, cube8);
+
 	//
 	// Ground
 	//
@@ -376,6 +406,11 @@ bool CMyApp::Init()
 	materials[spheresCount+1].reflective = true;
 	materials[spheresCount+1].f0 = getF0(glm::vec3(0.14, 0.16, 0.13), glm::vec3(4.1, 2.3, 3.1));
 
+
+	for (int i = spheresCount + 2; i < spheresCount + trianglesCount; ++i)
+	{
+		materials[i] = materials[9];
+	}
 	//
 	// Ground (disc)
 	//
