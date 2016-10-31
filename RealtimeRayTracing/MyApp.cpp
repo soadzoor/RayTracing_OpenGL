@@ -57,7 +57,7 @@ bool CMyApp::Init()
 	std::cout << "Hold left Shift to move slower" << std::endl;
 	std::cout << "N: toggle normalmaps (bumpmaps) on the Earth and the Moon" << std::endl;
 	std::cout << "1: toogle shadows" << std::endl;
-	std::cout << "T: toggle Torus" << std::endl;
+	//std::cout << "T: toggle Torus" << std::endl;
 	std::cout << "G: toggle Glowing Effect on the Sun" << std::endl;
 	std::cout << "V: toggle Vsync" << std::endl;
 	std::cout << "P: pause scene" << std::endl;
@@ -245,7 +245,7 @@ bool CMyApp::Init()
 	isShadowOnLocation   = glGetUniformLocation(program.getProgramId(), "isShadowOn");
 	useNormalMapLocation = glGetUniformLocation(program.getProgramId(), "useNormalMap");
 	isGlowOnLocation     = glGetUniformLocation(program.getProgramId(), "isGlowOn");
-	showTorusLocation    = glGetUniformLocation(program.getProgramId(), "showTorus");
+	//showTorusLocation    = glGetUniformLocation(program.getProgramId(), "showTorus");
 	depthLocation        = glGetUniformLocation(program.getProgramId(), "depth");
 
 	sunTextureLocation         = glGetUniformLocation(program.getProgramId(), "sunTexture");
@@ -365,7 +365,7 @@ void CMyApp::Render()
 	program.SetUniform(isShadowOnLocation, isShadowOn);
 	program.SetUniform(useNormalMapLocation, useNormalMap);
 	program.SetUniform(isGlowOnLocation, isGlowOn);
-	program.SetUniform(showTorusLocation, showTorus);
+	//program.SetUniform(showTorusLocation, showTorus);
 	program.SetUniform(depthLocation, depth); // --> bounces count
 	//
 	// Pass spheres to GPU
@@ -490,12 +490,12 @@ void CMyApp::KeyboardDown(SDL_KeyboardEvent& key)
 			isShadowOn ? std::cout << "Shadows ON" << std::endl : std::cout << "Shadows OFF" << std::endl;
 			break;
 		}
-		case SDLK_t:
-		{
-			showTorus = !showTorus;
-			showTorus ? std::cout << "Torus ON" << std::endl : std::cout << "Torus OFF" << std::endl;
-			break;
-		}
+		//case SDLK_t:
+		//{
+		//	showTorus = !showTorus;
+		//	showTorus ? std::cout << "Torus ON" << std::endl : std::cout << "Torus OFF" << std::endl;
+		//	break;
+		//}
 		case SDLK_DOWN:
 		{
 			if (currentColorMode > 0)

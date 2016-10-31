@@ -72,7 +72,7 @@ struct HitRec
 };
 
 uniform vec4 spheres[spheresCount];
-vec2 torus = vec2(1.0, 0.25);
+//vec2 torus = vec2(1.0, 0.25);
 uniform float time;
 
 Light light0 = Light(vec3(1.0), vec3(0.0));
@@ -111,14 +111,14 @@ Material material8  = Material(vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.
 Material material9  = Material(vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.0), 70.0, true, true, vec3(0.04), 1.5); // glass sphere
 Material material10 = Material(vec3(0.0, 0.0, 0.0), vec3(0.01, 0.01, 0.01), vec3(0.8), 120.0, false, true, vec3(0.9691, 0.90355, 0.952236), 1.0); // triangle 1, 2
 Material material12 = Material(vec3(0.0, 0.0, 0.0), vec3(0.3, 0.34, 0.36), vec3(0.8), 60.0, false, false, vec3(0.0), 1.0);                        // ground
-Material material13 = Material(vec3(0.0, 0.0, 0.4), vec3(0.0, 0.0, 0.4), vec3(0.8), 30.0, false, false, vec3(0.0), 1.0);                          //torus
+//Material material13 = Material(vec3(0.0, 0.0, 0.4), vec3(0.0, 0.0, 0.4), vec3(0.8), 30.0, false, false, vec3(0.0), 1.0);                          //torus
 Material material14 = Material(vec3(0.5), vec3(0.5), vec3(0.5), 20.0, false, false, vec3(0.0), 1.0);
 
 uniform int depth;
 uniform bool isShadowOn;
 uniform bool useNormalMap;
 uniform bool isGlowOn;
-uniform bool showTorus;
+//uniform bool showTorus;
 
 uniform int colorModeInTernary[3];
 
@@ -275,7 +275,7 @@ bool intersectDisc(in Ray ray, in Disc disc, out HitRec hitRec, in int ind)
 	return false;
 }
 
-
+/*
 bool intersectTorus(in Ray ray, in vec2 torus, out HitRec hitRec, in int ind)
 {
 	ray.origin.z -= 40.0;
@@ -368,6 +368,7 @@ bool intersectTorus(in Ray ray, in vec2 torus, out HitRec hitRec, in int ind)
     }
 	return false;
 }
+*/
 
 vec3 glow(in float d, in vec3 glow)
 {
@@ -420,7 +421,7 @@ bool findClosest(in Ray ray, inout HitRec hitRec)
 			hitRec = hitTemp;
 		}
 		hit = true;
-	}
+	}/*
 	if (showTorus ? intersectTorus(ray, torus, hitTemp, spheresCount + trianglesCount + 1) : false)
 	{
 		if (hitTemp.t < minT || minT < 0.0)
@@ -429,7 +430,7 @@ bool findClosest(in Ray ray, inout HitRec hitRec)
 			hitRec = hitTemp;
 		}
 		hit = true;
-	}
+	}*/
 	if (intersectPlane(ray, skyboxBack, hitTemp, spheresCount + trianglesCount + 2))
 	{
 		if (hitTemp.t < minT || minT < 0.0)
@@ -503,9 +504,9 @@ Material getMaterial(in int i)
     if (i == 9)  return material9;   // glass
 	if (i >= 10 && i < spheresCount) return material10;
 	if (i == spheresCount || i == spheresCount+1) return material10;
-	if (i == spheresCount+2) return material12;
-	if (i == spheresCount+3) return material13;
-	if (i > spheresCount+3) return material14;
+	if (i == spheresCount+trianglesCount) return material12;
+	//if (i == spheresCount+3) return material13;
+	if (i > spheresCount+trianglesCount+1) return material14;
 	else return material0;
 }
 
