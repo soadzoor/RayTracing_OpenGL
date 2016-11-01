@@ -9,7 +9,7 @@
 #define toriCount 1
 #define skyboxCount 6
 #define lightsCount 3
-const int materialsCount = spheresCount + trianglesCount + discsCount + toriCount + skyboxCount;
+
 // attribs from the vertex shader
 varying vec3 vsRay;
 
@@ -106,22 +106,22 @@ Material material14 = Material(vec3(0.5), vec3(0.5), vec3(0.5), 20.0, false, fal
 
 Material getMaterial(in int i)
 {
-    if (i == 0)  return material0;
-    if (i == 1)  return material1;
-    if (i == 2)  return material2;
-    if (i == 3)  return material3;
-    if (i == 4)  return material4;
-    if (i == 5)  return material5;
-    if (i == 6)  return material5;   // same material
-    if (i == 7)  return material7;
+    if (i == 0)  return material0;   // sun
+    if (i == 1)  return material1;   // green sphere
+    if (i == 2)  return material2;	 //	blue sphere
+    if (i == 3)  return material3;	 //	earth
+    if (i == 4)  return material4;	 //	moon
+    if (i == 5 
+	 || i == 6)  return material5;	 //	sphere of lightsources
+    if (i == 7)  return material7;   // red sphere
     if (i == 8)  return material8;   // gold
     if (i == 9)  return material9;   // glass
-	if (i >= 10 && i < spheresCount) return material10;
-	if (i == spheresCount || i == spheresCount+1) return material10;
-	if (i > spheresCount + 1 && i < spheresCount+trianglesCount) return material9;
-	if (i == spheresCount+trianglesCount) return material12;
-	if (i == spheresCount+trianglesCount+1) return material13;
-	if (i > spheresCount+trianglesCount+1) return material14;
+	if (i >= 10 && i < spheresCount) return material10; // mirror balls
+	if (i == spheresCount || i == spheresCount+1) return material10; // mirror
+	if (i > spheresCount + 1 && i < spheresCount+trianglesCount) return material9; // glass box, diamond
+	if (i == spheresCount+trianglesCount) return material12; //gridded ground
+	if (i == spheresCount+trianglesCount+1) return material13; //torus
+	if (i > spheresCount+trianglesCount+1) return material14; // skybox
 	else return material0;
 }
 
