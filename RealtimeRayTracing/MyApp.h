@@ -1,7 +1,7 @@
 #pragma once
 
-#define spheresCount 10
-#define trianglesCount 14
+#define spheresCount 110
+#define trianglesCount 38
 #define discsCount 1
 #define toriCount 1
 #define skyboxCount 6
@@ -35,13 +35,12 @@ public:
 	bool pause        = false;
 	bool isShadowOn   = false;
 	bool useNormalMap = true;
-	bool isGlowOn     = false;
-	bool showTorus    = false;
+	bool isGlowOn     = true;
 	bool vsync        = true;
 	float pausedTime     = 0;
 	float curElapsedTime = 0;
 	float sumElapsedTime = 0;
-	int depth = 1;
+	int depth = 8;
 	int currentColorMode = 5;
 
 	void colorModeToTernary(int currentColorMode);
@@ -64,7 +63,7 @@ public:
 protected:
 	glm::vec4 spheres[spheresCount];
 	glm::vec2 torus;
-	static const int materialsCount = spheresCount + trianglesCount + discsCount + toriCount + skyboxCount;
+	//static const int materialsCount = spheresCount + trianglesCount + discsCount + toriCount + skyboxCount;
 	const std::string colorModes[27] = {"RRR", "RRG", "RRB",
 										"RGR", "RGG", "RGB",
 										"RBR", "RBG", "RBB",
@@ -116,21 +115,21 @@ protected:
 		glm::vec3 col;
 		glm::vec3 pos;
 	};
-	struct Material
-	{
-		glm::vec3 amb  = glm::vec3(0.0);
-		glm::vec3 dif  = glm::vec3(0.0);
-		glm::vec3 spec = glm::vec3(0.0);
-		float pow;
-		bool refractive;
-		bool reflective;
-		float n = 1.0f;
-		glm::vec3 f0 = glm::vec3(0.0);
-	};
+	//struct Material
+	//{
+	//	glm::vec3 amb  = glm::vec3(0.0);
+	//	glm::vec3 dif  = glm::vec3(0.0);
+	//	glm::vec3 spec = glm::vec3(0.0);
+	//	float pow;
+	//	bool refractive;
+	//	bool reflective;
+	//	float n = 1.0f;
+	//	glm::vec3 f0 = glm::vec3(0.0);
+	//};
 	
 	Light    lights[lightsCount];
 	Triangle triangles[trianglesCount];
-	Material materials[materialsCount];
+	//Material materials[materialsCount];
 	Disc     ground;
 
 	Plane skyboxBack;

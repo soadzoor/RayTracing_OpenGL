@@ -14,28 +14,26 @@ void exitProgram()
 {
 	SDL_Quit();
 
-	//std::cout << "Exit..." << std::endl;
-	//std::cin.get();
 	system("pause");
 }
 
-int main( int argc, char* args[] )
+int main(int argc, char* args[])
 {
 	// állítsuk be, hogy kilépés elõtt hívja meg a rendszer az exitProgram() függvényt - Kérdés: mi lenne enélkül?
-	atexit( exitProgram );
+	atexit(exitProgram);
 
 	//
-	// 1. lépés: inicializáljuk az SDL-t
+	// 1st step: Initialize SDL
 	//
 
-	// a grafikus alrendszert kapcsoljuk csak be, ha gond van, akkor jelezzük és lépjün ki
-	if ( SDL_Init( SDL_INIT_VIDEO ) == -1 )
+	// Turn on graphics subsystem, check for errors
+	if (SDL_Init(SDL_INIT_VIDEO) == -1)
 	{
-		// irjuk ki a hibat es terminaljon a program
-		std::cout << "[SDL indítása]Hiba az SDL inicializálása közben: " << SDL_GetError() << std::endl;
+		// Write out errors, then exit.
+		std::cout << "[init SDL]Error while initializing SDL: " << SDL_GetError() << std::endl;
 		return 1;
 	}
-			
+
 	//
 	// 2. lépés: állítsuk be az OpenGL-es igényeinket, hozzuk létre az ablakunkat, indítsuk el az OpenGL-t
 	//
@@ -44,19 +42,20 @@ int main( int argc, char* args[] )
 
 	// beállíthatjuk azt, hogy pontosan milyen OpenGL context-et szeretnénk létrehozni - ha nem tesszük, akkor
 	// automatikusan a legmagasabb elérhetõ verziójút kapjuk
-    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
 	// állítsuk be, hogy hány biten szeretnénk tárolni a piros, zöld, kék és átlátszatlansági információkat pixelenként
-    SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,         32);
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE,            8);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,          8);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,           8);
-    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,          8);
+	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 	// duplapufferelés
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,		1);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	// mélységi puffer hány bites legyen
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,          24);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
 	// antialiasing - ha kell
 	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,  1);
@@ -64,56 +63,60 @@ int main( int argc, char* args[] )
 
 	// hozzuk létre az ablakunkat
 	SDL_Window *win = 0;
-    win = SDL_CreateWindow( "Hello SDL&OpenGL!",		// az ablak fejléce
-							100,						// az ablak bal-felsõ sarkának kezdeti X koordinátája
-							100,						// az ablak bal-felsõ sarkának kezdeti Y koordinátája
-							640,						// ablak szélessége
-							480,						// és magassága
-							SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);			// megjelenítési tulajdonságok
+	int width = 800;
+	int height = 600;
+	win = SDL_CreateWindow("Hello SDL&OpenGL!",		// az ablak fejléce
+		100,						// az ablak bal-felsõ sarkának kezdeti X koordinátája
+		100,						// az ablak bal-felsõ sarkának kezdeti Y koordinátája
+		width,						// ablak szélessége
+		height,						// és magassága
+		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);			// megjelenítési tulajdonságok
 
 
-	// ha nem sikerült létrehozni az ablakot, akkor írjuk ki a hibát, amit kaptunk és lépjünk ki
-    if (win == 0)
+																				// ha nem sikerült létrehozni az ablakot, akkor írjuk ki a hibát, amit kaptunk és lépjünk ki
+	if (win == 0)
 	{
-		std::cout << "[Ablak létrehozása]Hiba az SDL inicializálása közben: " << SDL_GetError() << std::endl;
-        return 1;
-    }
-
-	//
-	// 3. lépés: hozzunk létre az OpenGL context-et - ezen keresztül fogunk rajzolni
-	//
-
-	SDL_GLContext	context	= SDL_GL_CreateContext(win);
-    if (context == 0)
-	{
-		std::cout << "[OGL context létrehozása]Hiba az SDL inicializálása közben: " << SDL_GetError() << std::endl;
-        return 1;
-    }	
-
-	// megjelenítés: várjuk be a vsync-et
-
-	SDL_GL_SetSwapInterval(1);
-
-	// indítsuk el a GLEW-t
-	GLenum error = glewInit();
-	if ( error != GLEW_OK )
-	{
-		std::cout << "[GLEW] Hiba az inicializálás során!" << std::endl;
+		std::cout << "[Creating window]Error while initializing window: " << SDL_GetError() << std::endl;
 		return 1;
 	}
 
-	// kérdezzük le az OpenGL verziót
-	int glVersion[2] = {-1, -1}; 
-	glGetIntegerv(GL_MAJOR_VERSION, &glVersion[0]); 
-	glGetIntegerv(GL_MINOR_VERSION, &glVersion[1]); 
+	//
+	// 3rd step: creating OpenGL context
+	//
+
+	SDL_GLContext	context = SDL_GL_CreateContext(win);
+	if (context == 0)
+	{
+		std::cout << "[Creating OGL context]Error while initializing SDL: " << SDL_GetError() << std::endl;
+		return 1;
+	}
+
+	// Vsync: ON
+
+	SDL_GL_SetSwapInterval(1);
+
+	// start GLEW
+	GLenum error = glewInit();
+	if (error != GLEW_OK)
+	{
+		std::cout << "[GLEW] Error while initializing!" << std::endl;
+		return 1;
+	}
+
+	// Request OpenGL version number
+	int glVersion[2] = { -1, -1 };
+	glGetIntegerv(GL_MAJOR_VERSION, &glVersion[0]);
+	glGetIntegerv(GL_MINOR_VERSION, &glVersion[1]);
 	std::cout << "Running OpenGL " << glVersion[0] << "." << glVersion[1] << std::endl;
 
-	if ( glVersion[0] == -1 && glVersion[1] == -1 )
+	printf("Vendor (%s), Renderer (%s)\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER));
+
+	if (glVersion[0] == -1 && glVersion[1] == -1)
 	{
 		SDL_GL_DeleteContext(context);
-		SDL_DestroyWindow( win );
+		SDL_DestroyWindow(win);
 
-		std::cout << "[OGL context létrehozása] Nem sikerült létrehozni az OpenGL context-et! Lehet, hogy az SDL_GL_SetAttribute(...) hívásoknál az egyik beállítás helytelen." << std::endl;
+		std::cout << "[Creating OGL context] Error while creating OpenGL context! Some options in SDL_GL_SetAttribute(...) calls might be wrong." << std::endl;
 
 		return 1;
 	}
@@ -123,20 +126,20 @@ int main( int argc, char* args[] )
 	SDL_SetWindowTitle(win, window_title.str().c_str());
 
 	//
-	// 3. lépés: indítsuk el a fõ üzenetfeldolgozó ciklust
+	// 4th step: start the loop
 	// 
 
-	// véget kell-e érjen a program futása?
+	// set it true and the program will terminate
 	bool quit = false;
-	// feldolgozandó üzenet ide kerül
+	// message to be processed
 	SDL_Event ev;
-	
-	// alkalmazas példánya
+
+	// instance of the app
 	CMyApp app;
 	if (!app.Init())
 	{
 		SDL_DestroyWindow(win);
-		std::cout << "[app.Init] Az alkalmazás inicializálása közben hibatörtént!" << std::endl;
+		std::cout << "Error while initializing app!" << std::endl;
 		return 1;
 	}
 	Uint32	lastUpdate = SDL_GetTicks();
@@ -144,8 +147,8 @@ int main( int argc, char* args[] )
 
 	while (!quit)
 	{
-		// amíg van feldolgozandó üzenet dolgozzuk fel mindet:
-		while ( SDL_PollEvent(&ev) )
+		// while there are messages to process, process them:
+		while (SDL_PollEvent(&ev))
 		{
 			switch (ev.type)
 			{
@@ -153,8 +156,19 @@ int main( int argc, char* args[] )
 				quit = true;
 				break;
 			case SDL_KEYDOWN:
-				if ( ev.key.keysym.sym == SDLK_ESCAPE )
-					quit = true;
+				if (ev.key.keysym.sym == SDLK_ESCAPE)
+				{
+					//quit = true;
+					if (SDL_GetWindowFlags(win) & SDL_WINDOW_FULLSCREEN) // if window is fullscreen
+					{
+						std::cout << "Back to Window Mode" << std::endl;
+						SDL_SetWindowFullscreen(win, 0);
+						SDL_SetWindowSize(win, width, height);
+						SDL_SetWindowPosition(win, 100, 100);
+						app.Resize(width, height);
+					}
+				}
+
 				app.KeyboardDown(ev.key);
 				break;
 			case SDL_KEYUP:
@@ -173,9 +187,15 @@ int main( int argc, char* args[] )
 				app.MouseMove(ev.motion);
 				break;
 			case SDL_WINDOWEVENT:
-				if ( ev.window.event == SDL_WINDOWEVENT_SIZE_CHANGED )
+				if (ev.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
 				{
 					app.Resize(ev.window.data1, ev.window.data2);
+					std::cout << "Resolution changed to: " << ev.window.data1 << "x" << ev.window.data2 << std::endl;
+				}
+				if (ev.window.event == SDL_WINDOWEVENT_MAXIMIZED)
+				{
+					SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
+					std::cout << "MAXIMIZED" << std::endl;
 				}
 				break;
 			}
@@ -186,11 +206,11 @@ int main( int argc, char* args[] )
 
 		++frameCount;
 
-		if (SDL_GetTicks() - lastUpdate >= 1000)
+		if (SDL_GetTicks() - lastUpdate > 1000)
 		{
 
 			window_title.str(std::string());
-			window_title << "OpenGL " << glVersion[0] << "." << glVersion[1] << ", avg. FPS: " << frameCount;
+			window_title << "OpenGL " << glVersion[0] << "." << glVersion[1] << ", FPS: " << --frameCount;
 			SDL_SetWindowTitle(win, window_title.str().c_str());
 
 			lastUpdate = SDL_GetTicks();
@@ -202,14 +222,14 @@ int main( int argc, char* args[] )
 
 
 	//
-	// 4. lépés: lépjünk ki
+	// 5th step: quit
 	// 
 
-	// takarítson el maga után az objektumunk
+	// Clean
 	app.Clean();
 
 	SDL_GL_DeleteContext(context);
-	SDL_DestroyWindow( win );
+	SDL_DestroyWindow(win);
 
 	return 0;
 }

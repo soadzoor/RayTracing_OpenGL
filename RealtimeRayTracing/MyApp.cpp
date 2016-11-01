@@ -81,13 +81,13 @@ bool CMyApp::Init()
 
 	// 10x10 mirror spheres (spheresCount == 10 --> disabled)
 
-	//for (int i = 10; i < 20; ++i)
-	//{
-	//	for (int j = 0; j < 10; ++j)
-	//	{
-	//		spheres[(i-10)*10+j+10] = glm::vec4(20+i, -4, j, 0.4);
-	//	}
-	//}
+	for (int i = 10; i < 20; ++i)
+	{
+		for (int j = 0; j < 10; ++j)
+		{
+			spheres[(i-10)*10+j+10] = glm::vec4(i*2-30, -7, 5+j*2, 0.8);
+		}
+	}
 
 	//
 	// Triangles
@@ -166,112 +166,114 @@ bool CMyApp::Init()
 	//
 	// Diamond
 	//
-	/*
-	arrayOfTriangles[2].A = glm::vec3(-0.866, 1.5, 0.75);
-	arrayOfTriangles[2].B = glm::vec3(-1.732,   0, 0.75);
-	arrayOfTriangles[2].C = glm::vec3(-0.866, 0.5, 0.0 );
+	triangles[14].A = glm::vec3(-0.866, 1.5, 0.75);
+	triangles[14].B = glm::vec3(-1.732,   0, 0.75);
+	triangles[14].C = glm::vec3(-0.866, 0.5, 0.0 );
 	
-	arrayOfTriangles[3].A = glm::vec3(-0.866, 0.5, 0.0);
-	arrayOfTriangles[3].B = glm::vec3(-1.732, 0, 0.75 );
-	arrayOfTriangles[3].C = glm::vec3(-0.866, -0.5, 0.0);
+	triangles[15].A = glm::vec3(-0.866, 0.5, 0.0);
+	triangles[15].B = glm::vec3(-1.732, 0, 0.75 );
+	triangles[15].C = glm::vec3(-0.866, -0.5, 0.0);
 	
-	arrayOfTriangles[4].A = glm::vec3(-0.866, -0.5, 0.0);
-	arrayOfTriangles[4].B = glm::vec3(-1.732, 0, 0.75);
-	arrayOfTriangles[4].C = glm::vec3(-0.866, -1.5, 0.75);
+	triangles[16].A = glm::vec3(-0.866, -0.5, 0.0);
+	triangles[16].B = glm::vec3(-1.732, 0, 0.75);
+	triangles[16].C = glm::vec3(-0.866, -1.5, 0.75);
 	
-	arrayOfTriangles[5].A = glm::vec3(-0.866, -0.5, 0.0);
-	arrayOfTriangles[5].B = glm::vec3(-0.866, -1.5, 0.75);
-	arrayOfTriangles[5].C = glm::vec3(0, -1, 0);
+	triangles[17].A = glm::vec3(-0.866, -0.5, 0.0);
+	triangles[17].B = glm::vec3(-0.866, -1.5, 0.75);
+	triangles[17].C = glm::vec3(0, -1, 0);
 	
-	arrayOfTriangles[6].A = glm::vec3(0, -1, 0);
-	arrayOfTriangles[6].B = glm::vec3(-0.866, -1.5, 0.75);
-	arrayOfTriangles[6].C = glm::vec3(0.866, -1.5, 0.75);
+	triangles[18].A = glm::vec3(0, -1, 0);
+	triangles[18].B = glm::vec3(-0.866, -1.5, 0.75);
+	triangles[18].C = glm::vec3(0.866, -1.5, 0.75);
 	
-	arrayOfTriangles[7].A = glm::vec3(0, -1, 0);
-	arrayOfTriangles[7].B = glm::vec3(0.866, -1.5, 0.75);
-	arrayOfTriangles[7].C = glm::vec3(0.866, -0.5, 0.0);
+	triangles[19].A = glm::vec3(0, -1, 0);
+	triangles[19].B = glm::vec3(0.866, -1.5, 0.75);
+	triangles[19].C = glm::vec3(0.866, -0.5, 0.0);
 	
-	arrayOfTriangles[8].A = glm::vec3(0.866, -0.5, 0.0);
-	arrayOfTriangles[8].B = glm::vec3(0.866, -1.5, 0.75);
-	arrayOfTriangles[8].C = glm::vec3(1.732, 0, 0.75);
+	triangles[20].A = glm::vec3(0.866, -0.5, 0.0);
+	triangles[20].B = glm::vec3(0.866, -1.5, 0.75);
+	triangles[20].C = glm::vec3(1.732, 0, 0.75);
 	
-	arrayOfTriangles[9].A = glm::vec3(0.866, -0.5, 0.0);
-	arrayOfTriangles[9].B = glm::vec3(1.732, 0, 0.75);
-	arrayOfTriangles[9].C = glm::vec3(0.866, 0.5, 0.0);
+	triangles[21].A = glm::vec3(0.866, -0.5, 0.0);
+	triangles[21].B = glm::vec3(1.732, 0, 0.75);
+	triangles[21].C = glm::vec3(0.866, 0.5, 0.0);
 	
-	arrayOfTriangles[10].A = glm::vec3(0.866, 0.5, 0.0);
-	arrayOfTriangles[10].B = glm::vec3(1.732, 0, 0.75);
-	arrayOfTriangles[10].C = glm::vec3(0.866, 1.5, 0.75);
+	triangles[22].A = glm::vec3(0.866, 0.5, 0.0);
+	triangles[22].B = glm::vec3(1.732, 0, 0.75);
+	triangles[22].C = glm::vec3(0.866, 1.5, 0.75);
 	
-	arrayOfTriangles[11].A = glm::vec3(0.866, 0.5, 0.0);
-	arrayOfTriangles[11].B = glm::vec3(0.866, 1.5, 0.75);
-	arrayOfTriangles[11].C = glm::vec3(0, 1, 0);
+	triangles[23].A = glm::vec3(0.866, 0.5, 0.0);
+	triangles[23].B = glm::vec3(0.866, 1.5, 0.75);
+	triangles[23].C = glm::vec3(0, 1, 0);
 	
-	arrayOfTriangles[12].A = glm::vec3(0, 1, 0);
-	arrayOfTriangles[12].B = glm::vec3(0.866, 1.5, 0.75);
-	arrayOfTriangles[12].C = glm::vec3(-0.866, 1.5, 0.75);
+	triangles[24].A = glm::vec3(0, 1, 0);
+	triangles[24].B = glm::vec3(0.866, 1.5, 0.75);
+	triangles[24].C = glm::vec3(-0.866, 1.5, 0.75);
 	
-	arrayOfTriangles[13].A = glm::vec3(0, 1, 0);
-	arrayOfTriangles[13].B = glm::vec3(-0.866, 1.5, 0.75);
-	arrayOfTriangles[13].C = glm::vec3(-0.866, 0.5, 0.0);
+	triangles[25].A = glm::vec3(0, 1, 0);
+	triangles[25].B = glm::vec3(-0.866, 1.5, 0.75);
+	triangles[25].C = glm::vec3(-0.866, 0.5, 0.0);
 
-	arrayOfTriangles[14].A = glm::vec3(0, 1, 0);
-	arrayOfTriangles[14].B = glm::vec3(-0.866, 0.5, 0);
-	arrayOfTriangles[14].C = glm::vec3(0.0, 0.0, 0.0);
+	triangles[26].A = glm::vec3(0, 1, 0);
+	triangles[26].B = glm::vec3(-0.866, 0.5, 0);
+	triangles[26].C = glm::vec3(0.0, 0.0, 0.0);
 	
-	arrayOfTriangles[15].A = glm::vec3(-0.866, 0.5, 0);
-	arrayOfTriangles[15].B = glm::vec3(-0.866, -0.5, 0);
-	arrayOfTriangles[15].C = glm::vec3(0.0, 0.0, 0.0);
+	triangles[27].A = glm::vec3(-0.866, 0.5, 0);
+	triangles[27].B = glm::vec3(-0.866, -0.5, 0);
+	triangles[27].C = glm::vec3(0.0, 0.0, 0.0);
 	
-	arrayOfTriangles[16].A = glm::vec3(-0.866, -0.5, 0);
-	arrayOfTriangles[16].B = glm::vec3(0, -1, 0);
-	arrayOfTriangles[16].C = glm::vec3(0.0, 0.0, 0.0);
+	triangles[28].A = glm::vec3(-0.866, -0.5, 0);
+	triangles[28].B = glm::vec3(0, -1, 0);
+	triangles[28].C = glm::vec3(0.0, 0.0, 0.0);
 	
-	arrayOfTriangles[17].A = glm::vec3(0, -1, 0);
-	arrayOfTriangles[17].B = glm::vec3(0.866, -0.5, 0);
-	arrayOfTriangles[17].C = glm::vec3(0.0, 0.0, 0.0);
+	triangles[29].A = glm::vec3(0, -1, 0);
+	triangles[29].B = glm::vec3(0.866, -0.5, 0);
+	triangles[29].C = glm::vec3(0.0, 0.0, 0.0);
 	
-	arrayOfTriangles[18].A = glm::vec3(0.866, -0.5, 0);
-	arrayOfTriangles[18].B = glm::vec3(0.866, 0.5, 0);
-	arrayOfTriangles[18].C = glm::vec3(0.0, 0.0, 0.0);
+	triangles[30].A = glm::vec3(0.866, -0.5, 0);
+	triangles[30].B = glm::vec3(0.866, 0.5, 0);
+	triangles[30].C = glm::vec3(0.0, 0.0, 0.0);
 	
-	arrayOfTriangles[19].A = glm::vec3(0.866, 0.5, 0);
-	arrayOfTriangles[19].B = glm::vec3(0, 1, 0);
-	arrayOfTriangles[19].C = glm::vec3(0.0, 0.0, 0.0);
+	triangles[31].A = glm::vec3(0.866, 0.5, 0);
+	triangles[31].B = glm::vec3(0, 1, 0);
+	triangles[31].C = glm::vec3(0.0, 0.0, 0.0);
 
-	arrayOfTriangles[20].A = glm::vec3(-0.866, 1.5, 0.75);
-	arrayOfTriangles[20].B = glm::vec3(0.866, 1.5, 0.75);
-	arrayOfTriangles[20].C = glm::vec3(0.0, 0.0, 3.0);
+	triangles[32].A = glm::vec3(-0.866, 1.5, 0.75);
+	triangles[32].B = glm::vec3(0.866, 1.5, 0.75);
+	triangles[32].C = glm::vec3(0.0, 0.0, 3.0);
 	
-	arrayOfTriangles[21].A = glm::vec3(-1.732, 0, 0.75);
-	arrayOfTriangles[21].B = glm::vec3(-0.866, 1.5, 0.75);
-	arrayOfTriangles[21].C = glm::vec3(0.0, 0.0, 3.0);
+	triangles[33].A = glm::vec3(-1.732, 0, 0.75);
+	triangles[33].B = glm::vec3(-0.866, 1.5, 0.75);
+	triangles[33].C = glm::vec3(0.0, 0.0, 3.0);
 	
-	arrayOfTriangles[22].A = glm::vec3(-0.866, -1.5, 0.75);
-	arrayOfTriangles[22].B = glm::vec3(-1.732,  0, 0.75);
-	arrayOfTriangles[22].C = glm::vec3(0.0, 0.0, 3.0);
+	triangles[34].A = glm::vec3(-0.866, -1.5, 0.75);
+	triangles[34].B = glm::vec3(-1.732,  0, 0.75);
+	triangles[34].C = glm::vec3(0.0, 0.0, 3.0);
 	
-	arrayOfTriangles[23].A = glm::vec3(0.866, -1.5, 0.75);
-	arrayOfTriangles[23].B = glm::vec3(-0.866, -1.5, 0.75);
-	arrayOfTriangles[23].C = glm::vec3(0.0, 0.0, 3.0);
+	triangles[35].A = glm::vec3(0.866, -1.5, 0.75);
+	triangles[35].B = glm::vec3(-0.866, -1.5, 0.75);
+	triangles[35].C = glm::vec3(0.0, 0.0, 3.0);
 	
-	arrayOfTriangles[24].A = glm::vec3(1.732, 0, 0.75);
-	arrayOfTriangles[24].B = glm::vec3(0.866, -1.5, 0.75);
-	arrayOfTriangles[24].C = glm::vec3(0.0, 0.0, 3.0);
+	triangles[36].A = glm::vec3(1.732, 0, 0.75);
+	triangles[36].B = glm::vec3(0.866, -1.5, 0.75);
+	triangles[36].C = glm::vec3(0.0, 0.0, 3.0);
 	
-	arrayOfTriangles[25].A = glm::vec3(0.866, 1.5, 0.75);
-	arrayOfTriangles[25].B = glm::vec3(1.732, 0, 0.75);
-	arrayOfTriangles[25].C = glm::vec3(0.0, 0.0, 3.0);
+	triangles[37].A = glm::vec3(0.866, 1.5, 0.75);
+	triangles[37].B = glm::vec3(1.732, 0, 0.75);
+	triangles[37].C = glm::vec3(0.0, 0.0, 3.0);
 
-	for (int i = 2; i < 26; ++i)
+	for (int i = 14; i < trianglesCount; ++i)
 	{
-		arrayOfTriangles[i].A += glm::vec3(0, 0, 20);
-		arrayOfTriangles[i].B += glm::vec3(0, 0, 20);
-		arrayOfTriangles[i].C += glm::vec3(0, 0, 20);
+		triangles[i].A += glm::vec3(0, 0, 20);
+		triangles[i].B += glm::vec3(0, 0, 20);
+		triangles[i].C += glm::vec3(0, 0, 20);
+
+		glm::vec3 swap = triangles[i].A;
+		triangles[i].A = triangles[i].B;
+		triangles[i].B = swap;
 
 	}
-	*/
-	
+	/*
 	//
 	// Sun
 	//
@@ -368,21 +370,6 @@ bool CMyApp::Init()
 	materials[9].f0 = getF0(glm::vec3(1.5), glm::vec3(1.0));
 	materials[9].n = 1.5;
 
-	//
-	// 10x10 mirror spheres (spheresCount == 10 --> disabled)
-	//
-	for (int i = 10; i < spheresCount; ++i)
-	{
-		//materials[i].amb = glm::vec3(0.2f, 0.2f, 0.3f);
-		//materials[i].dif = glm::vec3(0.2f, 0.2f, 0.3f);
-		materials[i].spec = glm::vec3(0.7, 0.7, 0.7);
-		materials[i].pow = 50.0f;
-		materials[i].refractive = false;
-		materials[i].reflective = true;
-		//materials[i].f0 = getF0(glm::vec3(0.14, 0.16, 0.13), glm::vec3(4.1, 2.3, 3.1));
-		materials[i].f0 = getF0(glm::vec3(1.5), glm::vec3(0.00));
-		materials[i].n = 1.5;
-	}
 
 	//
 	// Triangle 1
@@ -406,10 +393,27 @@ bool CMyApp::Init()
 	materials[spheresCount+1].reflective = true;
 	materials[spheresCount+1].f0 = getF0(glm::vec3(0.14, 0.16, 0.13), glm::vec3(4.1, 2.3, 3.1));
 
-
-	for (int i = spheresCount + 2; i < spheresCount + trianglesCount; ++i)
+	//
+	// 10x10 mirror spheres (spheresCount == 10 --> disabled)
+	//
+	for (int i = 10; i < spheresCount; ++i)
+	{
+		materials[i] = materials[spheresCount];
+	}
+	//
+	// Glass box
+	//
+	for (int i = spheresCount + 2; i < spheresCount + 14; ++i)
 	{
 		materials[i] = materials[9];
+	}
+	//
+	// Diamond
+	//
+	for (int i = spheresCount + 14; i < spheresCount + trianglesCount; ++i)
+	{
+		materials[i] = materials[9];
+		materials[i].n = 1.3;
 	}
 	//
 	// Ground (disc)
@@ -442,12 +446,13 @@ bool CMyApp::Init()
 		materials[i].refractive = false;
 		materials[i].reflective = false;
 	}
-
+	*/
 	//
 	// Loading shaders
 	//
 	program.AttachShader(GL_VERTEX_SHADER, "shaders/VS.vert");
 	program.AttachShader(GL_FRAGMENT_SHADER, "shaders/FS.frag");
+
 
 	program.BindAttribLoc(0, "vertPosition");
 
@@ -455,6 +460,19 @@ bool CMyApp::Init()
 	{
 		return false;
 	}
+	std::cout << std::endl << "Press WASD to move around" << std::endl;
+	std::cout << "Hold left mouse button to look around" << std::endl;
+	std::cout << "Hold left Shift to move slower" << std::endl;
+	std::cout << "N: toggle normalmaps (bumpmaps) on the Earth and the Moon" << std::endl;
+	std::cout << "1: toogle shadows" << std::endl;
+	//std::cout << "T: toggle Torus" << std::endl;
+	std::cout << "G: toggle Glowing Effect on the Sun" << std::endl;
+	std::cout << "V: toggle Vsync" << std::endl;
+	std::cout << "P: pause scene" << std::endl;
+	std::cout << "Left/Right arrow: change depth" << std::endl;
+	std::cout << "Up/Down arrow: change ColorMode" << std::endl;
+	std::cout << "Esc: exit FullScreen" << std::endl << std::endl;
+
 
 	//
 	// Loading textures
@@ -577,7 +595,6 @@ void CMyApp::Render()
 	program.SetUniform("isShadowOn", isShadowOn);
 	program.SetUniform("useNormalMap", useNormalMap);
 	program.SetUniform("isGlowOn", isGlowOn);
-	program.SetUniform("showTorus", showTorus);
 	program.SetUniform("depth", depth); // --> bounces count
 	//
 	// Pass lights to GPU
@@ -662,6 +679,7 @@ void CMyApp::Render()
 	//
 	// Pass materials to GPU
 	//
+	/*
 	for (int i = 0; i < materialsCount; ++i)
 	{
 		char buffer[50];
@@ -682,6 +700,7 @@ void CMyApp::Render()
 		sprintf(buffer, "materials[%i].n", i);
 		program.SetUniform(buffer, materials[i].n);
 	}
+	*/
 	//
 	// Pass color mode to GPU
 	//
@@ -781,12 +800,6 @@ void CMyApp::KeyboardDown(SDL_KeyboardEvent& key)
 		{
 			isShadowOn = !isShadowOn;
 			isShadowOn ? std::cout << "Shadows ON" << std::endl : std::cout << "Shadows OFF" << std::endl;
-			break;
-		}
-		case SDLK_t:
-		{
-			showTorus = !showTorus;
-			showTorus ? std::cout << "Torus ON" << std::endl : std::cout << "Torus OFF" << std::endl;
 			break;
 		}
 		case SDLK_DOWN:

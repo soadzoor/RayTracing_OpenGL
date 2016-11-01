@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeRayTracing", "RealtimeRayTracing.vcxproj", "{A09D888C-6E7E-4DEA-A19E-9EBCF289DDD1}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "RealTimeRaytracingInstallerFULL", "RealTimeRaytracingInstallerFULL\RealTimeRaytracingInstallerFULL.vdproj", "{41119109-5B77-4773-9FFD-DDE1AEB0BC68}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,12 @@ Global
 		{A09D888C-6E7E-4DEA-A19E-9EBCF289DDD1}.Release|x64.Build.0 = Release|x64
 		{A09D888C-6E7E-4DEA-A19E-9EBCF289DDD1}.Release|x86.ActiveCfg = Release|Win32
 		{A09D888C-6E7E-4DEA-A19E-9EBCF289DDD1}.Release|x86.Build.0 = Release|Win32
+		{41119109-5B77-4773-9FFD-DDE1AEB0BC68}.Debug|ARM.ActiveCfg = Debug
+		{41119109-5B77-4773-9FFD-DDE1AEB0BC68}.Debug|x64.ActiveCfg = Debug
+		{41119109-5B77-4773-9FFD-DDE1AEB0BC68}.Debug|x86.ActiveCfg = Debug
+		{41119109-5B77-4773-9FFD-DDE1AEB0BC68}.Release|ARM.ActiveCfg = Release
+		{41119109-5B77-4773-9FFD-DDE1AEB0BC68}.Release|x64.ActiveCfg = Release
+		{41119109-5B77-4773-9FFD-DDE1AEB0BC68}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

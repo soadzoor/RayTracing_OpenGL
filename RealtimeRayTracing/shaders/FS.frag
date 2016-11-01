@@ -3,8 +3,8 @@
 #define EPSILON 0.001
 #define PI 3.14159265359
 #define STACK_SIZE 8
-#define spheresCount 10
-#define trianglesCount 14
+#define spheresCount 110
+#define trianglesCount 38
 #define discsCount 1
 #define toriCount 1
 #define skyboxCount 6
@@ -40,8 +40,8 @@ struct Material
 	vec3 dif;
 	vec3 spec;
 	float pow;
-	bool reflective;
 	bool refractive;
+	bool reflective;
 	vec3 f0;
 	float n;
 };
@@ -78,7 +78,6 @@ uniform Light lights[lightsCount];
 uniform vec4 spheres[spheresCount];
 uniform vec2 torus;
 uniform Triangle triangles[trianglesCount];
-uniform Material materials[materialsCount];
 uniform float time;
 uniform float skyboxRatio;
 
@@ -91,11 +90,45 @@ uniform Plane skyboxLeft;
 uniform Plane skyboxRight;
 uniform Plane skyboxUp;
 
+Material material0  = Material(vec3(1.0, 0.95, 0.85), vec3(0.0, 0.0, 0.0), vec3(0.0), 30.0, false, false, vec3(0.0), 1.0); // sun
+Material material1  = Material(vec3(0.0, 0.2, 0.0), vec3(0.0, 0.4, 0.0), vec3(0.8), 20.0, false, false, vec3(0.0), 1.0);   // green sphere
+Material material2  = Material(vec3(0.0, 0.0, 0.2), vec3(0.0, 0.0, 0.4), vec3(0.0), 50.0, false, false, vec3(0.0), 1.0);   // blue sphere
+Material material3  = Material(vec3(0.5, 0.5, 0.5), vec3(0.5, 0.5, 0.5), vec3(0.5), 30.0, false, true, vec3(0.0), 1.0);    // earth
+Material material4  = Material(vec3(0.5, 0.5, 0.5), vec3(0.5, 0.5, 0.5), vec3(0.5), 20.0, false, false, vec3(0.0), 1.0);   // moon
+Material material5  = Material(vec3(0.5, 0.5, 0.5), vec3(0.8, 0.5, 0.8), vec3(0.9), 20.0, false, false, vec3(0.0), 1.0);   // sphere of lightsources
+Material material7  = Material(vec3(0.2, 0.0, 0.0), vec3(0.5, 0.0, 0.0), vec3(0.8), 66.0, false, false, vec3(0.0), 1.0);   // red sphere
+Material material8  = Material(vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.62, 0.555802, 0.366065), 51.2, false, true, vec3(0.93806, 0.846365, 0.391481), 1.0); //golden sphere
+Material material9  = Material(vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.0), 70.0, true, true, vec3(0.04), 1.5); // glass sphere
+Material material10 = Material(vec3(0.0, 0.0, 0.0), vec3(0.01, 0.01, 0.01), vec3(0.8), 120.0, false, true, vec3(0.9691, 0.90355, 0.952236), 1.0); // triangle 1, 2
+Material material12 = Material(vec3(0.0, 0.0, 0.0), vec3(0.3, 0.34, 0.36), vec3(0.8), 60.0, false, false, vec3(0.0), 1.0);                        // ground
+Material material13 = Material(vec3(0.0, 0.0, 0.4), vec3(0.0, 0.0, 0.4), vec3(0.8), 30.0, false, false, vec3(0.0), 1.0);                          //torus
+Material material14 = Material(vec3(0.5), vec3(0.5), vec3(0.5), 20.0, false, false, vec3(0.0), 1.0);
+
+Material getMaterial(in int i)
+{
+    if (i == 0)  return material0;
+    if (i == 1)  return material1;
+    if (i == 2)  return material2;
+    if (i == 3)  return material3;
+    if (i == 4)  return material4;
+    if (i == 5)  return material5;
+    if (i == 6)  return material5;   // same material
+    if (i == 7)  return material7;
+    if (i == 8)  return material8;   // gold
+    if (i == 9)  return material9;   // glass
+	if (i >= 10 && i < spheresCount) return material10;
+	if (i == spheresCount || i == spheresCount+1) return material10;
+	if (i > spheresCount + 1 && i < spheresCount+trianglesCount) return material9;
+	if (i == spheresCount+trianglesCount) return material12;
+	if (i == spheresCount+trianglesCount+1) return material13;
+	if (i > spheresCount+trianglesCount+1) return material14;
+	else return material0;
+}
+
 uniform int depth;
 uniform bool isShadowOn;
 uniform bool useNormalMap;
 uniform bool isGlowOn;
-uniform bool showTorus;
 
 uniform int colorModeInTernary[3];
 
@@ -192,8 +225,7 @@ bool intersectDisc(in Ray ray, in Disc disc, out HitRec hitRec, in int ind)
 	{ 
         vec3 p = ray.origin + hitRec.t*ray.dir; 
         vec3 v = p - disc.o; 
-        float d2 = dot(v, v); 
-        if (!(d2 <= disc.r*disc.r))
+        if (!(length(v) <= disc.r))
 		{
 			return false;
 		}
@@ -351,7 +383,7 @@ vec3 glow(in float d, in vec3 glow)
 	return glow*clamp((2.0/(0.5 + d*d)), 0.0, 1.0);
 }
 
-bool findClosest(in Ray ray, inout HitRec hitRec)
+bool findClosest(in Ray ray, inout HitRec hitRec, in int bounceCount)
 {
 	HitRec hitTemp;
 	
@@ -392,7 +424,7 @@ bool findClosest(in Ray ray, inout HitRec hitRec)
 		}
 		hit = true;
 	}
-	if (showTorus ? intersectTorus(ray, torus, hitTemp, spheresCount + trianglesCount + 1) : false)
+	if (bounceCount > 1 ? intersectTorus(ray, torus, hitTemp, spheresCount + trianglesCount + 1) : false)
 	{
 		if (hitTemp.t < minT || minT < 0.0)
 		{
@@ -462,7 +494,7 @@ bool findClosest(in Ray ray, inout HitRec hitRec)
 vec3 shade(in HitRec closestHit, in Ray ray) //Blinn-Phong
 {
 	vec3 refDir = normalize(reflect(closestHit.point - ray.origin, closestHit.normal));
-	vec3 color = materials[closestHit.ind].amb;
+	vec3 color = getMaterial(closestHit.ind).amb;
 	vec3 diffuse = vec3(0.0);
 	vec3 specular = vec3(0.0);
 
@@ -473,8 +505,8 @@ vec3 shade(in HitRec closestHit, in Ray ray) //Blinn-Phong
 		toLight = normalize(toLight);
 		float diffintensity = clamp(dot(closestHit.normal, toLight), 0.0, 1.0);
 			
-		specular = clamp(((materials[closestHit.ind].spec*lights[j].col)*pow(clamp(dot(toLight, refDir), 0.0, 1.0), materials[closestHit.ind].pow)), 0.0, 1.0);
-		diffuse = clamp((materials[closestHit.ind].dif*diffintensity*lights[j].col), 0.0, 1.0);
+		specular = clamp(((getMaterial(closestHit.ind).spec*lights[j].col)*pow(clamp(dot(toLight, refDir), 0.0, 1.0), getMaterial(closestHit.ind).pow)), 0.0, 1.0);
+		diffuse = clamp((getMaterial(closestHit.ind).dif*diffintensity*lights[j].col), 0.0, 1.0);
 
 			
 		if (isShadowOn)
@@ -484,7 +516,7 @@ vec3 shade(in HitRec closestHit, in Ray ray) //Blinn-Phong
 			Ray shadowRay;
 			shadowRay.origin = shadowHit.point+1.5*shadowHit.normal*EPSILON;
 			shadowRay.dir = lights[j].pos-shadowHit.point;
-			findClosest(shadowRay, shadowHit);
+			findClosest(shadowRay, shadowHit, 1);
 			if (shadowHit.ind != 0 && shadowHit.ind != 5 && shadowHit.ind != 6 && shadowHit.ind != spheresCount+trianglesCount && shadowHit.ind != ind && ind <= spheresCount + trianglesCount)
 			{
 				specular = vec3(0.0); 
@@ -517,11 +549,10 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 	int bounceCount = 1;
 	vec3 coeff = vec3(1.0);
 	bool continueLoop = true;
-	float f = 1.0;
 
 	while (continueLoop)
 	{
-		if(findClosest(ray, closestHit))
+		if(findClosest(ray, closestHit, bounceCount))
 		{
 			u = 0.5 - atan(-closestHit.normal.z, -closestHit.normal.x)/(2.0*PI);
 			v = 0.5 + asin(-closestHit.normal.y)/PI;
@@ -550,7 +581,7 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 			
 			bounceCount++;
 			
-			Material mat = materials[closestHit.ind];
+			Material mat = getMaterial(closestHit.ind);
 			vec3 shadeCol = closestHit.ind == 0 ? mat.amb : shade(closestHit, ray);
 		
 			color += shadeCol*coeff;
