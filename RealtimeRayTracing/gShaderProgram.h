@@ -19,6 +19,7 @@ public:
 	void BindAttribLoc(int _index, const char* _uniform);
 	void BindFragDataLoc(int _index, const char* _uniform);
 	bool LinkProgram();
+	GLuint getProgramId();
 
 	void SetVerbose(bool);
 
@@ -27,17 +28,17 @@ public:
 
 	void Clean();
 
-	void SetUniform(const char* _uniform, glm::vec2& _vec);
-	void SetUniform(const char* _uniform, glm::vec3& _vec);
-	void SetUniform(const char* _uniform, glm::vec4& _vec);
-	void SetUniform(const char* _uniform, glm::mat4& _mat);
-	void SetUniform(const char* _uniform, int _i);
-	void SetUniform(const char* _uniform, float _f);
-	void SetUniform(const char* _uniform, float _a, float _b, float _c, float _d);
-	void SetUniform(const char* _uniform, float _a, float _b, float _c);
-	void SetUniform(const char* _uniform, float _a, float _b);
-	void SetTexture(const char* _uniform, int _sampler, GLuint _textureID);
-	void SetCubeTexture(const char* _uniform, int _sampler, GLuint _textureID);
+	void SetUniform(GLint loc, glm::vec2& _vec);
+	void SetUniform(GLint loc, glm::vec3& _vec);
+	void SetUniform(GLint loc, glm::vec4& _vec);
+	void SetUniform(GLint loc, glm::mat4& _mat);
+	void SetUniform(GLint loc, int _i);
+	void SetUniform(GLint loc, float _f);
+	void SetUniform(GLint loc, float _a, float _b, float _c, float _d);
+	void SetUniform(GLint loc, float _a, float _b, float _c);
+	void SetUniform(GLint loc, float _a, float _b);
+	void SetTexture(GLint loc, int _sampler, GLuint _textureID);
+	void SetCubeTexture(GLint loc, int _sampler, GLuint _textureID);
 protected:
 	GLuint	getLocation(const char* _uniform);
 	GLuint	loadShader(GLenum _shaderType, const char* _fileName);

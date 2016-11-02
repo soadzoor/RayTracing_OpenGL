@@ -1,7 +1,7 @@
 #pragma once
 
 #define spheresCount 110
-#define trianglesCount 38
+#define trianglesCount 14
 #define discsCount 1
 #define toriCount 1
 #define skyboxCount 6
@@ -61,8 +61,6 @@ public:
 	void Resize(int, int);
 
 protected:
-	glm::vec4 spheres[spheresCount];
-	glm::vec2 torus;
 	//static const int materialsCount = spheresCount + trianglesCount + discsCount + toriCount + skyboxCount;
 	const std::string colorModes[27] = {"RRR", "RRG", "RRB",
 										"RGR", "RGG", "RGB",
@@ -89,47 +87,61 @@ protected:
 	GLuint skyboxTextureRight = 0;
 	GLuint skyboxTextureUp	  = 0;
 
+	struct Sphere
+	{
+		glm::vec4 vec = glm::vec4(0.0);
+		GLuint Location = 0;
+		Sphere() : vec(glm::vec4(0.0)), Location(0) {};
+		Sphere(glm::vec4 v, GLuint loc) : vec(v), Location(loc) {};
+	};
+	Sphere spheres[spheresCount];
+
 	struct Triangle
 	{
 		glm::vec3 A;
 		glm::vec3 B;
 		glm::vec3 C;
-		Triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c) : A(a), B(b), C(c) {};
+		GLint ALocation;
+		GLint BLocation;
+		GLint CLocation;
+		Triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c, GLint locA, GLint locB, GLint locC) : A(a), B(b), C(c), ALocation(locA), BLocation(locB), CLocation(locC) {};
 		Triangle() : A(glm::vec3(0.0)), B(glm::vec3(0.0)), C(glm::vec3(0.0)) {};
 	};
-
+	struct Torus
+	{
+		glm::vec2 vec;
+		GLint Location;
+		Torus() : vec(glm::vec3(0.0)), Location(0) {};
+		Torus(glm::vec2 Rr, GLint loc) : vec(Rr), Location(loc) {};
+	};
+	Torus torus;
 	struct Plane
 	{
 		glm::vec3 n;
 		glm::vec3 q;
+		GLint nLocation;
+		GLint qLocation;
 	};
 
 	struct Disc
 	{
 		glm::vec3 o, n;
 		float r;
+		GLint oLocation;
+		GLint nLocation;
+		GLint rLocation;
 	};
 
 	struct Light
 	{
 		glm::vec3 col;
 		glm::vec3 pos;
+		GLint colLocation;
+		GLint posLocation;
 	};
-	//struct Material
-	//{
-	//	glm::vec3 amb  = glm::vec3(0.0);
-	//	glm::vec3 dif  = glm::vec3(0.0);
-	//	glm::vec3 spec = glm::vec3(0.0);
-	//	float pow;
-	//	bool refractive;
-	//	bool reflective;
-	//	float n = 1.0f;
-	//	glm::vec3 f0 = glm::vec3(0.0);
-	//};
 	
 	Light    lights[lightsCount];
 	Triangle triangles[trianglesCount];
-	//Material materials[materialsCount];
 	Disc     ground;
 
 	Plane skyboxBack;
@@ -142,12 +154,44 @@ protected:
 	
 
 	// belsõ eljárások
-	glm::vec3 getF0(glm::vec3 n, glm::vec3 k);
+	//glm::vec3 getF0(glm::vec3 n, glm::vec3 k);
 
-	// OpenGL-es dolgok
+	// OpenGL stuff
 
 	gCamera			camera;
 	gShaderProgram	program;
 	gVertexBuffer	vb;
+
+	// Uniform locations
+
+	GLint eyeLocation;
+	GLint upLocation;
+	GLint fwLocation;
+	GLint rightLocation;
+	GLint ratioLocation;
+	GLint timeLocation;
+	GLint isShadowOnLocation;
+	GLint useNormalMapLocation;
+	GLint isGlowOnLocation;
+	GLint showTorusLocation;
+	GLint depthLocation;
+
+	GLint sunTextureLocation;
+	GLint earthTextureLocation;
+	GLint earthNormalMapLocation;
+	GLint moonTextureLocation;
+	GLint moonNormalMapLocation;
+	GLint groundTextureLocation;
+	GLint skyboxTextureBackLocation;
+	GLint skyboxTextureDownLocation;
+	GLint skyboxTextureFrontLocation;
+	GLint skyboxTextureLeftLocation;
+	GLint skyboxTextureRightLocation;
+	GLint skyboxTextureUpLocation;
+	GLint skyboxDistanceLocation;
+
+	GLint colorModeInTernary0Location;
+	GLint colorModeInTernary1Location;
+	GLint colorModeInTernary2Location;
 };
 

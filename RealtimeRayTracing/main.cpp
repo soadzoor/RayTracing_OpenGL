@@ -63,8 +63,8 @@ int main(int argc, char* args[])
 
 	// hozzuk létre az ablakunkat
 	SDL_Window *win = 0;
-	int width = 800;
-	int height = 600;
+	int width = 320;
+	int height = 240;
 	win = SDL_CreateWindow("Hello SDL&OpenGL!",		// az ablak fejléce
 		100,						// az ablak bal-felsõ sarkának kezdeti X koordinátája
 		100,						// az ablak bal-felsõ sarkának kezdeti Y koordinátája
@@ -159,7 +159,7 @@ int main(int argc, char* args[])
 				if (ev.key.keysym.sym == SDLK_ESCAPE)
 				{
 					//quit = true;
-					if (SDL_GetWindowFlags(win) & SDL_WINDOW_FULLSCREEN) // if window is fullscreen
+					if (SDL_GetWindowFlags(win) & SDL_WINDOW_FULLSCREEN_DESKTOP) // if window is fullscreen
 					{
 						std::cout << "Back to Window Mode" << std::endl;
 						SDL_SetWindowFullscreen(win, 0);
@@ -194,7 +194,7 @@ int main(int argc, char* args[])
 				}
 				if (ev.window.event == SDL_WINDOWEVENT_MAXIMIZED)
 				{
-					SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
+					SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
 					std::cout << "MAXIMIZED" << std::endl;
 				}
 				break;

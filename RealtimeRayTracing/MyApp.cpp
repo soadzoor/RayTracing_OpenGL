@@ -15,12 +15,12 @@ CMyApp::~CMyApp(void)
 {
 }
 
-glm::vec3 CMyApp::getF0(glm::vec3 n, glm::vec3 k) //toresmutato, kioltasi tenyezo
+/*glm::vec3 CMyApp::getF0(glm::vec3 n, glm::vec3 k) //toresmutato, kioltasi tenyezo
 {
 	glm::vec3 f0 = ((n - glm::vec3(1.0))*(n - glm::vec3(1.0)) + k*k) / ((n + glm::vec3(1.0))*(n + glm::vec3(1.0)) + k*k);
 
 	return f0;
-}
+}*/
 void CMyApp::colorModeToTernary(int currentColorMode)
 {
 	colorModeInTernary[2] = currentColorMode % 3;
@@ -40,44 +40,75 @@ bool CMyApp::Init()
 	camera = gCamera(glm::vec3(0.0, 0.0, 35.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 
 	//
+	// Loading shaders
+	//
+	program.AttachShader(GL_VERTEX_SHADER, "shaders/VS.vert");
+	program.AttachShader(GL_FRAGMENT_SHADER, "shaders/FS.frag");
+
+
+	program.BindAttribLoc(0, "vertPosition");
+
+	if (!program.LinkProgram())
+	{
+		return false;
+	}
+	std::cout << std::endl << "Press WASD to move around" << std::endl;
+	std::cout << "Hold left mouse button to look around" << std::endl;
+	std::cout << "Hold left Shift to move slower" << std::endl;
+	std::cout << "N: toggle normalmaps (bumpmaps) on the Earth and the Moon" << std::endl;
+	std::cout << "1: toogle shadows" << std::endl;
+	std::cout << "G: toggle Glowing Effect on the Sun" << std::endl;
+	std::cout << "V: toggle Vsync" << std::endl;
+	std::cout << "P: pause scene" << std::endl;
+	std::cout << "Left/Right arrow: change depth" << std::endl;
+	std::cout << "Up/Down arrow: change ColorMode" << std::endl;
+	std::cout << "Esc: exit FullScreen" << std::endl << std::endl;
+
+	//
 	// Lights
 	//
 	lights[0].col = glm::vec3( 1.0,  1.0, 1.0);
 	lights[0].pos = glm::vec3( 0.0,  0.0, 0.0);
+	lights[0].colLocation = glGetUniformLocation(program.getProgramId(), "lights[0].col");
+	lights[0].posLocation = glGetUniformLocation(program.getProgramId(), "lights[0].pos");
 	lights[1].col = glm::vec3( 1.0,  1.0, 1.0);
 	lights[1].pos = glm::vec3(-2.0, 20.0, 0.0);
+	lights[1].colLocation = glGetUniformLocation(program.getProgramId(), "lights[1].col");
+	lights[1].posLocation = glGetUniformLocation(program.getProgramId(), "lights[1].pos");
 	lights[2].col = glm::vec3( 1.0,  1.0, 1.0);
 	lights[2].pos = glm::vec3(20.0, 20.0, 0.0);
+	lights[2].colLocation = glGetUniformLocation(program.getProgramId(), "lights[2].col");
+	lights[2].posLocation = glGetUniformLocation(program.getProgramId(), "lights[2].pos");
 
 	//
 	// Spheres
 	//
-	spheres[0] = glm::vec4(0, 0, 0, 1.4); // sun
-	spheres[1] = glm::vec4(0.0); // green sphere
-	spheres[2] = glm::vec4(0.0); // blue sphere
-	spheres[3] = glm::vec4(0.0); // earth
-	spheres[4] = glm::vec4(0.0); // moon
+	spheres[0] = Sphere(glm::vec4(0, 0, 0, 1.4), glGetUniformLocation(program.getProgramId(), "spheres[0]")); // sun
+	spheres[1] = Sphere(glm::vec4(0, 0, 0, 0.0), glGetUniformLocation(program.getProgramId(), "spheres[1]")); // green sphere
+	spheres[2] = Sphere(glm::vec4(0, 0, 0, 0.0), glGetUniformLocation(program.getProgramId(), "spheres[2]")); // blue sphere
+	spheres[3] = Sphere(glm::vec4(0, 0, 0, 0.0), glGetUniformLocation(program.getProgramId(), "spheres[3]")); // earth
+	spheres[4] = Sphere(glm::vec4(0, 0, 0, 0.0), glGetUniformLocation(program.getProgramId(), "spheres[4]")); // moon
 
-	//
-	// Spheres of lightsources
-	//
-	spheres[5] = glm::vec4(lights[1].pos.x, lights[1].pos.y, lights[1].pos.z, 0.05);
-	spheres[6] = glm::vec4(lights[2].pos.x, lights[2].pos.y, lights[2].pos.z, 0.05);
+																											  //
+																											  // Spheres of lightsources
+																											  //
+	spheres[5] = Sphere(glm::vec4(-2.0, 20.0, 0.0, 0.05), glGetUniformLocation(program.getProgramId(), "spheres[5]"));
+	spheres[6] = Sphere(glm::vec4(20.0, 20.0, 0.0, 0.05), glGetUniformLocation(program.getProgramId(), "spheres[6]"));
 
 	//
 	// Red sphere with static position
 	//
-	spheres[7] = glm::vec4(lights[1].pos.x + 0.3, lights[1].pos.y - 0.6, lights[1].pos.z - 0.3, 0.3);
+	spheres[7] = Sphere(glm::vec4(-2.0 + 0.3, 20.0 - 0.6, 0.0 - 0.3, 0.3), glGetUniformLocation(program.getProgramId(), "spheres[7]"));
 
 	//
 	// Golden sphere
 	//
-	spheres[8] = glm::vec4(6, 0, -10, 1.4);
+	spheres[8] = Sphere(glm::vec4(6, 0, -10, 1.4), glGetUniformLocation(program.getProgramId(), "spheres[8]"));
 
 	//
 	// Glass sphere
 	//
-	spheres[9] = glm::vec4(-7, 0, 0, 1.4);
+	spheres[9] = Sphere(glm::vec4(-7, 0, 0, 1.4), glGetUniformLocation(program.getProgramId(), "spheres[9]"));
 
 	// 10x10 mirror spheres (spheresCount == 10 --> disabled)
 
@@ -85,7 +116,10 @@ bool CMyApp::Init()
 	{
 		for (int j = 0; j < 10; ++j)
 		{
-			spheres[(i-10)*10+j+10] = glm::vec4(i*2-30, -7, 5+j*2, 0.8);
+			char buffer[50];
+			int a = (i - 10) * 10 + j + 10;
+			sprintf(buffer, "spheres[%i]", a);
+			spheres[a] = Sphere(glm::vec4(i * 2 - 30, -7, 5 + j * 2, 0.8), glGetUniformLocation(program.getProgramId(), buffer));
 		}
 	}
 
@@ -93,12 +127,18 @@ bool CMyApp::Init()
 	// Triangles
 	//
 	triangles[0].A = glm::vec3(-14, 14, -14);
+	triangles[0].ALocation = glGetUniformLocation(program.getProgramId(), "triangles[0].A");
 	triangles[0].B = glm::vec3(-14, -5, -12);
+	triangles[0].BLocation = glGetUniformLocation(program.getProgramId(), "triangles[0].B");
 	triangles[0].C = glm::vec3(14,  -5, -12);
+	triangles[0].CLocation = glGetUniformLocation(program.getProgramId(), "triangles[0].C");
 
 	triangles[1].A = glm::vec3(-14, 14, -14);
+	triangles[1].ALocation = glGetUniformLocation(program.getProgramId(), "triangles[1].A");
 	triangles[1].B = glm::vec3(14 , -5, -12);
+	triangles[1].BLocation = glGetUniformLocation(program.getProgramId(), "triangles[1].B");
 	triangles[1].C = glm::vec3(14,  14, -14);
+	triangles[1].CLocation = glGetUniformLocation(program.getProgramId(), "triangles[1].C");
 
 	float hCubeSide = 2.0; //half the cube's side
 	glm::vec3 cubeCenter = glm::vec3(10.0, 0.0, 0.0);
@@ -112,23 +152,59 @@ bool CMyApp::Init()
 	glm::vec3 cube8 = glm::vec3(cubeCenter.x + hCubeSide, cubeCenter.y + hCubeSide, cubeCenter.z - hCubeSide);
 
 	// Down
-	triangles[2] = Triangle(cube1, cube3, cube2);
-	triangles[3] = Triangle(cube1, cube4, cube3);
+	triangles[2] = Triangle(cube1, cube3, cube2,
+							glGetUniformLocation(program.getProgramId(), "triangles[2].A"),
+							glGetUniformLocation(program.getProgramId(), "triangles[2].B"),
+							glGetUniformLocation(program.getProgramId(), "triangles[2].C"));
+	triangles[3] = Triangle(cube1, cube4, cube3,
+							glGetUniformLocation(program.getProgramId(), "triangles[3].A"),
+							glGetUniformLocation(program.getProgramId(), "triangles[3].B"),
+							glGetUniformLocation(program.getProgramId(), "triangles[3].C"));
 	// Front		    
-	triangles[4] = Triangle(cube2, cube3, cube6);
-	triangles[5] = Triangle(cube6, cube3, cube7);
+	triangles[4] = Triangle(cube2, cube3, cube6,
+							glGetUniformLocation(program.getProgramId(), "triangles[4].A"),
+							glGetUniformLocation(program.getProgramId(), "triangles[4].B"),
+							glGetUniformLocation(program.getProgramId(), "triangles[4].C"));
+	triangles[5] = Triangle(cube6, cube3, cube7,
+							glGetUniformLocation(program.getProgramId(), "triangles[5].A"),
+							glGetUniformLocation(program.getProgramId(), "triangles[5].B"),
+							glGetUniformLocation(program.getProgramId(), "triangles[5].C"));
 	// Left			    
-	triangles[6] = Triangle(cube1, cube2, cube5);
-	triangles[7] = Triangle(cube5, cube2, cube6);
+	triangles[6] = Triangle(cube1, cube2, cube5,
+							glGetUniformLocation(program.getProgramId(), "triangles[6].A"),
+							glGetUniformLocation(program.getProgramId(), "triangles[6].B"),
+							glGetUniformLocation(program.getProgramId(), "triangles[6].C"));
+	triangles[7] = Triangle(cube5, cube2, cube6,
+							glGetUniformLocation(program.getProgramId(), "triangles[7].A"),
+							glGetUniformLocation(program.getProgramId(), "triangles[7].B"),
+							glGetUniformLocation(program.getProgramId(), "triangles[7].C"));
 	// Right		    
-	triangles[8] = Triangle(cube3, cube4, cube7);
-	triangles[9] = Triangle(cube7, cube4, cube8);
+	triangles[8] = Triangle(cube3, cube4, cube7,
+							glGetUniformLocation(program.getProgramId(), "triangles[8].A"),
+							glGetUniformLocation(program.getProgramId(), "triangles[8].B"),
+							glGetUniformLocation(program.getProgramId(), "triangles[8].C"));
+	triangles[9] = Triangle(cube7, cube4, cube8,
+							glGetUniformLocation(program.getProgramId(), "triangles[9].A"),
+							glGetUniformLocation(program.getProgramId(), "triangles[9].B"),
+							glGetUniformLocation(program.getProgramId(), "triangles[9].C"));
 	// Up
-	triangles[10] = Triangle(cube5, cube6, cube7);
-	triangles[11] = Triangle(cube5, cube7, cube8);
+	triangles[10] = Triangle(cube5, cube6, cube7,
+							glGetUniformLocation(program.getProgramId(), "triangles[10].A"),
+							glGetUniformLocation(program.getProgramId(), "triangles[10].B"),
+							glGetUniformLocation(program.getProgramId(), "triangles[10].C"));
+	triangles[11] = Triangle(cube5, cube7, cube8,
+							glGetUniformLocation(program.getProgramId(), "triangles[11].A"),
+							glGetUniformLocation(program.getProgramId(), "triangles[11].B"),
+							glGetUniformLocation(program.getProgramId(), "triangles[11].C"));
 	// Back
-	triangles[12] = Triangle(cube1, cube8, cube4);
-	triangles[13] = Triangle(cube1, cube5, cube8);
+	triangles[12] = Triangle(cube1, cube8, cube4,
+							glGetUniformLocation(program.getProgramId(), "triangles[12].A"),
+							glGetUniformLocation(program.getProgramId(), "triangles[12].B"),
+							glGetUniformLocation(program.getProgramId(), "triangles[12].C"));
+	triangles[13] = Triangle(cube1, cube5, cube8,
+							glGetUniformLocation(program.getProgramId(), "triangles[13].A"),
+							glGetUniformLocation(program.getProgramId(), "triangles[13].B"),
+							glGetUniformLocation(program.getProgramId(), "triangles[13].C"));
 
 	//
 	// Ground
@@ -136,32 +212,47 @@ bool CMyApp::Init()
 	ground.o = glm::vec3(0, -10, 0);
 	ground.n = glm::vec3(0, 1, 0);
 	ground.r = 30;
+	ground.oLocation = glGetUniformLocation(program.getProgramId(), "ground.o");
+	ground.nLocation = glGetUniformLocation(program.getProgramId(), "ground.n");
+	ground.rLocation = glGetUniformLocation(program.getProgramId(), "ground.r");
 
 	//
 	// Torus (R, r)
 	//
-	torus = glm::vec2(1.0, 0.25);
+	torus = Torus(glm::vec2(1.0, 0.25), glGetUniformLocation(program.getProgramId(), "torus"));
 
 	//
 	// Skybox (planes)
 	//
 	skyboxBack.n = glm::vec3(0, 0, -1);
 	skyboxBack.q = glm::vec3(0, 0, skyboxDistance);
+	skyboxBack.nLocation = glGetUniformLocation(program.getProgramId(), "skyboxBack.n");
+	skyboxBack.qLocation = glGetUniformLocation(program.getProgramId(), "skyboxBack.q");
 
 	skyboxDown.n = glm::vec3(0, 1, 0);
 	skyboxDown.q = glm::vec3(0, -skyboxDistance, 0);
+	skyboxDown.nLocation = glGetUniformLocation(program.getProgramId(), "skyboxDown.n");
+	skyboxDown.qLocation = glGetUniformLocation(program.getProgramId(), "skyboxDown.q");
 
 	skyboxFront.n = glm::vec3(0, 0, 1);
 	skyboxFront.q = glm::vec3(0, 0, -skyboxDistance);
+	skyboxFront.nLocation = glGetUniformLocation(program.getProgramId(), "skyboxFront.n");
+	skyboxFront.qLocation = glGetUniformLocation(program.getProgramId(), "skyboxFront.q");
 
 	skyboxLeft.n = glm::vec3(1, 0, 0);
 	skyboxLeft.q = glm::vec3(-skyboxDistance, 0, 0);
+	skyboxLeft.nLocation = glGetUniformLocation(program.getProgramId(), "skyboxLeft.n");
+	skyboxLeft.qLocation = glGetUniformLocation(program.getProgramId(), "skyboxLeft.q");
 
 	skyboxRight.n = glm::vec3(-1, 0, 0);
 	skyboxRight.q = glm::vec3(skyboxDistance, 0, 0);
+	skyboxRight.nLocation = glGetUniformLocation(program.getProgramId(), "skyboxRight.n");
+	skyboxRight.qLocation = glGetUniformLocation(program.getProgramId(), "skyboxRight.q");
 
 	skyboxUp.n = glm::vec3(0, -1, 0);
 	skyboxUp.q = glm::vec3(0, skyboxDistance, 0);
+	skyboxUp.nLocation = glGetUniformLocation(program.getProgramId(), "skyboxUp.n");
+	skyboxUp.qLocation = glGetUniformLocation(program.getProgramId(), "skyboxUp.q");
 
 	//
 	// Diamond
@@ -274,31 +365,6 @@ bool CMyApp::Init()
 		triangles[i].B = swap;
 
 	}*/
-	//
-	// Loading shaders
-	//
-	program.AttachShader(GL_VERTEX_SHADER, "shaders/VS.vert");
-	program.AttachShader(GL_FRAGMENT_SHADER, "shaders/FS.frag");
-
-
-	program.BindAttribLoc(0, "vertPosition");
-
-	if ( !program.LinkProgram() )
-	{
-		return false;
-	}
-	std::cout << std::endl << "Press WASD to move around" << std::endl;
-	std::cout << "Hold left mouse button to look around" << std::endl;
-	std::cout << "Hold left Shift to move slower" << std::endl;
-	std::cout << "N: toggle normalmaps (bumpmaps) on the Earth and the Moon" << std::endl;
-	std::cout << "1: toogle shadows" << std::endl;
-	//std::cout << "T: toggle Torus" << std::endl;
-	std::cout << "G: toggle Glowing Effect on the Sun" << std::endl;
-	std::cout << "V: toggle Vsync" << std::endl;
-	std::cout << "P: pause scene" << std::endl;
-	std::cout << "Left/Right arrow: change depth" << std::endl;
-	std::cout << "Up/Down arrow: change ColorMode" << std::endl;
-	std::cout << "Esc: exit FullScreen" << std::endl << std::endl;
 
 
 	//
@@ -317,6 +383,38 @@ bool CMyApp::Init()
 	skyboxTextureLeft  = TextureFromFile("textures/skybox/leftImage.jpg", true);
 	skyboxTextureRight = TextureFromFile("textures/skybox/rightImage.jpg", true);
 	skyboxTextureUp    = TextureFromFile("textures/skybox/upImage.jpg", true);
+
+	//
+	// Getting uniform locations
+	//
+	eyeLocation = glGetUniformLocation(program.getProgramId(), "eye");
+	upLocation = glGetUniformLocation(program.getProgramId(), "up");
+	fwLocation = glGetUniformLocation(program.getProgramId(), "fw");
+	rightLocation = glGetUniformLocation(program.getProgramId(), "right");
+	ratioLocation = glGetUniformLocation(program.getProgramId(), "ratio");
+	timeLocation = glGetUniformLocation(program.getProgramId(), "time");
+	skyboxDistanceLocation = glGetUniformLocation(program.getProgramId(), "skyboxRatio");
+	isShadowOnLocation = glGetUniformLocation(program.getProgramId(), "isShadowOn");
+	useNormalMapLocation = glGetUniformLocation(program.getProgramId(), "useNormalMap");
+	isGlowOnLocation = glGetUniformLocation(program.getProgramId(), "isGlowOn");
+	depthLocation = glGetUniformLocation(program.getProgramId(), "depth");
+
+	sunTextureLocation = glGetUniformLocation(program.getProgramId(), "sunTexture");
+	earthTextureLocation = glGetUniformLocation(program.getProgramId(), "earthTexture");
+	earthNormalMapLocation = glGetUniformLocation(program.getProgramId(), "earthNormalMap");
+	moonTextureLocation = glGetUniformLocation(program.getProgramId(), "moonTexture");
+	moonNormalMapLocation = glGetUniformLocation(program.getProgramId(), "moonNormalMap");
+	groundTextureLocation = glGetUniformLocation(program.getProgramId(), "groundTexture");
+	skyboxTextureBackLocation = glGetUniformLocation(program.getProgramId(), "skyboxTextureBack");
+	skyboxTextureDownLocation = glGetUniformLocation(program.getProgramId(), "skyboxTextureDown");
+	skyboxTextureFrontLocation = glGetUniformLocation(program.getProgramId(), "skyboxTextureFront");
+	skyboxTextureLeftLocation = glGetUniformLocation(program.getProgramId(), "skyboxTextureLeft");
+	skyboxTextureRightLocation = glGetUniformLocation(program.getProgramId(), "skyboxTextureRight");
+	skyboxTextureUpLocation = glGetUniformLocation(program.getProgramId(), "skyboxTextureUp");
+
+	colorModeInTernary0Location = glGetUniformLocation(program.getProgramId(), "colorModeInTernary[0]");
+	colorModeInTernary1Location = glGetUniformLocation(program.getProgramId(), "colorModeInTernary[1]");
+	colorModeInTernary2Location = glGetUniformLocation(program.getProgramId(), "colorModeInTernary[2]");
 
 	//
 	// Creating a square on the XY plane
@@ -398,10 +496,10 @@ void CMyApp::Render()
 	//
 	// Moving specific spheres on a circle-shape
 	//
-	spheres[1] = glm::vec4(2 * sinf(time / 2), 0, 2 * cosf(time / 2), 0.26);
-	spheres[2] = glm::vec4(2.5* cos(time / 3), 0, 2.5 * sinf(time / 3), 0.18);
-	spheres[3] = glm::vec4(5 * cosf(time / 5), 0, 5 * sinf(time / 5), 0.366);
-	spheres[4] = glm::vec4(5 * cosf(time / 5) + 1.0*cos(2 * time), 0, 5 * sinf(time / 5) + 1.0*sinf(2 * time), 0.1);
+	spheres[1].vec = glm::vec4(2 * sinf(time / 2), 0, 2 * cosf(time / 2), 0.26);
+	spheres[2].vec = glm::vec4(2.5* cos(time / 3), 0, 2.5 * sinf(time / 3), 0.18);
+	spheres[3].vec = glm::vec4(5 * cosf(time / 5), 0, 5 * sinf(time / 5), 0.366);
+	spheres[4].vec = glm::vec4(5 * cosf(time / 5) + 1.0*cos(2 * time), 0, 5 * sinf(time / 5) + 1.0*sinf(2 * time), 0.1);
 	//
 	// Get momentous data from camera
 	//
@@ -412,129 +510,94 @@ void CMyApp::Render()
 	//
 	// Pass uniform variables to GPU
 	//
-	program.SetUniform("eye", eye);
-	program.SetUniform("up", up);
-	program.SetUniform("fw", fw);
-	program.SetUniform("right", right);
-	program.SetUniform("ratio", camera.GetRatio());
-	program.SetUniform("time", time);
-	program.SetUniform("skyboxRatio", (float)skyboxDistance * 2);
-	program.SetUniform("isShadowOn", isShadowOn);
-	program.SetUniform("useNormalMap", useNormalMap);
-	program.SetUniform("isGlowOn", isGlowOn);
-	program.SetUniform("depth", depth); // --> bounces count
+	program.SetUniform(eyeLocation, eye);
+	program.SetUniform(upLocation, up);
+	program.SetUniform(fwLocation, fw);
+	program.SetUniform(rightLocation, right);
+	program.SetUniform(ratioLocation, camera.GetRatio());
+	program.SetUniform(timeLocation, time);
+	program.SetUniform(skyboxDistanceLocation, (float)(2.0*skyboxDistance));
+	program.SetUniform(isShadowOnLocation, isShadowOn);
+	program.SetUniform(useNormalMapLocation, useNormalMap);
+	program.SetUniform(isGlowOnLocation, isGlowOn);
+	program.SetUniform(depthLocation, depth); // --> bounces count
 	//
 	// Pass lights to GPU
 	//
 	for (int i = 0; i < lightsCount; ++i)
 	{
-		char buffer[50];
-		sprintf(buffer, "lights[%i].pos", i);
-		program.SetUniform(buffer, lights[i].pos);
-		sprintf(buffer, "lights[%i].col", i);
-		program.SetUniform(buffer, lights[i].col);
+		program.SetUniform(lights[i].colLocation, lights[i].col);
+		program.SetUniform(lights[i].posLocation, lights[i].pos);
 	}
 	//
 	// Pass spheres to GPU
 	//
 	for (int i = 0; i < spheresCount; ++i)
 	{
-		char buffer[50];
-		sprintf(buffer, "spheres[%i]", i);
-		program.SetUniform(buffer, spheres[i]);
+		program.SetUniform(spheres[i].Location, spheres[i].vec);
 	}
 	//
 	// Pass triangles to GPU (3 vec3)
 	//
 	for (int i = 0; i < trianglesCount; ++i)
 	{
-		char buffer[50];
-		sprintf(buffer, "triangles[%i].A", i);
-		program.SetUniform(buffer, triangles[i].A);
-
-		sprintf(buffer, "triangles[%i].B", i);
-		program.SetUniform(buffer, triangles[i].B);
-
-		sprintf(buffer, "triangles[%i].C", i);
-		program.SetUniform(buffer, triangles[i].C);
+		program.SetUniform(triangles[i].ALocation, triangles[i].A);
+		program.SetUniform(triangles[i].BLocation, triangles[i].B);
+		program.SetUniform(triangles[i].CLocation, triangles[i].C);
 	}
 	//
 	// Pass ground to GPU (disc)
 	//
-	program.SetUniform("ground.o", ground.o);
-	program.SetUniform("ground.n", ground.n);
-	program.SetUniform("ground.r", ground.r);
+	program.SetUniform(ground.oLocation, ground.o);
+	program.SetUniform(ground.nLocation, ground.n);
+	program.SetUniform(ground.rLocation, ground.r);
 	//
 	// Pass torus to GPU (vec2)
 	//
-	program.SetUniform("torus", torus);
+	program.SetUniform(torus.Location, torus.vec);
 	//
 	// Pass skybox to GPU (planes)
 	//
-	program.SetUniform("skyboxBack.n",  skyboxBack.n);
-	program.SetUniform("skyboxBack.q",  skyboxBack.q);
+	program.SetUniform(skyboxBack.nLocation,  skyboxBack.n);
+	program.SetUniform(skyboxBack.qLocation,  skyboxBack.q);
 
-	program.SetUniform("skyboxDown.n",  skyboxDown.n);
-	program.SetUniform("skyboxDown.q",  skyboxDown.q);
+	program.SetUniform(skyboxDown.nLocation,  skyboxDown.n);
+	program.SetUniform(skyboxDown.qLocation,  skyboxDown.q);
 
-	program.SetUniform("skyboxFront.n", skyboxFront.n);
-	program.SetUniform("skyboxFront.q", skyboxFront.q);
+	program.SetUniform(skyboxFront.nLocation, skyboxFront.n);
+	program.SetUniform(skyboxFront.qLocation, skyboxFront.q);
 
-	program.SetUniform("skyboxLeft.n",  skyboxLeft.n);
-	program.SetUniform("skyboxLeft.q",  skyboxLeft.q);
+	program.SetUniform(skyboxLeft.nLocation,  skyboxLeft.n);
+	program.SetUniform(skyboxLeft.qLocation,  skyboxLeft.q);
 
-	program.SetUniform("skyboxRight.n", skyboxRight.n);
-	program.SetUniform("skyboxRight.q", skyboxRight.q);
+	program.SetUniform(skyboxRight.nLocation, skyboxRight.n);
+	program.SetUniform(skyboxRight.qLocation, skyboxRight.q);
 
-	program.SetUniform("skyboxUp.n",    skyboxUp.n);
-	program.SetUniform("skyboxUp.q",    skyboxUp.q);
+	program.SetUniform(skyboxUp.nLocation,    skyboxUp.n);
+	program.SetUniform(skyboxUp.qLocation,    skyboxUp.q);
 	//
 	// Pass textures to GPU
 	//
-	program.SetTexture("sunTexture",          0, sunTexture);
-	program.SetTexture("earthTexture",        1, earthTexture);
-	program.SetTexture("earthNormalMap",      2, earthNormalMap);
-	program.SetTexture("moonTexture",         3, moonTexture);
-	program.SetTexture("moonNormalMap",       4, moonNormalMap);
-	program.SetTexture("groundTexture",       5, groundTexture);
-	program.SetTexture("skyboxTextureBack",   6, skyboxTextureBack);
-	program.SetTexture("skyboxTextureDown",   7, skyboxTextureDown);
-	program.SetTexture("skyboxTextureFront",  8, skyboxTextureFront);
-	program.SetTexture("skyboxTextureLeft",   9, skyboxTextureLeft);
-	program.SetTexture("skyboxTextureRight", 10, skyboxTextureRight);
-	program.SetTexture("skyboxTextureUp",    11, skyboxTextureUp);
-	//
-	// Pass materials to GPU
-	//
-	/*
-	for (int i = 0; i < materialsCount; ++i)
-	{
-		char buffer[50];
-		sprintf(buffer, "materials[%i].amb", i);
-		program.SetUniform(buffer,  materials[i].amb);
-		sprintf(buffer, "materials[%i].dif", i);
-		program.SetUniform(buffer,  materials[i].dif);
-		sprintf(buffer, "materials[%i].spec", i);
-		program.SetUniform(buffer, materials[i].spec);
-		sprintf(buffer, "materials[%i].pow", i);
-		program.SetUniform(buffer,  materials[i].pow);
-		sprintf(buffer, "materials[%i].reflective", i);
-		program.SetUniform(buffer, materials[i].reflective);
-		sprintf(buffer, "materials[%i].refractive", i);
-		program.SetUniform(buffer, materials[i].refractive);
-		sprintf(buffer, "materials[%i].f0", i);
-		program.SetUniform(buffer, materials[i].f0);
-		sprintf(buffer, "materials[%i].n", i);
-		program.SetUniform(buffer, materials[i].n);
-	}
-	*/
+	program.SetTexture(sunTextureLocation,          0, sunTexture);
+	program.SetTexture(earthTextureLocation,        1, earthTexture);
+	program.SetTexture(earthNormalMapLocation,      2, earthNormalMap);
+	program.SetTexture(moonTextureLocation,         3, moonTexture);
+	program.SetTexture(moonNormalMapLocation,       4, moonNormalMap);
+	program.SetTexture(groundTextureLocation,       5, groundTexture);
+	program.SetTexture(skyboxTextureBackLocation,   6, skyboxTextureBack);
+	program.SetTexture(skyboxTextureDownLocation,   7, skyboxTextureDown);
+	program.SetTexture(skyboxTextureFrontLocation,  8, skyboxTextureFront);
+	program.SetTexture(skyboxTextureLeftLocation,   9, skyboxTextureLeft);
+	program.SetTexture(skyboxTextureRightLocation, 10, skyboxTextureRight);
+	program.SetTexture(skyboxTextureUpLocation,    11, skyboxTextureUp);
+
 	//
 	// Pass color mode to GPU
 	//
-	program.SetUniform("colorModeInTernary[0]", colorModeInTernary[0]);
-	program.SetUniform("colorModeInTernary[1]", colorModeInTernary[1]);
-	program.SetUniform("colorModeInTernary[2]", colorModeInTernary[2]);
-	
+	program.SetUniform(colorModeInTernary0Location, colorModeInTernary[0]);
+	program.SetUniform(colorModeInTernary1Location, colorModeInTernary[1]);
+	program.SetUniform(colorModeInTernary2Location, colorModeInTernary[2]);
+
 
 
 	//

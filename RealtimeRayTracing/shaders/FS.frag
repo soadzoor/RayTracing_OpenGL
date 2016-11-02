@@ -4,7 +4,7 @@
 #define PI 3.14159265359
 #define STACK_SIZE 8
 #define spheresCount 110
-#define trianglesCount 38
+#define trianglesCount 14
 #define discsCount 1
 #define toriCount 1
 #define skyboxCount 6
