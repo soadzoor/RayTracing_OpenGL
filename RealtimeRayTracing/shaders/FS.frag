@@ -72,7 +72,6 @@ struct HitRec
 };
 
 uniform vec4 spheres[spheresCount];
-//vec2 torus = vec2(1.0, 0.25);
 uniform float time;
 
 Light light0 = Light(vec3(1.0), vec3(0.0));
@@ -111,14 +110,33 @@ Material material8  = Material(vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.
 Material material9  = Material(vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.0), 70.0, true, true, vec3(0.04), 1.5); // glass sphere
 Material material10 = Material(vec3(0.0, 0.0, 0.0), vec3(0.01, 0.01, 0.01), vec3(0.8), 120.0, false, true, vec3(0.9691, 0.90355, 0.952236), 1.0); // triangle 1, 2
 Material material12 = Material(vec3(0.0, 0.0, 0.0), vec3(0.3, 0.34, 0.36), vec3(0.8), 60.0, false, false, vec3(0.0), 1.0);                        // ground
-//Material material13 = Material(vec3(0.0, 0.0, 0.4), vec3(0.0, 0.0, 0.4), vec3(0.8), 30.0, false, false, vec3(0.0), 1.0);                          //torus
 Material material14 = Material(vec3(0.5), vec3(0.5), vec3(0.5), 20.0, false, false, vec3(0.0), 1.0);
+
+
+Material getMaterial(in int i)
+{
+    if (i == 0)  return material0;
+    if (i == 1)  return material1;
+    if (i == 2)  return material2;
+    if (i == 3)  return material3;
+    if (i == 4)  return material4;
+    if (i == 5)  return material5;
+    if (i == 6)  return material5;   // same material
+    if (i == 7)  return material7;
+    if (i == 8)  return material8;   // gold
+    if (i == 9)  return material9;   // glass
+	if (i >= 10 && i < spheresCount) return material10;
+	if (i == spheresCount || i == spheresCount+1) return material10;
+	if (i == spheresCount+trianglesCount) return material12;
+	if (i > spheresCount+trianglesCount+1) return material14;
+	else return material0;
+}
+
 
 uniform int depth;
 uniform bool isShadowOn;
 uniform bool useNormalMap;
 uniform bool isGlowOn;
-//uniform bool showTorus;
 
 uniform int colorModeInTernary[3];
 
@@ -281,101 +299,6 @@ bool intersectDisc(in Ray ray, in Disc disc, out HitRec hitRec, in int ind)
 	return false;
 }
 
-/*
-bool intersectTorus(in Ray ray, in vec2 torus, out HitRec hitRec, in int ind)
-{
-	ray.origin.z -= 40.0;
-	float Ra2 = torus.x*torus.x;
-	float ra2 = torus.y*torus.y;
-	
-	float m = dot(ray.origin, ray.origin);
-	float n = dot(ray.origin, ray.dir);
-		
-	float k = (m - ra2 - Ra2)/2.0;
-	float a = n;
-	float b = n*n + Ra2*ray.dir.y*ray.dir.y + k;
-	float c = k*n + Ra2*ray.origin.y*ray.dir.y;
-	float d = k*k + Ra2*ray.origin.y*ray.origin.y - Ra2*ra2;
-	
-    //----------------------------------
-
-	float p = -3.0*a*a     + 2.0*b;
-	float q =  2.0*a*a*a   - 2.0*a*b   + 2.0*c;
-	float r = -3.0*a*a*a*a + 4.0*a*a*b - 8.0*a*c + 4.0*d;
-	p /= 3.0;
-	r /= 3.0;
-	float Q = p*p + r;
-	float R = 3.0*r*p - p*p*p - q*q;
-	
-	float h = R*R - Q*Q*Q;
-	float z = 0.0;
-	if( h < 0.0 )
-	{
-		float sQ = sqrt(Q);
-		z = 2.0*sQ*cos( acos((R/(sQ*Q))) / 3.0 );
-	}
-	else
-	{
-		float sQ = pow( sqrt(h) + abs(R), 1.0/3.0 );
-		z = sign(R)*abs( sQ + Q/sQ );
-
-	}
-	
-	z = p - z;
-	
-    //----------------------------------
-	
-	float d1 = z   - 3.0*p;
-	float d2 = z*z - 3.0*r;
-
-	if( abs(d1)<EPSILON )
-	{
-		if( d2<0.0 ) return false;
-		d2 = sqrt(d2);
-	}
-	else
-	{
-		if( d1<0.0 ) return false;
-		d1 = sqrt( d1/2.0 );
-		d2 = q/d1;
-	}
-
-    //----------------------------------
-	
-	float result = 1e20;
-
-	h = d1*d1 - z + d2;
-	if( h>0.0 )
-	{
-		h = sqrt(h);
-		float t1 = -d1 - h - a;
-		float t2 = -d1 + h - a;
-		     if( t1>0.0 ) result=t1;
-		else if( t2>0.0 ) result=t2;
-	}
-
-	h = d1*d1 - z - d2;
-	if( h>0.0 )
-	{
-		h = sqrt(h);
-		float t1 = d1 - h - a;
-		float t2 = d1 + h - a;
-		     if( t1>0.0 ) result=min(result,t1);
-		else if( t2>0.0 ) result=min(result,t2);
-	}
-	
-    if (result > 0.0 && result < 100.0) //hit
-    {
-        hitRec.t = result;
-        hitRec.point = ray.origin + hitRec.t*ray.dir;
-		hitRec.ind = ind;
-        hitRec.normal = normalize( hitRec.point*(dot(hitRec.point,hitRec.point)- torus.y*torus.y - torus.x*torus.x*vec3(1.0,-1.0,1.0)));
-        return true;
-    }
-	return false;
-}
-*/
-
 vec3 glow(in float d, in vec3 glow)
 {
 	return glow*clamp((2.0/(0.5 + d*d)), 0.0, 1.0);
@@ -427,16 +350,7 @@ bool findClosest(in Ray ray, inout HitRec hitRec)
 			hitRec = hitTemp;
 		}
 		hit = true;
-	}/*
-	if (showTorus ? intersectTorus(ray, torus, hitTemp, spheresCount + trianglesCount + 1) : false)
-	{
-		if (hitTemp.t < minT || minT < 0.0)
-		{
-			minT = hitTemp.t;
-			hitRec = hitTemp;
-		}
-		hit = true;
-	}*/
+	}
 	if (intersectPlane(ray, skyboxBack, hitTemp, spheresCount + trianglesCount + 2))
 	{
 		if (hitTemp.t < minT || minT < 0.0)
@@ -493,27 +407,6 @@ bool findClosest(in Ray ray, inout HitRec hitRec)
 	}
 
 	return hit;
-}
-
-
-Material getMaterial(in int i)
-{
-    if (i == 0)  return material0;
-    if (i == 1)  return material1;
-    if (i == 2)  return material2;
-    if (i == 3)  return material3;
-    if (i == 4)  return material4;
-    if (i == 5)  return material5;
-    if (i == 6)  return material5;   // same material
-    if (i == 7)  return material7;
-    if (i == 8)  return material8;   // gold
-    if (i == 9)  return material9;   // glass
-	if (i >= 10 && i < spheresCount) return material10;
-	if (i == spheresCount || i == spheresCount+1) return material10;
-	if (i == spheresCount+trianglesCount) return material12;
-	//if (i == spheresCount+3) return material13;
-	if (i > spheresCount+trianglesCount+1) return material14;
-	else return material0;
 }
 
 vec3 shade(in HitRec closestHit, in Ray ray) //Blinn-Phong
@@ -626,10 +519,8 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 	vec3 coeff = vec3(1.0);
 	bool continueLoop = true;
 
-	for (int i = 0; i < STACK_SIZE; ++i)
-	{
-        if (!continueLoop) break;
-        
+	while(continueLoop)
+	{    
 		if(findClosest(ray, closestHit))
 		{
 			u = 0.5 - atan(-closestHit.normal.z, -closestHit.normal.x)/(2.0*PI);
