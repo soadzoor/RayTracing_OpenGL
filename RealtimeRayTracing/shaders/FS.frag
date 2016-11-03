@@ -766,10 +766,6 @@ vec3 trace(in Ray ray) //https://www.cg.tuwien.ac.at/research/publications/2013/
 					{
 						continueLoop = false;
 					}
-					if (closestHit.ind == 3 && !hitWater)
-					{
-						continueLoop = false;
-					}
 				}
 			}
 			else //diffuse material
