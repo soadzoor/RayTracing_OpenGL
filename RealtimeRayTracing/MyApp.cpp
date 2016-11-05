@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include <GL/GLU.h>
+#include <GL/glu.h>
 #include <math.h>
 
 CMyApp::CMyApp(void)
