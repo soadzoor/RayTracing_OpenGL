@@ -31,7 +31,7 @@ bool gShaderProgram::AttachShader( GLenum _shaderType,  const char* _filename )
 		{
 			if ( m_verbose )
 			{
-				std::cout << "Hiba a shader program létrehozásakor" << std::endl;
+				std::cout << "Error while creating shader program!" << std::endl;
 			}
 			return false;
 		}
@@ -98,7 +98,7 @@ GLuint gShaderProgram::loadShader(GLenum _shaderType, const char* _fileName)
 	if ( loadedShader == 0 )
 	{
 		if (m_verbose)
-			fprintf(stderr, "Hiba a shader inicializálásakor (glCreateShader)!", _fileName);
+			fprintf(stderr, "Error while initializing shader program: %s", _fileName);
 		return 0;
 	}
 	
@@ -111,7 +111,7 @@ GLuint gShaderProgram::loadShader(GLenum _shaderType, const char* _fileName)
 	if ( !shaderStream.is_open() )
 	{
 		if (m_verbose)
-			fprintf(stderr, "Hiba a %s shader fájl betöltésekor!", _fileName);
+			fprintf(stderr, "Error while loading shader file: %s", _fileName);
 		return 0;
 	}
 
@@ -147,7 +147,7 @@ GLuint gShaderProgram::loadShader(GLenum _shaderType, const char* _fileName)
 			std::vector<char> VertexShaderErrorMessage(infoLogLength);
 			glGetShaderInfoLog(loadedShader, infoLogLength, NULL, &VertexShaderErrorMessage[0]);
 
-			std::cout << "Hiba: " << &VertexShaderErrorMessage[0] << std::endl;
+			std::cout << "Error: " << &VertexShaderErrorMessage[0] << std::endl;
 			//fprintf(stdout, "%s\n", &VertexShaderErrorMessage[0]);
 		}
 		loadedShader = 0;
@@ -166,12 +166,12 @@ void gShaderProgram::BindFragDataLoc(int _index, const char* _uniform)
 	glBindFragDataLocation(m_id_program, _index, _uniform);
 }
 
-void gShaderProgram::SetUniform(GLint loc, glm::vec2& _vec)
+void gShaderProgram::SetUniform(GLint loc, const glm::vec2& _vec)
 {
 	glUniform2fv( loc, 1, &_vec[0] );
 }
 
-void gShaderProgram::SetUniform(GLint loc, glm::vec3& _vec)
+void gShaderProgram::SetUniform(GLint loc, const glm::vec3& _vec)
 {
 	glUniform3fv( loc, 1, &_vec[0] );
 }
@@ -201,12 +201,12 @@ void gShaderProgram::SetUniform(GLint loc, float _a, float _b, float _c, float _
 }
 
 
-void gShaderProgram::SetUniform(GLint loc, glm::vec4& _vec)
+void gShaderProgram::SetUniform(GLint loc, const glm::vec4& _vec)
 {
 	glUniform4fv( loc, 1, &_vec[0] );
 }
 
-void gShaderProgram::SetUniform(GLint loc, glm::mat4& _mat)
+void gShaderProgram::SetUniform(GLint loc, const glm::mat4& _mat)
 {
 	glUniformMatrix4fv( loc, 1, GL_FALSE, &(_mat[0][0]) );
 }

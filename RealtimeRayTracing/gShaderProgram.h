@@ -28,10 +28,10 @@ public:
 
 	void Clean();
 
-	void SetUniform(GLint loc, glm::vec2& _vec);
-	void SetUniform(GLint loc, glm::vec3& _vec);
-	void SetUniform(GLint loc, glm::vec4& _vec);
-	void SetUniform(GLint loc, glm::mat4& _mat);
+	void SetUniform(GLint loc, const glm::vec2& _vec);
+	void SetUniform(GLint loc, const glm::vec3& _vec);
+	void SetUniform(GLint loc, const glm::vec4& _vec);
+	void SetUniform(GLint loc, const glm::mat4& _mat);
 	void SetUniform(GLint loc, int _i);
 	void SetUniform(GLint loc, float _f);
 	void SetUniform(GLint loc, float _a, float _b, float _c, float _d);
