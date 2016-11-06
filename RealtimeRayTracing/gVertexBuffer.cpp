@@ -55,20 +55,20 @@ void gVertexBuffer::AddData(int _idx, float _x, float _y, float _z, float _w)
 	m_values[_idx].push_back(_w);
 }
 
-void gVertexBuffer::AddData(int _idx, glm::vec2& _v)
+void gVertexBuffer::AddData(int _idx, const glm::vec2& _v)
 {
 	m_values[_idx].push_back(_v.x);
 	m_values[_idx].push_back(_v.y);
 }
 
-void gVertexBuffer::AddData(int _idx, glm::vec3& _v)
+void gVertexBuffer::AddData(int _idx, const glm::vec3& _v)
 {
 	m_values[_idx].push_back(_v.x);
 	m_values[_idx].push_back(_v.y);
 	m_values[_idx].push_back(_v.z);
 }
 
-void gVertexBuffer::AddData(int _idx, glm::vec4& _v)
+void gVertexBuffer::AddData(int _idx, const glm::vec4& _v)
 {
 	m_values[_idx].push_back(_v.x);
 	m_values[_idx].push_back(_v.y);
