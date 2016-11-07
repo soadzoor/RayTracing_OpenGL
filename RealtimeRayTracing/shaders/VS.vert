@@ -1,4 +1,13 @@
 #version 120
+
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+	precision highp float;
+#elif GL_FRAGMENT_PRECISION_MEDIUM
+	precision mediump float;
+#else
+	precision lowp float;
+#endif
+
 // VBO-ból érkezõ változók
 attribute vec3 vertPosition;
 
