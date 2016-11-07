@@ -370,19 +370,19 @@ bool CMyApp::Init()
 	//
 	// Loading textures
 	//
-	sunTexture     = TextureFromFile("textures/sun.png");
-	earthTexture   = TextureFromFile("textures/earth.png");
-	earthNormalMap = TextureFromFile("textures/earthNormal.png");
-	moonTexture    = TextureFromFile("textures/moon.png");
-	moonNormalMap  = TextureFromFile("textures/moonNormal.png");
+	sunTexture     = TextureFromFile("textures/sun.jpg");
+	earthTexture   = TextureFromFile("textures/earth.jpg");
+	earthNormalMap = TextureFromFile("textures/earthNormal.jpg");
+	moonTexture    = TextureFromFile("textures/moon.jpg");
+	moonNormalMap  = TextureFromFile("textures/moonNormal.jpg");
 	groundTexture  = TextureFromFile("textures/grid.bmp"); //repeating
 	
-	skyboxTextureBack  = TextureFromFile("textures/skybox/backImage.png", true);
-	skyboxTextureDown  = TextureFromFile("textures/skybox/downImage.png", true);
-	skyboxTextureFront = TextureFromFile("textures/skybox/frontImage.png", true);
-	skyboxTextureLeft  = TextureFromFile("textures/skybox/leftImage.png", true);
-	skyboxTextureRight = TextureFromFile("textures/skybox/rightImage.png", true);
-	skyboxTextureUp    = TextureFromFile("textures/skybox/upImage.png", true);
+	skyboxTextureBack  = TextureFromFile("textures/skybox/backImage.jpg", true);
+	skyboxTextureDown  = TextureFromFile("textures/skybox/downImage.jpg", true);
+	skyboxTextureFront = TextureFromFile("textures/skybox/frontImage.jpg", true);
+	skyboxTextureLeft  = TextureFromFile("textures/skybox/leftImage.jpg", true);
+	skyboxTextureRight = TextureFromFile("textures/skybox/rightImage.jpg", true);
+	skyboxTextureUp    = TextureFromFile("textures/skybox/upImage.jpg", true);
 
 	//
 	// Getting uniform locations
