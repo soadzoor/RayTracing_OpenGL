@@ -168,10 +168,10 @@ int main( int argc, char* args[] )
 					}
 				}
 					
-				app.KeyboardDown(ev.key);
+				if (ev.key.repeat == 0) app.KeyboardDown(ev.key);
 				break;
 			case SDL_KEYUP:
-				app.KeyboardUp(ev.key);
+				if (ev.key.repeat == 0) app.KeyboardUp(ev.key);
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 				app.MouseDown(ev.button);
