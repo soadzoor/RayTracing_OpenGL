@@ -5,7 +5,7 @@
 
 ## Compile from source on Linux
 On debian-based systems (like ubuntu, xubuntu, etc...):  
-Clone project, or download as zip, extract project folder, then run "install.sh". That should take care of everything (like installing dependencies, compiling source, etc). Tested on freshly installed Ubuntu (16.04 LTS) and Xubuntu (16.04 LTS).  
+Clone project, or download as zip, extract project folder, then run "install.sh". That should take care of everything (like installing dependencies, compiling source, etc). Tested on freshly installed Ubuntu (16.04 LTS), Debian (8.6) and Xubuntu (16.04 LTS).  
 If you're using another distro, you should manually follow the commands line by line from "install.sh" (replace them with the appropriate commands based on your distribution).  
 
 ## Compile from source on Windows
