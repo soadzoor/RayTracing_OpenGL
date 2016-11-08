@@ -21,7 +21,6 @@ You can move with "WASD" and look around with your mouse, but you have to hold t
 "p": pause moving objects  
 "n": toggle normalmaps  
 "1": toggle shadows  
-"t": toggle torus  
 "g": toggle sunglow  
 "v": toggle vsync  
 "left arrow": decrease ray depth  
