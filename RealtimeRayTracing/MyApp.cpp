@@ -42,8 +42,8 @@ bool CMyApp::Init()
 	//
 	// Loading shaders
 	//
-	program.AttachShader(GL_VERTEX_SHADER, "shaders/VS.vert");
-	program.AttachShader(GL_FRAGMENT_SHADER, "shaders/FS.frag");
+	program.AttachShader(GL_VERTEX_SHADER, "shaders/VS_optimized.vert");
+	program.AttachShader(GL_FRAGMENT_SHADER, "shaders/FS_optimized.frag");
 
 	program.BindAttribLoc(0, "vertPosition");
 
