@@ -906,7 +906,7 @@ void main ()
                               tmpvar_197 = Material(vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), 70.0, bool(1), bool(1), vec3(0.04, 0.04, 0.04), 1.5);
                             } else {
                               if ((tmpvar_17 == 124)) {
-                                tmpvar_197 = Material(vec3(0.0, 0.0, 0.0), vec3(0.3, 0.34, 0.36), vec3(0.8, 0.8, 0.8), 60.0, bool(0), bool(0), vec3(0.0, 0.0, 0.0), 1.0);
+                                tmpvar_197 = Material(vec3(0.25, 0.25, 0.25), vec3(0.3, 0.34, 0.36), vec3(0.8, 0.8, 0.8), 60.0, bool(0), bool(0), vec3(0.0, 0.0, 0.0), 1.0);
                               } else {
                                 if ((tmpvar_17 == 125)) {
                                   tmpvar_197 = Material(vec3(0.0, 0.0, 0.4), vec3(0.0, 0.0, 0.4), vec3(0.8, 0.8, 0.8), 30.0, bool(0), bool(0), vec3(0.0, 0.0, 0.0), 1.0);
@@ -993,7 +993,7 @@ void main ()
                                 tmpvar_208 = Material(vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), 70.0, bool(1), bool(1), vec3(0.04, 0.04, 0.04), 1.5);
                               } else {
                                 if ((tmpvar_17 == 124)) {
-                                  tmpvar_208 = Material(vec3(0.0, 0.0, 0.0), vec3(0.3, 0.34, 0.36), vec3(0.8, 0.8, 0.8), 60.0, bool(0), bool(0), vec3(0.0, 0.0, 0.0), 1.0);
+                                  tmpvar_208 = Material(vec3(0.25, 0.25, 0.25), vec3(0.3, 0.34, 0.36), vec3(0.8, 0.8, 0.8), 60.0, bool(0), bool(0), vec3(0.0, 0.0, 0.0), 1.0);
                                 } else {
                                   if ((tmpvar_17 == 125)) {
                                     tmpvar_208 = Material(vec3(0.0, 0.0, 0.4), vec3(0.0, 0.0, 0.4), vec3(0.8, 0.8, 0.8), 30.0, bool(0), bool(0), vec3(0.0, 0.0, 0.0), 1.0);
@@ -1068,7 +1068,7 @@ void main ()
                                   tmpvar_212 = Material(vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), 70.0, bool(1), bool(1), vec3(0.04, 0.04, 0.04), 1.5);
                                 } else {
                                   if ((tmpvar_199 == 124)) {
-                                    tmpvar_212 = Material(vec3(0.0, 0.0, 0.0), vec3(0.3, 0.34, 0.36), vec3(0.8, 0.8, 0.8), 60.0, bool(0), bool(0), vec3(0.0, 0.0, 0.0), 1.0);
+                                    tmpvar_212 = Material(vec3(0.25, 0.25, 0.25), vec3(0.3, 0.34, 0.36), vec3(0.8, 0.8, 0.8), 60.0, bool(0), bool(0), vec3(0.0, 0.0, 0.0), 1.0);
                                   } else {
                                     if ((tmpvar_199 == 125)) {
                                       tmpvar_212 = Material(vec3(0.0, 0.0, 0.4), vec3(0.0, 0.0, 0.4), vec3(0.8, 0.8, 0.8), 30.0, bool(0), bool(0), vec3(0.0, 0.0, 0.0), 1.0);
@@ -1133,7 +1133,7 @@ void main ()
                                   tmpvar_214 = Material(vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), 70.0, bool(1), bool(1), vec3(0.04, 0.04, 0.04), 1.5);
                                 } else {
                                   if ((tmpvar_199 == 124)) {
-                                    tmpvar_214 = Material(vec3(0.0, 0.0, 0.0), vec3(0.3, 0.34, 0.36), vec3(0.8, 0.8, 0.8), 60.0, bool(0), bool(0), vec3(0.0, 0.0, 0.0), 1.0);
+                                    tmpvar_214 = Material(vec3(0.25, 0.25, 0.25), vec3(0.3, 0.34, 0.36), vec3(0.8, 0.8, 0.8), 60.0, bool(0), bool(0), vec3(0.0, 0.0, 0.0), 1.0);
                                   } else {
                                     if ((tmpvar_199 == 125)) {
                                       tmpvar_214 = Material(vec3(0.0, 0.0, 0.4), vec3(0.0, 0.0, 0.4), vec3(0.8, 0.8, 0.8), 30.0, bool(0), bool(0), vec3(0.0, 0.0, 0.0), 1.0);
@@ -1196,7 +1196,7 @@ void main ()
                                   tmpvar_215 = Material(vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), 70.0, bool(1), bool(1), vec3(0.04, 0.04, 0.04), 1.5);
                                 } else {
                                   if ((tmpvar_199 == 124)) {
-                                    tmpvar_215 = Material(vec3(0.0, 0.0, 0.0), vec3(0.3, 0.34, 0.36), vec3(0.8, 0.8, 0.8), 60.0, bool(0), bool(0), vec3(0.0, 0.0, 0.0), 1.0);
+                                    tmpvar_215 = Material(vec3(0.25, 0.25, 0.25), vec3(0.3, 0.34, 0.36), vec3(0.8, 0.8, 0.8), 60.0, bool(0), bool(0), vec3(0.0, 0.0, 0.0), 1.0);
                                   } else {
                                     if ((tmpvar_199 == 125)) {
                                       tmpvar_215 = Material(vec3(0.0, 0.0, 0.4), vec3(0.0, 0.0, 0.4), vec3(0.8, 0.8, 0.8), 30.0, bool(0), bool(0), vec3(0.0, 0.0, 0.0), 1.0);
@@ -1730,4 +1730,3 @@ void main ()
   tmpvar_317.z = color_14[colorModeInTernary[2]];
   gl_FragColor = tmpvar_317;
 }
-
